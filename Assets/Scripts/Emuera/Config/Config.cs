@@ -17,8 +17,10 @@ namespace MinorShift.Emuera
 
         #region config
 
-        public static Encoding Encode = Encoding.GetEncoding(932);      //"SHIFT-JIS"
-        public static Encoding SaveEncode = Encoding.GetEncoding(932);  //"SHIFT-JIS"
+        //public static Encoding Encode = Encoding.GetEncoding(932);      //"SHIFT-JIS"
+        //public static Encoding SaveEncode = Encoding.GetEncoding(932);  //"SHIFT-JIS"
+        public static Encoding Encode = Encoding.UTF8;
+        public static Encoding SaveEncode = Encoding.UTF8;
 
         private static Dictionary<ConfigCode, string> nameDic = null;
 		public static string GetConfigName(ConfigCode code)
@@ -114,7 +116,7 @@ namespace MinorShift.Emuera
 			SystemAllowFullSpace = instance.GetConfigValue<bool>(ConfigCode.SystemAllowFullSpace);
 			SystemSaveInUTF8 = instance.GetConfigValue<bool>(ConfigCode.SystemSaveInUTF8);
 			if (SystemSaveInUTF8)
-				SaveEncode = Encoding.GetEncoding("UTF-8");
+				SaveEncode = Encoding.UTF8;
 			SystemSaveInBinary = instance.GetConfigValue<bool>(ConfigCode.SystemSaveInBinary);
 			SystemIgnoreTripleSymbol = instance.GetConfigValue<bool>(ConfigCode.SystemIgnoreTripleSymbol);
 			
