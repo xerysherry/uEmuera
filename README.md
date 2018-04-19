@@ -17,7 +17,7 @@ Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台�
 如何使用：
 --------
 
-1. 请确保era相关文件编码为UTF8，包括\*.csv, \*.ERB, \*.ERH, __\*.config__。__特别注意\*.config文件，这个文件请一定保证编码为UTF8。__  是否BOM头无所谓。
+1. 请确保era相关文件编码为UTF8，包括\*.csv, \*.ERB, \*.ERH。
 
 2. 请在初次运行app时，选择允许“文件访问”的权限。
 

@@ -40,19 +40,18 @@ namespace uEmuera.Window
 
         public void clear_richText()
         {
-            uEmuera.Logger.Info("MainWindow.clear_richText");
-            throw new NotImplementedException();
+            //uEmuera.Logger.Info("MainWindow.clear_richText");
+            //throw new NotImplementedException();
         }
         public void Focus()
         {
-            uEmuera.Logger.Info("MainWindow.Focus");
-            throw new NotImplementedException();
+            //uEmuera.Logger.Info("MainWindow.Focus");
+            //throw new NotImplementedException();
         }
 
         public void Refresh()
         {
-            uEmuera.Logger.Info("MainWindow.Refresh");
-            //throw new NotImplementedException();
+            //uEmuera.Logger.Info("MainWindow.Refresh");
             dirty_ = true;
         }
 

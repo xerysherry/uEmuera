@@ -458,7 +458,14 @@ namespace MinorShift.Emuera
 					string[] tokens = line.Split(new char[] { ':' });
 					if (tokens.Length < 2)
 						continue;
-					AConfigItem item = GetConfigItem(tokens[0].Trim());
+                    var token_0 = tokens[0].Trim();
+                    AConfigItem item = GetConfigItem(token_0);
+                    if(item == null)
+                    {
+                        token_0 = uEmuera.Utils.SHIFTJIS_to_UTF8(token_0);
+                        if(!string.IsNullOrEmpty(token_0))
+                            item = GetConfigItem(token_0);
+                    }
 					if (item != null)
 					{
 						//1806beta001 CompatiDRAWLINEの廃止、CompatiLinefeedAs1739へ移行

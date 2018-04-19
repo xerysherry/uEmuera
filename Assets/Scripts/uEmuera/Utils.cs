@@ -29,6 +29,20 @@ namespace uEmuera
 
     public static class Utils
     {
+        public static void SetSHIFTJIS_to_UTF8Dict(Dictionary<string, string> dict)
+        {
+            shiftjis_to_utf8 = dict;
+        }
+        public static string SHIFTJIS_to_UTF8(string text)
+        {
+            if(shiftjis_to_utf8 == null)
+                return null;
+            string result = null;
+            shiftjis_to_utf8.TryGetValue(text, out result);
+            return result;
+        }
+        static Dictionary<string, string> shiftjis_to_utf8;
+
         /// <summary>
         /// 标准化目录
         /// </summary>

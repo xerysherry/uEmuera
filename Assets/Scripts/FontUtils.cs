@@ -6,8 +6,6 @@ public static class FontUtils
 {
     static readonly Dictionary<string, string> name_path_map = new Dictionary<string, string>
     {
-        {"宋体", "SimSun" },
-        {"SimSun", "SimSun" },
         {"ＭＳ ゴシック", "MS Gothic"},
         {"MS Gothic", "MS Gothic"},
         {"ＭＳ Ｐゴシック", "MS PGothic"},
@@ -15,16 +13,24 @@ public static class FontUtils
     };
     static readonly Dictionary<string, bool> name_monospaced_map = new Dictionary<string, bool>
     {
-        {"SimSun", true},
         {"MS Gothic", true},
         {"MS PGothic", false},
     };
 
     public static void SetDefaultFont(string fontname, bool monospaced)
     {
-        default_fontname = fontname;
         default_font = GetFont(fontname);
-        default_monospaced = monospaced;
+        if(default_font == null)
+        {
+            default_fontname = "ＭＳ ゴシック";
+            default_font = GetFont(default_fontname);
+            default_monospaced = GetMonospaced(default_fontname);
+        }
+        else
+        {
+            default_fontname = fontname;
+            default_monospaced = monospaced;
+        }
     }
 
     public static Font GetFont(string name)

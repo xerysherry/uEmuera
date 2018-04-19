@@ -32,13 +32,22 @@ namespace MinorShift.Emuera.Content
 				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.bmp", SearchOption.TopDirectoryOnly));
 				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.jpg", SearchOption.TopDirectoryOnly));
 				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.gif", SearchOption.TopDirectoryOnly));
-				foreach (var filename in bmpfilelist)
+#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+                bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.PNG", SearchOption.TopDirectoryOnly));
+				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.BMP", SearchOption.TopDirectoryOnly));
+				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.JPG", SearchOption.TopDirectoryOnly));
+				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.GIF", SearchOption.TopDirectoryOnly));
+#endif
+                foreach(var filename in bmpfilelist)
 				{//リスト化のみ。Loadはまだ
 					string name = Path.GetFileName(filename).ToUpper();
 					resourceDic.Add(name, new BaseImage(name, filename));
 				}
-				string[] csvFiles = Directory.GetFiles(Program.ContentDir, "*.csv", SearchOption.TopDirectoryOnly);
-				foreach (var filename in csvFiles)
+				List<string> csvFiles = new List<string>(Directory.GetFiles(Program.ContentDir, "*.csv", SearchOption.TopDirectoryOnly));
+#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+                csvFiles.AddRange(Directory.GetFiles(Program.ContentDir, "*.CSV", SearchOption.TopDirectoryOnly));
+#endif
+                foreach(var filename in csvFiles)
 				{
 					string[] lines = File.ReadAllLines(filename, Config.Encode);
 					foreach (var line in lines)

@@ -33,7 +33,10 @@ namespace MinorShift.Emuera.GameProc
 		public bool LoadHeaderFiles(string headerDir, bool displayReport)
 		{
 			List<KeyValuePair<string, string>> headerFiles = Config.GetFiles(headerDir, "*.ERH");
-			bool noError = true;
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            headerFiles.AddRange(Config.GetFiles(headerDir, "*.erh"));
+#endif
+            bool noError = true;
 			try
 			{
 				for (int i = 0; i < headerFiles.Count; i++)

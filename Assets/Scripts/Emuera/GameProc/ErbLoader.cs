@@ -42,6 +42,9 @@ namespace MinorShift.Emuera.GameProc
 			labelDic = labelDictionary;
 			labelDic.Initialized = false;
 			List<KeyValuePair<string, string>> erbFiles = Config.GetFiles(erbDir, "*.ERB");
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            erbFiles.AddRange(Config.GetFiles(erbDir, "*.erb"));
+#endif
             List<string> isOnlyEvent = new List<string>();
             noError = true;
 			uint starttime = WinmmTimer.TickCount;

@@ -1462,10 +1462,15 @@ namespace MinorShift.Emuera.GameView
 			SearchOption op = SearchOption.AllDirectories;
 			if (!Config.SearchSubdirectory)
 				op = SearchOption.TopDirectoryOnly;
-			string[] fnames = Directory.GetFiles(erbPath, "*.ERB", op);
-			for (int i = 0; i < fnames.Length; i++)
+			var fnames = new List<string>(Directory.GetFiles(erbPath, "*.ERB", op));
+#if UNITY_ANDROID && !UNITY_EDITOR
+            fnames.AddRange(Directory.GetFiles(erbPath, "*.erb", op));
+#endif
+            for (int i = 0; i < fnames.Count; i++)
 				if (Path.GetExtension(fnames[i]).ToUpper() == ".ERB")
 					paths.Add(fnames[i]);
+            fnames.Clear();
+
             bool notRedraw = false;
             if (redraw == ConsoleRedraw.None)
             {
