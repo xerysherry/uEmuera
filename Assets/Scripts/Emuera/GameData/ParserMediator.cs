@@ -53,7 +53,8 @@ namespace MinorShift.Emuera
 			Regex reg = new Regex(@"\\,", RegexOptions.None);
 			try
 			{
-				while ((line = eReader.ReadLine()) != null)
+                string[] tokens = new string[2];
+                while ((line = eReader.ReadLine()) != null)
 				{
 					if (line.Length == 0)
 						continue;
@@ -64,7 +65,7 @@ namespace MinorShift.Emuera
 						continue;
 					string[] last = baseTokens[baseTokens.Length - 1].Split(',');
 					baseTokens[baseTokens.Length - 1] = last[0];
-					string[] tokens = new string[2];
+					//string[] tokens = new string[2];
 					tokens[0] = string.Join(",", baseTokens);
 					tokens[1] = last[1];
 					pos = new ScriptPosition(eReader.Filename, eReader.LineNo, line);

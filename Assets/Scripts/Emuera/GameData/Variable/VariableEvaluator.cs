@@ -165,9 +165,11 @@ namespace MinorShift.Emuera.GameData.Variable
 					throw new CodeEE("キャラクタ配列変数" + p.Identifier.Name + "の第２引数(" + indexNum.ToString() + ")は配列の範囲外です");
 			}
 
+            long[] arguments = new long[] { -1, indexNum };
             for (int i = start; i < end; i++)
             {
-                p.Identifier.SetValue(srcValue, new long[] { i, indexNum });
+                arguments[0] = i;
+                p.Identifier.SetValue(srcValue, arguments);
             }
 		}
 
@@ -203,9 +205,11 @@ namespace MinorShift.Emuera.GameData.Variable
 					throw new CodeEE("キャラクタ配列変数" + p.Identifier.Name + "の第２引数(" + indexNum.ToString() + ")は配列の範囲外です");
 			}
 
-			for (int i = start; i < end; i++)
+            long[] arguments = new long[] { -1, indexNum };
+            for (int i = start; i < end; i++)
 			{
-                p.Identifier.SetValue(srcValue, new long[] { i, indexNum });
+                arguments[0] = i;
+                p.Identifier.SetValue(srcValue, arguments);
             }
 		}
 
@@ -217,31 +221,51 @@ namespace MinorShift.Emuera.GameData.Variable
 			{
                 if (p.Identifier.IsArray1D)
                 {
-                    for (int i = (int)index1; i < (int)index2; i++)
-                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, new long[] { p.Index1, i });
+                    long[] arguments = new long[] { p.Index1, -1 };
+                    for(int i = (int)index1; i < (int)index2; i++)
+                    {
+                        arguments[1] = i;
+                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
+                    }
                 }
                 else
                 {
-                    for (int i = (int)index1; i < (int)index2; i++)
-                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, new long[] { p.Index1, p.Index2, i });
+                    long[] arguments = new long[] { p.Index1, p.Index2, -1 };
+                    for(int i = (int)index1; i < (int)index2; i++)
+                    {
+                        arguments[2] = i;
+                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
+                    }
                 }
 			}
 			else
 			{
 				if (p.Identifier.IsArray1D)
 				{
-					for (int i = (int)index1; i < (int)index2; i++)
-						sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, new long[] { i });
+                    long[] arguments = new long[] { -1 };
+                    for(int i = (int)index1; i < (int)index2; i++)
+                    {
+                        arguments[0] = i;
+                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
+                    }
 				}
 				else if (p.Identifier.IsArray2D)
 				{
-					for (int i = (int)index1; i < (int)index2; i++)
-                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, new long[] { p.Index1, i });
+                    long[] arguments = new long[] { p.Index1, -1 };
+                    for(int i = (int)index1; i < (int)index2; i++)
+                    {
+                        arguments[1] = i;
+                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
+                    }
 				}
 				else
 				{
-					for (int i = (int)index1; i < (int)index2; i++)
-                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, new long[] { p.Index1, p.Index2, i });
+                    long[] arguments = new long[] { p.Index1, p.Index2, -1 };
+                    for(int i = (int)index1; i < (int)index2; i++)
+                    {
+                        arguments[2] = i;
+                        sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
+                    }
 				}
 			}
 
@@ -251,12 +275,12 @@ namespace MinorShift.Emuera.GameData.Variable
 		public Int64 GetArraySumChara(FixedVariableTerm p, Int64 index1, Int64 index2)
 		{
 			Int64 sum = 0;
-            long[] value = new long[2] { -1, p.Index2 }; 
+            long[] arguments = new long[2] { -1, p.Index2 }; 
 
             for (int i = (int)index1; i < (int)index2; i++)
             {
-                value[0] = i;
-                sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, value);
+                arguments[0] = i;
+                sum += p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
             }
             return sum;
 		}
@@ -273,20 +297,20 @@ namespace MinorShift.Emuera.GameData.Variable
                 }
                 else if (p.Identifier.IsArray2D)
                 {
-					long[] value = new long[2] { p.Index1, -1 };
+					long[] arguments = new long[2] { p.Index1, -1 };
                     for(int i = (int)index1; i < (int)index2; i++)
                     {
-                        value[1] = i;
-                        sum += p.Identifier.GetStrValue(GlobalStatic.EMediator, value) + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[1] = i;
+                        sum += p.Identifier.GetStrValue(GlobalStatic.EMediator, arguments) + ((i + 1 < (int)index2) ? delimiter : "");
                     }
                 }
                 else
                 {
-					long[] value = new long[3] { p.Index1, p.Index2, -1 };
+					long[] arguments = new long[3] { p.Index1, p.Index2, -1 };
                     for(int i = (int)index1; i < (int)index2; i++)
                     {
-                        value[2] = i;
-                        sum += p.Identifier.GetStrValue(GlobalStatic.EMediator, value) + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[2] = i;
+                        sum += p.Identifier.GetStrValue(GlobalStatic.EMediator, arguments) + ((i + 1 < (int)index2) ? delimiter : "");
                     }
                 }
             }
@@ -294,29 +318,29 @@ namespace MinorShift.Emuera.GameData.Variable
             {
                 if (p.Identifier.IsArray1D)
                 {
-					long[] value = new long[1] {-1};
+					long[] arguments = new long[1] {-1};
                     for(int i = (int)index1; i < (int)index2; i++)
                     {
-                        value[0] = i;
-                        sum += (p.Identifier.GetIntValue(GlobalStatic.EMediator, value)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[0] = i;
+                        sum += (p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
                     }
                 }
                 else if (p.Identifier.IsArray2D)
                 {
-					long[] value = new long[2] { p.Index1, -1 };
+					long[] arguments = new long[2] { p.Index1, -1 };
                     for(int i = (int)index1; i < (int)index2; i++)
                     {
-                        value[1] = i;
-                        sum += (p.Identifier.GetIntValue(GlobalStatic.EMediator, value)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[1] = i;
+                        sum += (p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
                     }
                 }
                 else
                 {
-					long[] value = new long[3] { p.Index1, p.Index2, -1 };
+					long[] arguments = new long[3] { p.Index1, p.Index2, -1 };
                     for(int i = (int)index1; i < (int)index2; i++)
                     {
-                        value[2] = i;
-                        sum += (p.Identifier.GetIntValue(GlobalStatic.EMediator, value)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[2] = i;
+                        sum += (p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
                     }
                 }
             }
@@ -326,17 +350,17 @@ namespace MinorShift.Emuera.GameData.Variable
         public Int64 GetMatch(FixedVariableTerm p, Int64 target, Int64 start, Int64 end)
 		{
 			Int64 ret = 0;
-            long[] value = new long[2] { -1, -1 };
+            long[] arguments = new long[2] { -1, -1 };
             for(int i = (int)start; i < (int)end; i++)
             {
                 if(p.Identifier.IsCharacterData)
                 {
-                    value[0] = p.Index1;
-                    value[1] = i;
+                    arguments[0] = p.Index1;
+                    arguments[1] = i;
                 }
                 else
-                    value[0] = i;
-                if(p.Identifier.GetIntValue(GlobalStatic.EMediator, value) == target)
+                    arguments[0] = i;
+                if(p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments) == target)
                     ret++;
             }
 			return ret;
@@ -346,20 +370,20 @@ namespace MinorShift.Emuera.GameData.Variable
 		{
             Int64 ret = 0;
             bool targetIsNullOrEmpty = string.IsNullOrEmpty(target);
-            long[] value = new long[2] { -1, -1 };
+            long[] arguments = new long[2] { -1, -1 };
 
             for(int i = (int)start; i < (int)end; i++)
             {
                 if(p.Identifier.IsCharacterData)
                 {
-                    value[0] = p.Index1;
-                    value[1] = i;
+                    arguments[0] = p.Index1;
+                    arguments[1] = i;
                 }
                 else
-                    value[0] = i;
+                    arguments[0] = i;
 
-                if((p.Identifier.GetStrValue(GlobalStatic.EMediator, value) == target) || 
-                    (targetIsNullOrEmpty && string.IsNullOrEmpty(p.Identifier.GetStrValue(GlobalStatic.EMediator, value))))
+                if((p.Identifier.GetStrValue(GlobalStatic.EMediator, arguments) == target) || 
+                    (targetIsNullOrEmpty && string.IsNullOrEmpty(p.Identifier.GetStrValue(GlobalStatic.EMediator, arguments))))
                     ret++;
             }
 
@@ -369,12 +393,12 @@ namespace MinorShift.Emuera.GameData.Variable
         public Int64 GetMatchChara(FixedVariableTerm p, Int64 target, Int64 start, Int64 end)
         {
             Int64 ret = 0;
-            long[] value = new long[3] { -1, p.Index2, p.Index3 };
+            long[] arguments = new long[3] { -1, p.Index2, p.Index3 };
 
             for (int i = (int)start; i < (int)end; i++)
             {
-                value[0] = i;
-                if (p.Identifier.GetIntValue(GlobalStatic.EMediator, value) == target)
+                arguments[0] = i;
+                if (p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments) == target)
                     ret++;
             }
 
@@ -385,13 +409,13 @@ namespace MinorShift.Emuera.GameData.Variable
 		{
 			Int64 ret = 0;
 			bool targetIsNullOrEmpty = string.IsNullOrEmpty(target);
-            long[] value = new long[3] { -1, p.Index2, p.Index3 };
+            long[] arguments = new long[3] { -1, p.Index2, p.Index3 };
 
             for (int i = (int)start; i < (int)end; i++)
             {
-                value[0] = i;
-                if ((p.Identifier.GetStrValue(GlobalStatic.EMediator, value) == target) || 
-                    (targetIsNullOrEmpty && string.IsNullOrEmpty(p.Identifier.GetStrValue(GlobalStatic.EMediator, value))))
+                arguments[0] = i;
+                if ((p.Identifier.GetStrValue(GlobalStatic.EMediator, arguments) == target) || 
+                    (targetIsNullOrEmpty && string.IsNullOrEmpty(p.Identifier.GetStrValue(GlobalStatic.EMediator, arguments))))
                     ret++;
             }
 
@@ -499,26 +523,26 @@ namespace MinorShift.Emuera.GameData.Variable
 		public Int64 GetMaxArray(FixedVariableTerm p, Int64 start, Int64 end, bool isMax)
 		{
             Int64 value;
-            long[] values = new long[2] { -1, -1 };
+            long[] arguments = new long[2] { -1, -1 };
             if(p.Identifier.IsCharacterData)
             {
-                values[0] = p.Index1;
-                values[1] = start;
+                arguments[0] = p.Index1;
+                arguments[1] = start;
             }
             else
-                values[0] = start;
+                arguments[0] = start;
 
-            Int64 ret = p.Identifier.GetIntValue(GlobalStatic.EMediator, values);
+            Int64 ret = p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
 			for (int i = (int)start + 1; i < (int)end; i++)
 			{
                 if(p.Identifier.IsCharacterData)
                 {
-                    values[0] = p.Index1;
-                    values[1] = i;
+                    arguments[0] = p.Index1;
+                    arguments[1] = i;
                 }
                 else
-                    values[0] = i;
-                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, values);
+                    arguments[0] = i;
+                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
 				if (isMax)
 				{
                     if (value > ret)
@@ -537,13 +561,13 @@ namespace MinorShift.Emuera.GameData.Variable
         {
             Int64 ret;
             Int64 value;
-            long[] values = new long[3] { start, p.Index2, p.Index3 };
+            long[] arguments = new long[3] { start, p.Index2, p.Index3 };
 
-            ret = p.Identifier.GetIntValue(GlobalStatic.EMediator, values);
+            ret = p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
             for (int i = (int)start + 1; i < (int)end; i++)
             {
-                values[0] = i;
-                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, values);
+                arguments[0] = i;
+                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
 
                 if (isMax)
                 {
@@ -564,17 +588,17 @@ namespace MinorShift.Emuera.GameData.Variable
 		{
             Int64 value;
 			Int64 ret = 0;
-            long[] values = new long[2] { -1, -1 };
+            long[] arguments = new long[2] { -1, -1 };
             for (int i = (int)start; i < (int)end; i++)
             {
                 if(p.Identifier.IsCharacterData)
                 {
-                    values[0] = p.Index1;
-                    values[1] = i;
+                    arguments[0] = p.Index1;
+                    arguments[1] = i;
                 }
                 else
-                    values[0] = i;
-                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, values);
+                    arguments[0] = i;
+                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
                 if (value >= min && value < max)
                     ret++;
             }
@@ -586,11 +610,11 @@ namespace MinorShift.Emuera.GameData.Variable
 		{
 			Int64 ret = 0;
             Int64 value;
-            long[] values = new long[3] { -1, p.Index2, p.Index3 };
+            long[] arguments = new long[3] { -1, p.Index2, p.Index3 };
             for (int i = (int)start; i < (int)end; i++)
             {
-                values[0] = i;
-                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, values);
+                arguments[0] = i;
+                value = p.Identifier.GetIntValue(GlobalStatic.EMediator, arguments);
                 if (value >= min && value < max)
                     ret++;
             }
