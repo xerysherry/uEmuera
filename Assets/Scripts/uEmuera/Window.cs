@@ -94,11 +94,20 @@ namespace uEmuera.Window
 
             if(console_.IsInitializing)
             {
+                ShowProcess();
                 if(!dirty_)
                     return;
             }
-            else if(!dirty_ || console_.IsInProcess)
+            else if(console_.IsInProcess)
+            {
+                CheckProcess();
+                //if(!dirty_)
                 return;
+            }
+            else if(!dirty_)
+            {
+                return;
+            }
 
             uEmuera.Logger.Info("MainWindow.Update Dirty");
             dirty_ = false;
@@ -163,6 +172,9 @@ namespace uEmuera.Window
                 GenericUtils.SetLastButtonGeneration(console_.LastButtonGeneration);
             if(need_update_flag)
                 GenericUtils.TextUpdate();
+
+            GenericUtils.ShowIsInProcess(false);
+            last_process_tic = 0;
         }
 
         private EmueraConsole console_ = null;
@@ -182,5 +194,21 @@ namespace uEmuera.Window
         public string Text { get; set; }
         public ToolTip ToolTip = new ToolTip();
         public TextBox TextBox = new TextBox();
+
+        void ShowProcess()
+        {
+            GenericUtils.ShowIsInProcess(true);
+        }
+        void CheckProcess()
+        {
+            var now = MinorShift._Library.WinmmTimer.TickCount;
+            if(last_process_tic == 0)
+                last_process_tic = now;
+            else if(now - last_process_tic > 1500u)
+            {
+                GenericUtils.ShowIsInProcess(true);
+            }
+        }
+        uint last_process_tic = 0;
     }
 }

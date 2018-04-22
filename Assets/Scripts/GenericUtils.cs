@@ -370,7 +370,10 @@ public static class GenericUtils
     {
         text_content.SetLastButtonGeneration(generation);
     }
-
+    public static void ShowIsInProcess(bool value)
+    {
+        text_content.isprocess.SetActive(value);
+    }
     static EmueraContent text_content
     {
         get

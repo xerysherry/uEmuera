@@ -296,6 +296,8 @@ namespace uEmuera.Drawing
 
     public struct Size
     {
+        public static readonly Size zero;
+
         public Size(Point pt)
         {
             Width = pt.X;

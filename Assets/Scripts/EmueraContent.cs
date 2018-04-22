@@ -237,6 +237,7 @@ public class EmueraContent : MonoBehaviour
 
     public QuickButtons quick_buttons;
     public Inputpad input_pad;
+    public GameObject isprocess;
 
     Image background;
     uEmuera.Drawing.Color background_color;
@@ -587,6 +588,10 @@ public class EmueraContent : MonoBehaviour
         while(console_lines_.Count < max_log_count)
             console_lines_.Add(null);
         invalid_count = max_log_count;
+
+        var texts = isprocess.GetComponentsInChildren<Text>();
+        foreach(var text in texts)
+            text.color = template_text.color;
     }
     bool ready_ = false;
 
