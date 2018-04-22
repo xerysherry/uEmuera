@@ -197,17 +197,14 @@ namespace MinorShift.Emuera.GameProc
 			point.FileIndex = currentFileCount;
 			count++;
 			string id = point.LabelName;
-			if (labelAtDic.ContainsKey(id))
+            List<FunctionLabelLine> function_label_line_list = null;
+			if(!labelAtDic.TryGetValue(id, out function_label_line_list))
 			{
-				labelAtDic[id].Add(point);
+                function_label_line_list = new List<FunctionLabelLine>();
+				labelAtDic.Add(id, function_label_line_list);
 			}
-			else
-			{
-				List<FunctionLabelLine> labelList = new List<FunctionLabelLine>();
-				labelList.Add(point);
-				labelAtDic.Add(id, labelList);
-			}
-		}
+            function_label_line_list.Add(point);
+        }
 
 		public bool AddLabelDollar(GotoLabelLine point)
 		{

@@ -220,7 +220,7 @@ public class QuickButtons : MonoBehaviour
     {
         QuickButton button = null;
         if(cache_buttons_.Count > 0)
-            button = cache_buttons_.Dequeue();
+            button = cache_buttons_.Pop();
         else
         {
             var obj = GameObject.Instantiate(EmueraContent.instance.template_button.gameObject);
@@ -246,7 +246,7 @@ public class QuickButtons : MonoBehaviour
         button.gameObject.SetActive(false);
         var rt = button.transform as RectTransform;
         rt.anchoredPosition = new Vector2(0, 0);
-        cache_buttons_.Enqueue(button);
+        cache_buttons_.Push(button);
     }
 
     bool last_wh_flag = false;
@@ -259,5 +259,5 @@ public class QuickButtons : MonoBehaviour
     int curr_line_count = 0;
     int max_line_count = 0;
     List<QuickButton> display_buttons_ = new List<QuickButton>();
-    Queue<QuickButton> cache_buttons_ = new Queue<QuickButton>();
+    Stack<QuickButton> cache_buttons_ = new Stack<QuickButton>();
 }

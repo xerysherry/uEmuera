@@ -10,15 +10,15 @@ public class EmueraThread
     EmueraThread()
     { }
 
-    public void Start(bool debug)
+    public void Start(bool debug, bool use_coroutine)
     {
         debugmode = debug;
         running = true;
-
-        ////初始化
-        //MinorShift.Emuera.Program.debugMode = debugmode;
-        //MinorShift.Emuera.Program.Main(new string[0] { });
-
+        if(use_coroutine)
+        {
+            coroutine = GenericUtils.StartCoroutine(WorkCo());
+            return;
+        }
         ThreadPool.QueueUserWorkItem(new WaitCallback(p =>
         {
             Work();
@@ -27,6 +27,11 @@ public class EmueraThread
 
     public void End()
     {
+        if(coroutine != null)
+        {
+            GenericUtils.StopCoroutine(coroutine);
+            coroutine = null;
+        }
         running = false;
     }
 
@@ -69,6 +74,37 @@ public class EmueraThread
         }
     }
 
+    System.Collections.IEnumerator WorkCo()
+    {
+        //初始化
+        MinorShift.Emuera.Program.debugMode = debugmode;
+        MinorShift.Emuera.Program.Main(new string[0] { });
+        yield return null;
+
+        input = null;
+        var console = MinorShift.Emuera.GlobalStatic.Console;
+        while(running)
+        {
+            while(input == null)
+            {
+                yield return null;
+                if(!running)
+                    yield break;
+                uEmuera.Forms.Timer.Update();
+            }
+
+            if(console.IsWaitingInput)
+            {
+                if(console.IsWaitingEnterKey)
+                    input = "";
+                console.PressEnterKey(false, input, false);
+            }
+            yield return new WaitForSeconds(0.01f);
+            input = null;
+        }
+    }
+
+    UnityEngine.Coroutine coroutine = null;
     bool debugmode;
     bool running;
     string input;

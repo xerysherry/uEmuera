@@ -819,7 +819,7 @@ public class EmueraContent : MonoBehaviour
     {
         EmueraLine config = null;
         if(cache_lines_.Count > 0)
-            config = cache_lines_.Dequeue();
+            config = cache_lines_.Pop();
         else
         {
             var obj = GameObject.Instantiate(template_text.gameObject);
@@ -835,9 +835,9 @@ public class EmueraContent : MonoBehaviour
         config.Clear();
         config.gameObject.SetActive(false);
         config.gameObject.name = "unused";
-        cache_lines_.Enqueue(config);
+        cache_lines_.Push(config);
     }
 
     List<EmueraLine> display_lines_ = new List<EmueraLine>();
-    Queue<EmueraLine> cache_lines_ = new Queue<EmueraLine>();
+    Stack<EmueraLine> cache_lines_ = new Stack<EmueraLine>();
 }

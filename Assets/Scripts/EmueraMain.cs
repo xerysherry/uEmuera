@@ -8,7 +8,7 @@ public class EmueraMain : MonoBehaviour
     {
         Sys.SetWorkFolder(workspace);
         Sys.SetSourceFolder(era_source);
-        EmueraThread.instance.Start(debug);
+        EmueraThread.instance.Start(debug, use_coroutine);
         working_ = true;
     }
 
@@ -40,6 +40,7 @@ public class EmueraMain : MonoBehaviour
     public string era_source;
 
     public bool debug = false;
+    public bool use_coroutine = false;
 
 #if UNITY_EDITOR
     public string input;

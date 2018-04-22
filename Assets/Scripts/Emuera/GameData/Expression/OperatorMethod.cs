@@ -94,8 +94,9 @@ namespace MinorShift.Emuera.GameData.Expression
 			{
 				if (op == OperatorCode.Plus)
 					return o1;
-				if (unaryDic.ContainsKey(op))
-					method = unaryDic[op];
+                OperatorMethod operator_method = null;
+				if (unaryDic.TryGetValue(op, out operator_method))
+					method = operator_method;
 			}
 			if(method != null)
 				return new FunctionMethodTerm(method, new IOperandTerm[] { o1 });
@@ -123,8 +124,9 @@ namespace MinorShift.Emuera.GameData.Expression
 			}
 			if (o1.GetOperandType() == typeof(Int64))
 			{
-				if (unaryAfterDic.ContainsKey(op))
-					method = unaryAfterDic[op];
+                OperatorMethod operator_method = null;
+                if (unaryAfterDic.TryGetValue(op, out operator_method))
+					method = operator_method;
 			}
 			if (method != null)
 				return new FunctionMethodTerm(method, new IOperandTerm[] { o1 });
@@ -144,13 +146,15 @@ namespace MinorShift.Emuera.GameData.Expression
             OperatorMethod method = null;
 			if ((left.GetOperandType() == typeof(Int64)) && (right.GetOperandType() == typeof(Int64)))
 			{
-				if (binaryIntIntDic.ContainsKey(op))
-					method = binaryIntIntDic[op];
+                OperatorMethod operator_method = null;
+                if (binaryIntIntDic.TryGetValue(op, out operator_method))
+					method = operator_method;
 			}
 			else if ((left.GetOperandType() == typeof(string)) && (right.GetOperandType() == typeof(string)))
 			{
-				if (binaryStrStrDic.ContainsKey(op))
-					method = binaryStrStrDic[op];
+                OperatorMethod operator_method = null;
+                if (binaryStrStrDic.TryGetValue(op, out operator_method))
+					method = operator_method;
 			}
 			else if (((left.GetOperandType() == typeof(Int64)) && (right.GetOperandType() == typeof(string)))
 				 || ((left.GetOperandType() == typeof(string)) && (right.GetOperandType() == typeof(Int64))))

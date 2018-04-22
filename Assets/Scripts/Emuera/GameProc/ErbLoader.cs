@@ -784,8 +784,9 @@ namespace MinorShift.Emuera.GameProc
 		{
 			if (Program.AnalysisMode)
 			{
-				if (warningDic.ContainsKey(str))
-					warningDic[str]++;
+                long l = 0;
+				if (warningDic.TryGetValue(str, out l))
+					warningDic[str] = l + 1;
 				else
 					warningDic.Add(str, 1);
 				return;

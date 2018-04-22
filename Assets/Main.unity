@@ -986,6 +986,7 @@ MonoBehaviour:
   workspace: 
   era_source: 
   debug: 0
+  use_coroutine: 0
   input: 
   console_lines: 0
 --- !u!1 &438014093

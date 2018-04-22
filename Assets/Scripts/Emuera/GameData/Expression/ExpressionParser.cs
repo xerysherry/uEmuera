@@ -242,8 +242,9 @@ namespace MinorShift.Emuera.GameData.Expression
 						GlobalStatic.IdentifierDictionary.ThrowException(idStr, true);
 					else
 					{
-						if (GlobalStatic.tempDic.ContainsKey(idStr))
-							GlobalStatic.tempDic[idStr]++;
+                        long t = 0;
+						if (GlobalStatic.tempDic.TryGetValue(idStr, out t))
+							GlobalStatic.tempDic[idStr] = t + 1;
 						else
 							GlobalStatic.tempDic.Add(idStr, 1);
 						return new NullTerm(0);

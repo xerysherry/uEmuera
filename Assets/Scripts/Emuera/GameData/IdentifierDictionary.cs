@@ -206,12 +206,13 @@ namespace MinorShift.Emuera
 			}
 			if (!isFunction || !Config.WarnFunctionOverloading)
 				return;
-			if (!nameDic.ContainsKey(labelName))
-				return;
 
-			if (nameDic.ContainsKey(labelName))
+            DefinedNameType nametype = DefinedNameType.None;
+			if (!nameDic.TryGetValue(labelName, out nametype))
+				return;
+            else
 			{
-				switch (nameDic[labelName])
+				switch (nametype)
 				{
 					case DefinedNameType.Reserved:
 						if (Config.AllowFunctionOverloading)
@@ -273,16 +274,17 @@ namespace MinorShift.Emuera
 				warnLevel = 2;
 				return;
 			}
-			//if (char.IsDigit(varName[0]))
-			//{
-			//    errMes = "変数名" + varName + "が半角数字から始まっています";
-			//    warnLevel = 2;
-			//    return;
-			//}
+            //if (char.IsDigit(varName[0]))
+            //{
+            //    errMes = "変数名" + varName + "が半角数字から始まっています";
+            //    warnLevel = 2;
+            //    return;
+            //}
 
-			if (nameDic.ContainsKey(varName))
+            DefinedNameType nametype = DefinedNameType.None;
+			if (nameDic.TryGetValue(varName, out nametype))
 			{
-				switch (nameDic[varName])
+				switch (nametype)
 				{
 					case DefinedNameType.Reserved:
 						errMes = "変数名" + varName + "はEmueraの予約語です";
@@ -322,9 +324,10 @@ namespace MinorShift.Emuera
 				warnLevel = 2;
 				return;
 			}
-			if (nameDic.ContainsKey(macroName))
+            DefinedNameType nametype = DefinedNameType.None;
+			if (nameDic.TryGetValue(macroName, out nametype))
 			{
-				switch (nameDic[macroName])
+				switch (nametype)
 				{
 					case DefinedNameType.Reserved:
 						errMes = "マクロ名" + macroName + "はEmueraの予約語です";
@@ -378,9 +381,10 @@ namespace MinorShift.Emuera
 				warnLevel = 2;
 				return;
 			}
-			if(nameDic.ContainsKey(varName))
+            DefinedNameType nametype = DefinedNameType.None;
+			if(nameDic.TryGetValue(varName, out nametype))
 			{
-				switch(nameDic[varName])
+				switch(nametype)
 				{
 					case DefinedNameType.Reserved:
 						errMes = "変数名" + varName + "はEmueraの予約語です";
@@ -453,8 +457,9 @@ namespace MinorShift.Emuera
 		{
 			if (Config.ICVariable)
 				key = key.ToUpper();
-			if (macroDic.ContainsKey(key))
-				return macroDic[key];
+            DefineMacro dm = null;
+            if (macroDic.TryGetValue(key, out dm))
+				return dm;
 			return null;
 		}
 
@@ -477,9 +482,10 @@ namespace MinorShift.Emuera
 					}
 				}
 			}
-			if (localvarTokenDic.ContainsKey(key))
+            VariableLocal vl = null;
+			if (localvarTokenDic.TryGetValue(key, out vl))
 			{
-				if (localvarTokenDic[key].IsForbid)
+				if (vl.IsForbid)
                 {
 					throw new CodeEE("呼び出された変数\"" + key + "\"は設定により使用が禁止されています");
                 }
@@ -497,9 +503,9 @@ namespace MinorShift.Emuera
 					if (Config.ICFunction)
 						subKey = subKey.ToUpper();
 				}
-                LocalVariableToken retLocal = localvarTokenDic[key].GetExistLocalVariableToken(subKey);
+                LocalVariableToken retLocal = vl.GetExistLocalVariableToken(subKey);
                 if (retLocal == null)
-                    retLocal = localvarTokenDic[key].GetNewLocalVariableToken(subKey, line.ParentLabelLine);
+                    retLocal = vl.GetNewLocalVariableToken(subKey, line.ParentLabelLine);
                 return retLocal;
 			}
 			if (varTokenDic.TryGetValue(key, out ret))
@@ -553,8 +559,9 @@ namespace MinorShift.Emuera
 		{
 			if (Config.ICFunction)
 				codeStr = codeStr.ToUpper();
-			if (refmethodDic.ContainsKey(codeStr))
-				return refmethodDic[codeStr];
+            UserDefinedRefMethod ref_method = null;
+			if (refmethodDic.TryGetValue(codeStr, out ref_method))
+				return ref_method;
 			return null;
 		}
 
@@ -564,14 +571,16 @@ namespace MinorShift.Emuera
 				codeStr = codeStr.ToUpper();
 			if (arguments == null)//引数なし、名前のみの探索
 			{
-				if (refmethodDic.ContainsKey(codeStr))
-					return new UserDefinedRefMethodNoArgTerm(refmethodDic[codeStr]);
+                UserDefinedRefMethod ref_method = null;
+				if (refmethodDic.TryGetValue(codeStr, out ref_method))
+					return new UserDefinedRefMethodNoArgTerm(ref_method);
 				return null;
 			}
 			if ((labelDic != null) && (labelDic.Initialized))
 			{
-				if (refmethodDic.ContainsKey(codeStr))
-					return new UserDefinedRefMethodTerm(refmethodDic[codeStr], arguments);
+                UserDefinedRefMethod ref_method = null;
+                if (refmethodDic.TryGetValue(codeStr, out ref_method))
+					return new UserDefinedRefMethodTerm(ref_method, arguments);
 				FunctionLabelLine func = labelDic.GetNonEventLabel(codeStr);
 				if (func != null)
 				{
@@ -614,9 +623,9 @@ namespace MinorShift.Emuera
 				throw new CodeEE("\"" + str + "\"は#DISABLEが宣言されています");
 			if (!isFunc && privateDimList.Contains(idStr))
 				throw new CodeEE("変数\"" + str + "\"はこの関数中では定義されていません");
-			if (nameDic.ContainsKey(idStr))
+            DefinedNameType type = DefinedNameType.None;
+            if (nameDic.TryGetValue(idStr, out type))
 			{
-				DefinedNameType type = nameDic[idStr];
 				switch (type)
 				{
 					case DefinedNameType.Reserved:
@@ -662,8 +671,9 @@ namespace MinorShift.Emuera
 		}
         public bool getVarTokenIsForbid(string key)
         {
-            if (localvarTokenDic.ContainsKey(key))
-                return localvarTokenDic[key].IsForbid;
+            VariableLocal vlocal = null;
+            if (localvarTokenDic.TryGetValue(key, out vlocal))
+                return vlocal.IsForbid;
             VariableToken var = null;
             varTokenDic.TryGetValue(key, out var);
             if (var != null)

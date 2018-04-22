@@ -201,13 +201,16 @@ namespace MinorShift.Emuera
 			string fn = theFontname;
 			if (string.IsNullOrEmpty(theFontname))
 				fn = FontName;
-			if (!fontDic.ContainsKey(fn))
-				fontDic.Add(fn, new Dictionary<FontStyle, Font>());
-			Dictionary<FontStyle, Font> fontStyleDic = fontDic[fn];
-			if (!fontStyleDic.ContainsKey(style))
+            Dictionary<FontStyle, Font> fontStyleDic = null;
+            if(!fontDic.TryGetValue(fn, out fontStyleDic))
+            {
+                fontStyleDic = new Dictionary<FontStyle, Font>();
+                fontDic.Add(fn, fontStyleDic);
+            }
+            Font styledFont = null;
+			if (!fontStyleDic.TryGetValue(style, out styledFont))
 			{
 				int fontsize = FontSize;
-				Font styledFont = null;
 				try
 				{
 					styledFont = new Font(fn, fontsize, style, GraphicsUnit.Pixel);
@@ -218,7 +221,7 @@ namespace MinorShift.Emuera
 				}
 				fontStyleDic.Add(style, styledFont);
 			}
-			return fontStyleDic[style];
+			return styledFont;
 		}
 
 		public static void ClearFont()

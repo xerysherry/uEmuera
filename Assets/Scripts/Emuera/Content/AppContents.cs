@@ -86,9 +86,9 @@ namespace MinorShift.Emuera.Content
 			string parentName = tokens[1].ToUpper();
 			if (name.Length == 0 || parentName.Length == 0)
 				return null;
-			if (!resourceDic.ContainsKey(parentName))
+            AContentFile parent = null;
+            if (!resourceDic.TryGetValue(parentName, out parent))
 				return null;
-			AContentFile parent = resourceDic[parentName];
 			if(parent is BaseImage)
 			{
 				BaseImage parentImage = parent as BaseImage;
