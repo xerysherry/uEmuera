@@ -58,24 +58,24 @@ namespace uEmuera.Window
         public void Close()
         {
             uEmuera.Logger.Info("MainWindow.Close");
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
         public void update_lastinput()
         {
             uEmuera.Logger.Info("MainWindow.update_lastinput");
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         internal void Reboot()
         {
             uEmuera.Logger.Info("MainWindow.Reboot");
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         internal void ShowConfigDialog()
         {
             uEmuera.Logger.Info("MainWindow.ShowConfigDialog");
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void Init()

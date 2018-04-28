@@ -963,6 +963,9 @@ check1break:
             csvPaths = Config.GetFiles(csvDir, "CHARA*.CSV");
             for(int i = 0; i < csvPaths.Count; i++)
                 loadCharacterDataFile(csvPaths[i].Value, csvPaths[i].Key, disp);
+            csvPaths = Config.GetFiles(csvDir, "CHARA*.csv");
+            for(int i = 0; i < csvPaths.Count; i++)
+                loadCharacterDataFile(csvPaths[i].Value, csvPaths[i].Key, disp);
 #endif
             if(useCompatiName)
 			{
