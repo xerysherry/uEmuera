@@ -1329,8 +1329,6 @@ namespace MinorShift.Emuera.GameView
 		}
 		#endregion
 
-
-
 		public void GotoTitle()
 		{
 			//if (state == ConsoleState.Error)

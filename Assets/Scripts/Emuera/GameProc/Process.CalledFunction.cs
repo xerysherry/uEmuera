@@ -86,7 +86,7 @@ namespace MinorShift.Emuera.GameProc
 			if (called.eventLabelList == null)
 			{
 				FunctionLabelLine line = parent.LabelDictionary.GetNonEventLabel(label);
-				if (parent.LabelDictionary.GetNonEventLabel(label) != null)
+				if (line != null)
 				{
 					throw new CodeEE("イベント関数でない関数@" + label + "(" + line.Position.Filename + ":" + line.Position.LineNo + "行目)に対しEVENT呼び出しが行われました");
 				}

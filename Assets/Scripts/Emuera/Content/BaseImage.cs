@@ -10,7 +10,7 @@ namespace MinorShift.Emuera.Content
 	{
 		public BaseImage(string name, string path)
 			: base(name, path)
-		{ }
+		{}
         //public Bitmap Bitmap;
         //Graphics g;
         //public IntPtr GDIhDC{get;private set;}
@@ -25,6 +25,14 @@ namespace MinorShift.Emuera.Content
 		{
 			if (Loaded)
 				return;
+
+            Enabled = System.IO.File.Exists(Filepath);
+            if(Enabled)
+            {
+                texture = new Bitmap();
+                texture.name = Filepath;
+            }
+            //Enabled = true;
             //try
             //{
             //	Bitmap = new Bitmap(Filepath);

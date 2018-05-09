@@ -97,10 +97,11 @@ public class MainEntry : MonoBehaviour
 
         GenericUtils.SetListenerOnClick(obj, () => 
         {
-            Run(workspace, folder);
             GameObject.Destroy(first_window_);
             scroll_rect_ = null;
             item_ = null;
+            //Start Game
+            GenericUtils.StartCoroutine(Run(workspace, folder));
         });
 
         var rt = obj.transform as UnityEngine.RectTransform;
@@ -120,15 +121,32 @@ public class MainEntry : MonoBehaviour
         {
             content.sizeDelta = new Vector2(content.sizeDelta.x, ih);
         }
-        
-
         obj.SetActive(true);
     }
 
-    void Run(string workspace, string era)
+    System.Collections.IEnumerator Run(string workspace, string era)
     {
-        emuera.workspace = workspace;
-        emuera.era_source = era;
+        var async = Resources.UnloadUnusedAssets();
+        while(!async.isDone)
+            yield return null;
+
+        var ow = EmueraContent.instance.option_window;
+        ow.gameObject.SetActive(true);
+        ow.ShowGameButton(true);
+        ow.ShowInProgress(true);
+        yield return null;
+
+        System.GC.Collect();
+        SpriteManager.Init();
+
+        Sys.SetWorkFolder(workspace);
+        Sys.SetSourceFolder(era);
+        uEmuera.Utils.ResourcePrepare();
+
+        async = Resources.UnloadUnusedAssets();
+        while(!async.isDone)
+            yield return null;
+
         emuera.Run();
     }
 

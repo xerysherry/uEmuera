@@ -12,51 +12,59 @@ namespace MinorShift.Emuera.GameView
 {
 	class ConsoleImagePart : AConsoleDisplayPart
 	{
-
 		public ConsoleImagePart(string resName, string resNameb, int raw_height, int raw_width, int raw_ypos)
 		{
-		
-
 			top = 0;
 			bottom = Config.FontSize;
 			Str = "";
 			ResourceName = resName ?? "";
 			ButtonResourceName = resNameb;
-			StringBuilder sb = new StringBuilder();
-			sb.Append("<img src='");
-			sb.Append(ResourceName);
-			if(ButtonResourceName != null)
-			{
-				sb.Append("' srcb='");
-				sb.Append(ButtonResourceName);
-			}
-			if(raw_height != 0)
-			{
-				sb.Append("' height='");
-				sb.Append(raw_height.ToString());
-			}
-			if(raw_width != 0)
-			{
-				sb.Append("' width='");
-				sb.Append(raw_height.ToString());
-			}
-			if(raw_ypos != 0)
-			{
-				sb.Append("' ypos='");
-				sb.Append(raw_height.ToString());
-			}
-			sb.Append("'>");
-			AltText = sb.ToString();
-			
-			cImage = Content.AppContents.GetContent<CroppedImage>(ResourceName);
-			if (cImage != null && !cImage.Enabled)
-				cImage = null;
-			if (cImage == null)
-			{
-				Str = AltText;
-				return;
-			}
-			int height = 0;
+
+            cImage = Content.AppContents.GetContent<CroppedImage>(ResourceName);
+            if(cImage != null && !cImage.Enabled)
+                cImage = null;
+#if !UNITY_EDITOR
+            if(cImage == null)
+            {
+#endif
+                StringBuilder sb = new StringBuilder();
+                sb.Append("<img src='");
+                sb.Append(ResourceName);
+                if(ButtonResourceName != null)
+                {
+                    sb.Append("' srcb='");
+                    sb.Append(ButtonResourceName);
+                }
+                if(raw_height != 0)
+                {
+                    sb.Append("' height='");
+                    sb.Append(raw_height.ToString());
+                }
+                if(raw_width != 0)
+                {
+                    sb.Append("' width='");
+                    sb.Append(raw_height.ToString());
+                }
+                if(raw_ypos != 0)
+                {
+                    sb.Append("' ypos='");
+                    sb.Append(raw_height.ToString());
+                }
+                sb.Append("'>");
+                AltText = sb.ToString();
+#if !UNITY_EDITOR
+                Str = AltText;
+                return;
+            }
+#else
+            if(cImage == null)
+            {
+                Str = AltText;
+                return;
+            }
+#endif  
+
+            int height = 0;
 			if (cImage.NoResize)
 			{
 				height = cImage.Rectangle.Height;
@@ -105,6 +113,9 @@ namespace MinorShift.Emuera.GameView
 			}
 		}
 
+        public CroppedImage cropped_image { get { return cImage; } }
+        public Rectangle dest_rect { get { return destRect; } }
+
 		private readonly CroppedImage cImage;
 		private readonly CroppedImage cImageB;
 		private readonly int top;
@@ -139,43 +150,43 @@ namespace MinorShift.Emuera.GameView
 
 		public override void DrawTo(Graphics graph, int pointY, bool isSelecting, bool isBackLog, TextDrawingMode mode)
 		{
-			if (this.Error)
-				return;
-			CroppedImage img = cImage;
-			if (isSelecting && cImageB != null)
-				img = cImageB;
-			Rectangle rect = destRect;
-			//PointX微調整
-			rect.X = destRect.X + PointX + Config.DrawingParam_ShapePositionShift;
-			rect.Y = destRect.Y + pointY;
+			//if (this.Error)
+			//	return;
+			//CroppedImage img = cImage;
+			//if (isSelecting && cImageB != null)
+			//	img = cImageB;
+			//Rectangle rect = destRect;
+			////PointX微調整
+			//rect.X = destRect.X + PointX + Config.DrawingParam_ShapePositionShift;
+			//rect.Y = destRect.Y + pointY;
 
-			if (img != null)
-			{
-				if(ia == null)
-					graph.DrawImage(img.BaseImage.Bitmap, rect, img.Rectangle, GraphicsUnit.Pixel);
-				else
-					graph.DrawImage(img.BaseImage.Bitmap, rect, img.Rectangle.X,img.Rectangle.Y,img.Rectangle.Width,img.Rectangle.Height , GraphicsUnit.Pixel,ia);
-			}
-			else
-			{
-				if (mode == TextDrawingMode.GRAPHICS)
-					graph.DrawString(Str, Config.Font, new SolidBrush(Config.ForeColor), new Point(PointX, pointY));
-				else
-					TextRenderer.DrawText(graph, Str, Config.Font, new Point(PointX, pointY), Config.ForeColor, TextFormatFlags.NoPrefix);
-			}
+			//if (img != null)
+			//{
+			//	if(ia == null)
+			//		graph.DrawImage(img.BaseImage.Bitmap, rect, img.Rectangle, GraphicsUnit.Pixel);
+			//	else
+			//		graph.DrawImage(img.BaseImage.Bitmap, rect, img.Rectangle.X,img.Rectangle.Y,img.Rectangle.Width,img.Rectangle.Height , GraphicsUnit.Pixel,ia);
+			//}
+			//else
+			//{
+			//	if (mode == TextDrawingMode.GRAPHICS)
+			//		graph.DrawString(Str, Config.Font, new SolidBrush(Config.ForeColor), new Point(PointX, pointY));
+			//	else
+			//		TextRenderer.DrawText(graph, Str, Config.Font, new Point(PointX, pointY), Config.ForeColor, TextFormatFlags.NoPrefix);
+			//}
 		}
 
 		public override void GDIDrawTo(int pointY, bool isSelecting, bool isBackLog)
 		{
-			if (this.Error)
-				return;
-			CroppedImage img = cImage;
-			if (isSelecting && cImageB != null)
-				img = cImageB;
-			if (img != null)
-				GDI.DrawImage(PointX + destRect.X, pointY+ destRect.Y, Width, destRect.Height, img.BaseImage.GDIhDC, img.Rectangle);
-			else
-				GDI.TabbedTextOutFull(Config.Font, Config.ForeColor, Str, PointX, pointY);
+			//if (this.Error)
+			//	return;
+			//CroppedImage img = cImage;
+			//if (isSelecting && cImageB != null)
+			//	img = cImageB;
+			//if (img != null)
+			//	GDI.DrawImage(PointX + destRect.X, pointY+ destRect.Y, Width, destRect.Height, img.BaseImage.GDIhDC, img.Rectangle);
+			//else
+			//	GDI.TabbedTextOutFull(Config.Font, Config.ForeColor, Str, PointX, pointY);
 		}
 	}
 }

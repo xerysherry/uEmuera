@@ -62,7 +62,7 @@ namespace MinorShift.Emuera.Sub
         public StringStream ReadEnabledLine()
 		{
 			string line = null;
-			StringStream st = null;
+			StringStream st = new StringStream();
 			curNo = nextNo;
 			while (true)
 			{
@@ -79,7 +79,7 @@ namespace MinorShift.Emuera.Sub
 					foreach (KeyValuePair<string, string> pair in ParserMediator.RenameDic)
 						line = line.Replace(pair.Key, pair.Value);
 				}
-				st = new StringStream(line);
+                st.Set(line);
 				LexicalAnalyzer.SkipWhiteSpace(st);
 				if (st.EOS)
 					continue;
@@ -124,7 +124,7 @@ namespace MinorShift.Emuera.Sub
 				b.Append(line);
 				b.Append(" ");
 			}
-			st = new StringStream(b.ToString());
+			st.Set(b.ToString());
 			LexicalAnalyzer.SkipWhiteSpace(st);
 			return st;
 		}

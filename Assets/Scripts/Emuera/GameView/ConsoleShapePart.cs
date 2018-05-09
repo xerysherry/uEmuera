@@ -14,30 +14,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			string type = shapeType.ToLower();
 			colorchanged = colorchanged || color != Config.ForeColor;
-			StringBuilder sb = new StringBuilder();
-			sb.Append("<shape type='");
-			sb.Append(type);
-			sb.Append("' param='");
-			for (int i = 0; i < param.Length;i++ )
-			{
-				sb.Append(param[i].ToString());
-				if (i < param.Length - 1)
-					sb.Append(", ");
-			}
-			sb.Append("'");
-			if(colorchanged)
-			{
-				sb.Append(" color='");
-				sb.Append(HtmlManager.GetColorToString(color));
-				sb.Append("'");
-			}
-			if(bcolor != Config.FocusColor)
-			{
-				sb.Append(" bcolor='");
-				sb.Append(HtmlManager.GetColorToString(bcolor));
-				sb.Append("'");
-			}
-			sb.Append(">");
+
 			ConsoleShapePart ret = null;
 			int lineHeight = Config.FontSize;
 			float[] paramPixel = new float[param.Length];
@@ -76,12 +53,45 @@ namespace MinorShift.Emuera.GameView
 				case "polygon":
 					break;
 			}
-			if (ret == null)
+#if UNITY_EDITOR
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<shape type='");
+            sb.Append(type);
+            sb.Append("' param='");
+            for(int i = 0; i < param.Length; i++)
+            {
+                sb.Append(param[i].ToString());
+                if(i < param.Length - 1)
+                    sb.Append(", ");
+            }
+            sb.Append("'");
+            if(colorchanged)
+            {
+                sb.Append(" color='");
+                sb.Append(HtmlManager.GetColorToString(color));
+                sb.Append("'");
+            }
+            if(bcolor != Config.FocusColor)
+            {
+                sb.Append(" bcolor='");
+                sb.Append(HtmlManager.GetColorToString(bcolor));
+                sb.Append("'");
+            }
+            sb.Append(">");
+
+            if (ret == null)
 			{
 				ret = new ConsoleErrorShapePart(sb.ToString());
 			}
 			ret.AltText = sb.ToString();
-			ret.Color = color;
+#else
+            if (ret == null)
+			{
+				ret = new ConsoleErrorShapePart("");
+			}
+			ret.AltText = "";
+#endif
+            ret.Color = color;
 			ret.ButtonColor = bcolor;
 			ret.colorChanged = colorchanged;
 			return ret;

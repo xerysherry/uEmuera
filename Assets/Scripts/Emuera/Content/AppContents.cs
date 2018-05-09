@@ -16,9 +16,9 @@ namespace MinorShift.Emuera.Content
 			if (name == null)
 				return null;
 			name = name.ToUpper();
-			if (!itemDic.ContainsKey(name))
-				return null;
-			return itemDic[name] as T;
+            AContentItem item = null;
+            itemDic.TryGetValue(name, out item);
+			return item as T;
 		}
 
 		static public void LoadContents()
@@ -27,29 +27,37 @@ namespace MinorShift.Emuera.Content
 				return;
 			try
 			{
-				List<string> bmpfilelist = new List<string>();
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.png", SearchOption.TopDirectoryOnly));
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.bmp", SearchOption.TopDirectoryOnly));
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.jpg", SearchOption.TopDirectoryOnly));
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.gif", SearchOption.TopDirectoryOnly));
-#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-                bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.PNG", SearchOption.TopDirectoryOnly));
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.BMP", SearchOption.TopDirectoryOnly));
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.JPG", SearchOption.TopDirectoryOnly));
-				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.GIF", SearchOption.TopDirectoryOnly));
-#endif
-                foreach(var filename in bmpfilelist)
-				{//リスト化のみ。Loadはまだ
-					string name = Path.GetFileName(filename).ToUpper();
-					resourceDic.Add(name, new BaseImage(name, filename));
-				}
+                //				List<string> bmpfilelist = new List<string>();
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.png", SearchOption.TopDirectoryOnly));
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.bmp", SearchOption.TopDirectoryOnly));
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.jpg", SearchOption.TopDirectoryOnly));
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.gif", SearchOption.TopDirectoryOnly));
+                //#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+                //                bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.PNG", SearchOption.TopDirectoryOnly));
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.BMP", SearchOption.TopDirectoryOnly));
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.JPG", SearchOption.TopDirectoryOnly));
+                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.GIF", SearchOption.TopDirectoryOnly));
+                //#endif
+                //            foreach(var filename in bmpfilelist)
+                //{//リスト化のみ。Loadはまだ
+                //	string name = Path.GetFileName(filename).ToUpper();
+                //	resourceDic.Add(name, new BaseImage(name, filename));
+                //}
+                var bmpfilelist = uEmuera.Utils.GetContentFiles();
+                foreach(var kv in bmpfilelist)
+                {
+                    resourceDic.Add(kv.Key, new BaseImage(kv.Key, kv.Value));
+                }
+
 				List<string> csvFiles = new List<string>(Directory.GetFiles(Program.ContentDir, "*.csv", SearchOption.TopDirectoryOnly));
 #if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
                 csvFiles.AddRange(Directory.GetFiles(Program.ContentDir, "*.CSV", SearchOption.TopDirectoryOnly));
+                //csvFiles.AddRange(Directory.GetFiles(dir_resource_upper, "*.CSV", SearchOption.TopDirectoryOnly));
 #endif
                 foreach(var filename in csvFiles)
 				{
-					string[] lines = File.ReadAllLines(filename, Config.Encode);
+                    //string[] lines = File.ReadAllLines(filename, Config.Encode);
+                    string[] lines = uEmuera.Utils.GetResourceCSVLines(filename, Config.Encode);
 					foreach (var line in lines)
 					{
 						if (line.Length == 0)
@@ -92,8 +100,9 @@ namespace MinorShift.Emuera.Content
 			if(parent is BaseImage)
 			{
 				BaseImage parentImage = parent as BaseImage;
-				parentImage.Load(Config.TextDrawingMode == TextDrawingMode.WINAPI);
-				if (!parentImage.Enabled)
+                //parentImage.Load(Config.TextDrawingMode == TextDrawingMode.WINAPI);
+                parentImage.Load(false);
+                if (!parentImage.Enabled)
 						return null;
 				Rectangle rect = new Rectangle(new Point(0, 0), parentImage.Bitmap.size);
 				bool noresize = false;

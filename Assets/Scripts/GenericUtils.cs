@@ -35,6 +35,26 @@ public static class GenericUtils
         return null;
     }
     /// <summary>
+    /// 获取子对象列表
+    /// </summary>
+    public static List<T> FindChildren<T>(GameObject obj, bool includeInactive = false)
+        where T : Component
+    {
+        var result_list = new List<T>();
+        if(!obj)
+            return result_list;
+
+        var list = obj.GetComponentsInChildren<Transform>(includeInactive);
+        foreach(var v in list)
+        {
+            var c = v.GetComponent<T>();
+            if(c)
+                result_list.Add(c);
+        }
+
+        return result_list;
+    }
+    /// <summary>
     /// 获得子对象
     /// </summary>
     public static T FindChildByName<T>(GameObject obj, string childname, bool includeInactive = false) where T : Component
@@ -75,6 +95,22 @@ public static class GenericUtils
     public static string GetColorCode(uEmuera.Drawing.Color color)
     {
         return string.Format("{0:x8}", color.ToRGBA());
+    }
+    public static Rect ToUnityRect(uEmuera.Drawing.Rectangle rect)
+    {
+        return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
+    }
+    public static Rect ToUnityRect(uEmuera.Drawing.Rectangle rect, int width, int height)
+    {
+        var x = rect.X;
+        var y = height - rect.Height - rect.Y;
+        var w = rect.Width;
+        if(x + w > width)
+            w = width - x;
+        var h = rect.Height;
+        if(y + h > height)
+            h = height - x;
+        return new Rect(x, y, w, h);
     }
 
     public class PointerClickListener : MonoBehaviour, IPointerClickHandler
@@ -148,6 +184,87 @@ public static class GenericUtils
         l.callbacks2 = new HashSet<Action<PointerEventData>>();
     }
 
+    class PointerDownListener : MonoBehaviour, IPointerDownHandler
+    {
+        public virtual void OnPointerDown(PointerEventData eventData)
+        {
+            foreach(var callback in callbacks)
+                callback(eventData);
+        }
+        void OnDestroy()
+        {
+            callbacks.Clear();
+        }
+        public HashSet<Action<PointerEventData>> callbacks = new HashSet<Action<PointerEventData>>();
+    }
+    public static void SetListenerOnPointerDown(GameObject obj, Action<PointerEventData> callback)
+    {
+        if(!obj || callback == null)
+            return;
+        var l = obj.GetComponent<PointerDownListener>();
+        if(!l)
+            l = obj.AddComponent<PointerDownListener>();
+        l.callbacks.Add(callback);
+    }
+    public static void RemoveListenerOnPointerDown(GameObject obj, Action<PointerEventData> callback)
+    {
+        if(!obj || callback == null)
+            return;
+        var l = obj.GetComponent<PointerDownListener>();
+        if(!l)
+            return;
+        l.callbacks.Remove(callback);
+    }
+    public static void RemoveListenerOnPointerDown(GameObject obj)
+    {
+        if(!obj)
+            return;
+        var l = obj.GetComponent<PointerDownListener>();
+        if(!l)
+            return;
+        l.callbacks.Clear();
+    }
+
+    class PointerUpListener : MonoBehaviour, IPointerUpHandler
+    {
+        public virtual void OnPointerUp(PointerEventData eventData)
+        {
+            foreach(var callback in callbacks)
+                callback(eventData);
+        }
+        void OnDestroy()
+        {
+            callbacks.Clear();
+        }
+        public HashSet<Action<PointerEventData>> callbacks = new HashSet<Action<PointerEventData>>();
+    }
+    public static void SetListenerOnPointerUp(GameObject obj, Action<PointerEventData> callback)
+    {
+        if(!obj || callback == null)
+            return;
+        var l = obj.GetComponent<PointerUpListener>();
+        if(!l)
+            l = obj.AddComponent<PointerUpListener>();
+        l.callbacks.Add(callback);
+    }
+    public static void RemoveListenerOnPointerUp(GameObject obj, Action<PointerEventData> callback)
+    {
+        if(!obj || callback == null)
+            return;
+        var l = obj.GetComponent<PointerUpListener>();
+        if(!l)
+            return;
+        l.callbacks.Remove(callback);
+    }
+    public static void RemoveListenerOnPointerUp(GameObject obj)
+    {
+        if(!obj)
+            return;
+        var l = obj.GetComponent<PointerUpListener>();
+        if(!l)
+            return;
+        l.callbacks.Clear();
+    }
 
     //监听类
     class BeginDragListener : MonoBehaviour, IBeginDragHandler
@@ -372,7 +489,7 @@ public static class GenericUtils
     }
     public static void ShowIsInProcess(bool value)
     {
-        text_content.isprocess.SetActive(value);
+        text_content.ShowIsInProcess(value);
     }
     static EmueraContent text_content
     {

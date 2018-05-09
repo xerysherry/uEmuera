@@ -35,7 +35,7 @@ public class EmueraThread
         running = false;
     }
 
-    public void Input(string c, bool from_button)
+    public void Input(string c, bool from_button, bool skip = false)
     {
         var console = MinorShift.Emuera.GlobalStatic.Console;
         if(console == null)
@@ -43,7 +43,9 @@ public class EmueraThread
         if(!from_button && console.IsWaitingInputSomething)
             return;
         input = c;
+        skipflag = skip;
     }
+    public bool IsSkipFlag { get { return skipflag; } }
 
     void Work()
     {
@@ -51,10 +53,16 @@ public class EmueraThread
         MinorShift.Emuera.Program.debugMode = debugmode;
         MinorShift.Emuera.Program.Main(new string[0] { });
 
+        uEmuera.Utils.ResourceClear();
+        GC.Collect();
+
         input = null;
         var console = MinorShift.Emuera.GlobalStatic.Console;
+        var random = new System.Random();
         while(running)
         {
+            skipflag = false;
+
             while(input == null)
             {
                 Thread.Sleep(1);
@@ -67,7 +75,8 @@ public class EmueraThread
             {
                 if(console.IsWaitingEnterKey)
                     input = "";
-                console.PressEnterKey(false, input, false);
+                console.PressEnterKey(skipflag, input, false);
+                //GC.Collect();
             }
             Thread.Sleep(10);
             input = null;
@@ -79,12 +88,17 @@ public class EmueraThread
         //初始化
         MinorShift.Emuera.Program.debugMode = debugmode;
         MinorShift.Emuera.Program.Main(new string[0] { });
+
+        uEmuera.Utils.ResourceClear();
+        GC.Collect();
         yield return null;
 
         input = null;
         var console = MinorShift.Emuera.GlobalStatic.Console;
         while(running)
         {
+            skipflag = false;
+
             while(input == null)
             {
                 yield return null;
@@ -97,7 +111,7 @@ public class EmueraThread
             {
                 if(console.IsWaitingEnterKey)
                     input = "";
-                console.PressEnterKey(false, input, false);
+                console.PressEnterKey(skipflag, input, false);
             }
             yield return new WaitForSeconds(0.01f);
             input = null;
@@ -108,4 +122,5 @@ public class EmueraThread
     bool debugmode;
     bool running;
     string input;
+    bool skipflag;
 }

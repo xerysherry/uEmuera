@@ -370,62 +370,108 @@ namespace MinorShift.Emuera.Sub
 			}
 			return new IdentifierWord(str);
 		}
-		
-		/// <summary>
-		/// 単語を文字列で取得。マクロ適用なし
-		/// </summary>
-		/// <param name="st"></param>
-		/// <returns></returns>
-		public static string ReadSingleIdentifier(StringStream st)
+
+        static readonly HashSet<char> kHashSet_ReadSingleIdentifier = new HashSet<char>
+        {
+            ' ',
+            '\t',
+            '+',
+            '-',
+            '*',
+            '/',
+            '%',
+            '=',
+            '!',
+            '<',
+            '>',
+            '|',
+            '&',
+            '^',
+            '~',
+            '?',
+            '#',
+            ')',
+            '}',
+            ']',
+            ',',
+            ':',
+            '(',
+            '{',
+            '[',
+            '$',
+            '\\',
+            '\'',
+            '\"',
+            '@',
+            '.',
+            ';',
+        };
+        /// <summary>
+        /// 単語を文字列で取得。マクロ適用なし
+        /// </summary>
+        /// <param name="st"></param>
+        /// <returns></returns>
+        public static string ReadSingleIdentifier(StringStream st)
 		{
 			//1819 やや遅い。でもいずれやりたい
 			//Match m = idReg.Match(st.RowString, st.CurrentPosition);
 			//st.Jump(m.Length);
 			//return m.Value;
 			int start = st.CurrentPosition;
+            char c;
 			while (!st.EOS)
 			{
-				switch (st.Current)
-				{
-					case ' ':
-					case '\t':
-					case '+':
-					case '-':
-					case '*':
-					case '/':
-					case '%':
-					case '=':
-					case '!':
-					case '<':
-					case '>':
-					case '|':
-					case '&':
-					case '^':
-					case '~':
-					case '?':
-					case '#':
-					case ')':
-					case '}':
-					case ']':
-					case ',':
-					case ':':
-					case '(':
-					case '{':
-					case '[':
-					case '$':
-					case '\\':
-					case '\'':
-					case '\"':
-					case '@':
-					case '.':
-					case ';'://コメントに関しては直後に行われるであろうSkipWhiteSpaceなどが対応する。
-						goto end;
-					case '　':
-						if (!Config.SystemAllowFullSpace)
-							throw new CodeEE("予期しない全角スペースを発見しました(この警告はシステムオプション「" + Config.GetConfigName(ConfigCode.SystemAllowFullSpace) + "」により無視できます)");
-						goto end;
-				}
-				st.ShiftNext();
+                //switch (st.Current)
+                //{
+                //	case ' ':
+                //	case '\t':
+                //	case '+':
+                //	case '-':
+                //	case '*':
+                //	case '/':
+                //	case '%':
+                //	case '=':
+                //	case '!':
+                //	case '<':
+                //	case '>':
+                //	case '|':
+                //	case '&':
+                //	case '^':
+                //	case '~':
+                //	case '?':
+                //	case '#':
+                //	case ')':
+                //	case '}':
+                //	case ']':
+                //	case ',':
+                //	case ':':
+                //	case '(':
+                //	case '{':
+                //	case '[':
+                //	case '$':
+                //	case '\\':
+                //	case '\'':
+                //	case '\"':
+                //	case '@':
+                //	case '.':
+                //	case ';'://コメントに関しては直後に行われるであろうSkipWhiteSpaceなどが対応する。
+                //		goto end;
+                //	case '　':
+                //		if (!Config.SystemAllowFullSpace)
+                //			throw new CodeEE("予期しない全角スペースを発見しました(この警告はシステムオプション「" + Config.GetConfigName(ConfigCode.SystemAllowFullSpace) + "」により無視できます)");
+                //		goto end;
+                //}
+
+                c = st.Current;
+                if(kHashSet_ReadSingleIdentifier.Contains(c))
+                    goto end;
+                else if(c == '　')
+                {
+                    if(!Config.SystemAllowFullSpace)
+                	    throw new CodeEE("予期しない全角スペースを発見しました(この警告はシステムオプション「" + Config.GetConfigName(ConfigCode.SystemAllowFullSpace) + "」により無視できます)");
+                    goto end;
+                }
+                st.ShiftNext();
 			}
 		end:
 			return st.Substring(start, st.CurrentPosition - start);

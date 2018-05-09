@@ -27,6 +27,31 @@ public class QuickButtons : MonoBehaviour
 
     static readonly int kMaxContentButtonCountShow = 4;
 
+    public Button template_button;
+
+    RectTransform parent
+    {
+        get
+        {
+            if(parent_ == null)
+            {
+                parent_ = transform.parent as RectTransform;
+                while(parent_.parent != null)
+                {
+                    parent_ = parent_.parent as RectTransform; ;
+                } 
+            }
+            return parent_;
+        }
+    }
+    RectTransform parent_;
+    //float WIDTH {
+    //    get { return parent.sizeDelta.x; }
+    //}
+    //float HEIGHT {
+    //    get { return parent.sizeDelta.y; }
+    //}
+
 	void Start ()
     {
         GenericUtils.SetListenerOnBeginDrag(gameObject, OnBeginDrag);
@@ -47,14 +72,13 @@ public class QuickButtons : MonoBehaviour
         float max_width = (width + interval) * kMaxContentButtonCountShow;
         float display_width = System.Math.Min(content_width, max_width);
 
-        var ec_rt = EmueraContent.instance.rect_transform.rect;
+        var ec_rt = parent.rect;
         if(Screen.width < Screen.height)
             display_width = System.Math.Min(display_width, ec_rt.width);
 
-        float display_height = System.Math.Min(ec_rt.height - 60, content_height);
+        float display_height = System.Math.Min(ec_rt.height - 70, content_height);
         rect_transform.sizeDelta = new Vector2(display_width, display_height);
         
-
         if(drag_delta != Vector2.zero)
         {
             float t = drag_delta.magnitude;
@@ -173,7 +197,7 @@ public class QuickButtons : MonoBehaviour
     public bool IsShow { get { return gameObject.activeSelf; } }
     public void Clear()
     {
-        for(int i = 0; i < display_buttons_.Count; ++i)
+        for(int i = display_buttons_.Count - 1; i >= 0; --i)
         {
             var b = display_buttons_[i];
             PushButton(b);
@@ -198,8 +222,12 @@ public class QuickButtons : MonoBehaviour
         button.code = code;
         button.line = lineidx;
         button.x = add_x - interval;
-        var bc = button.background.color;
-        button.background.color = new Color(bc.r, bc.g, bc.b, 0.3f);
+        //var bc = button.background.color;
+        var bc = color;
+        button.background.color = new Color(
+            Mathf.Clamp(1 - bc.r + 0.10f, 0, 1),
+            Mathf.Clamp(1 - bc.g + 0.10f, 0, 1),
+            Mathf.Clamp(1 - bc.b + 0.10f, 0, 1), 0.6f);
         add_x += (width + interval);
         curr_line_count += 1;
         max_line_count = System.Math.Max(max_line_count, curr_line_count);
@@ -215,7 +243,6 @@ public class QuickButtons : MonoBehaviour
         add_x = 0;
         curr_line_count = 0;
     }
-
     QuickButton PullButton()
     {
         QuickButton button = null;
@@ -223,7 +250,7 @@ public class QuickButtons : MonoBehaviour
             button = cache_buttons_.Pop();
         else
         {
-            var obj = GameObject.Instantiate(EmueraContent.instance.template_button.gameObject);
+            var obj = GameObject.Instantiate(template_button.gameObject);
             button = obj.AddComponent<QuickButton>();
             button.transform.SetParent(transform);
             var rt = button.transform as RectTransform;

@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using MinorShift.Emuera;
@@ -11,233 +10,14 @@ public class EmueraContent : MonoBehaviour
     public static EmueraContent instance { get { return instance_; } }
     static EmueraContent instance_ = null;
 
-    public static int FontSize { get; private set; }
-    public static Color FontColor { get; private set; }
-
-    public class TextObj
-    {
-        public LineDesc line;
-        public int unit_index;
-        public UnitDesc unit
-        {
-            get
-            {
-                if(line == null || unit_index >= line.units.Count)
-                    return null;
-                return line.units[unit_index];
-            }
-        }
-    }
-    public enum Align
-    {
-        LEFT = 0,
-        CENTER = 1,
-        RIGHT = 2,
-    }
-    public class UnitDesc
-    {
-        public string content;
-        public string code;
-        public int generation;
-        public int posx;
-        public int relative_posx;
-        public int width;
-        public Color color;
-        public string fontname;
-
-        public uint flags = 0;
-        public bool isbutton
-        {
-            get { return (flags & 0x1) == 1; }
-            set { flags = value ? (flags | 0x1) : (flags & (0xFFFFFFFF ^ 0x1U)); }
-        }
-        public bool underline
-        {
-            get { return ((flags >> 1) & 0x1) == 1; }
-            set { flags = value ? (flags | (0x1U << 1)) : (flags & (0xFFFFFFFF ^ (0x1U << 1)));}
-        }
-        public bool strickout
-        {
-            get { return ((flags >> 2) & 0x1) == 1; }
-            set { flags = value ? (flags | (0x1U << 2)) : (flags & (0xFFFFFFFF ^ (0x1U << 2))); }
-        }
-        public bool empty
-        {
-            get { return ((flags >> 3) & 0x1) == 1; }
-            set { flags = value ? (flags | (0x1U << 3)) : (flags & (0xFFFFFFFF ^ (0x1U << 3))); }
-        }
-        public bool richedit
-        {
-            get { return ((flags >> 4) & 0x1) == 1; }
-            set { flags = value ? (flags | (0x1U << 4)) : (flags & (0xFFFFFFFF ^ (0x1U << 4))); }
-        }
-    }
-    public class LineDesc
-    {
-        public LineDesc(object display, float posy, float h)
-        {
-            display_line = (ConsoleDisplayLine)display;
-            position_y = posy;
-            height = h;
-        }
-        public object console_line { get { return display_line; } }
-        ConsoleDisplayLine display_line = null;
-
-        public override string ToString()
-        {
-            StringBuilder str = new StringBuilder();
-            foreach(var u in units)
-                str.Append(u.content);
-            return str.ToString();
-        }
-        public void Update()
-        {
-            units = new List<UnitDesc>();
-
-            var Buttons = display_line.Buttons;
-            for(int i = 0; i < Buttons.Length; ++i)
-            {
-                var btn = Buttons[i];
-                var ud = new UnitDesc();
-                var fontname = FontUtils.default_fontname;
-                var btnlength = btn.StrArray.Length;
-                var validstr = 0;
-                var validlength = 0;
-                var richedit = false;
-                ud.width = 0;
-                ud.color = FontColor;
-                StringBuilder content = new StringBuilder();
-                for(int si = 0; si < btnlength; ++si)
-                {
-                    var s = btn.StrArray[si];
-                    if(string.IsNullOrEmpty(s.Str.Trim()))
-                        continue;
-                    if(validstr == 0)
-                        validstr = 1;
-                    else
-                    {
-                        validstr += 1;
-                        break;
-                    }
-                }
-                for(int si = 0; si < btnlength; ++si)
-                {
-                    var s = btn.StrArray[si];
-                    var str = s.Str;
-                    validlength += str.Trim().Length;
-                    if(string.IsNullOrEmpty(str))
-                        continue;
-                    var fontsize = (float)FontSize;
-                    var fontstyle = uEmuera.Drawing.FontStyle.Regular;
-                    var fontcolor = FontColor;
-
-                    if(s is MinorShift.Emuera.GameView.ConsoleStyledString)
-                    {
-                        var u = (MinorShift.Emuera.GameView.ConsoleStyledString)s;
-                        fontsize = u.Font.Size;
-                        fontstyle = u.Font.Style;
-                        fontname = u.Font.FontFamily.Name;
-                    }
-                    if(s is MinorShift.Emuera.GameView.AConsoleColoredPart)
-                    {
-                        var u = (MinorShift.Emuera.GameView.AConsoleColoredPart)s;
-                        fontcolor = GenericUtils.ToUnityColor(u.pColor);
-                    }
-                    if(fontstyle != uEmuera.Drawing.FontStyle.Regular)
-                    {
-                        if((fontstyle & uEmuera.Drawing.FontStyle.Bold) > 0)
-                        {
-                            str = string.Format("<b>{0}</b>", str);
-                            richedit = true;
-                        }
-                        if((fontstyle & uEmuera.Drawing.FontStyle.Italic) > 0)
-                        {
-                            str = string.Format("<i>{0}</i>", str);
-                            richedit = true;
-                        }
-                        if((fontstyle & uEmuera.Drawing.FontStyle.Underline) > 0)
-                            ud.underline = true;
-                        if((fontstyle & uEmuera.Drawing.FontStyle.Strikeout) > 0)
-                            ud.strickout = true;
-                    }
-                    if(fontsize != FontSize)
-                    {
-                        str = string.Format("<size={0}>{1}</size>", (int)fontsize, str);
-                        richedit = true;
-                    }
-                    if(fontcolor != FontColor)
-                    {
-                        if(validstr != 1)
-                        {
-                            str = string.Format("<color=#{0}>{1}</color>", GenericUtils.GetColorCode(fontcolor), str);
-                            richedit = true;
-                        }
-                        else
-                            ud.color = fontcolor;
-                    }
-                    content.Append(str);
-                    ud.width += uEmuera.Utils.GetDisplayLength(s.Str, fontsize);
-                }
-                ud.empty = (validlength == 0);
-                if(ud.empty)
-                    ud.content = null;
-                else
-                    ud.content = content.ToString();
-                ud.isbutton = btn.IsButton;
-                ud.generation = (int)btn.Generation;
-                ud.code = btn.Inputs;
-                ud.posx = btn.PointX;
-                ud.relative_posx = btn.RelativePointX;
-                if(fontname != FontUtils.default_fontname)
-                    ud.fontname = fontname;
-                else
-                    ud.fontname = null;
-                ud.richedit = richedit;
-                
-                units.Add(ud);
-            }
-        }
-        /// <summary>
-        /// 对其方式
-        /// </summary>
-        public Align align { get { return (Align)display_line.Align; } }
-        /// <summary>
-        /// 行号
-        /// </summary>
-        public int LineNo { get { return display_line.LineNo; } }
-        /// <summary>
-        /// 是否为逻辑行
-        /// </summary>
-        public bool IsLogicalLine { get { return display_line.IsLogicalLine; } }
-        /// <summary>
-        /// 坐标Y
-        /// </summary>
-        public float position_y = 0.0f;
-        /// <summary>
-        /// 高度
-        /// </summary>
-        public float height = 0.0f;
-        /// <summary>
-        /// 子对象
-        /// </summary>
-        public List<UnitDesc> units = null;
-    }
-
     public string default_fontname;
     public Text template_text;
     public Image template_block;
-    public Button template_button;
+    public RectTransform template_images;
+    public RectTransform image_content;
     public RectTransform text_content;
-    public RectTransform image_content_1;
-    public RectTransform image_content_2;
-    public RectTransform image_content_3;
-
-    public Button quick_button;
-    public Button input_button;
-
-    public QuickButtons quick_buttons;
-    public Inputpad input_pad;
-    public GameObject isprocess;
+    public RectTransform cache_images;
+    public OptionWindow option_window;
 
     Image background;
     uEmuera.Drawing.Color background_color;
@@ -258,8 +38,6 @@ public class EmueraContent : MonoBehaviour
         GenericUtils.SetListenerOnDrag(gameObject, OnDrag);
         GenericUtils.SetListenerOnEndDrag(gameObject, OnEndDrag);
         GenericUtils.SetListenerOnClick(gameObject, OnClick);
-        GenericUtils.SetListenerOnClick(quick_button.gameObject, OnQuickButtonClick);
-        GenericUtils.SetListenerOnClick(input_button.gameObject, OnInputPadButtonClick);
     }
 
     int GetLineNoIndex(int lineno)
@@ -358,8 +136,8 @@ public class EmueraContent : MonoBehaviour
             return;
         dirty = false;
 
-        float display_width = rect_transform.rect.width;
-        float display_height = rect_transform.rect.height;
+        float display_width = DISPLAY_WIDTH;
+        float display_height = DISPLAY_HEIGHT;
 
         if(drag_delta != Vector2.zero)
         {
@@ -389,7 +167,7 @@ public class EmueraContent : MonoBehaviour
                 line.logic_y + line.logic_height < pos.y)
             {
                 display_lines_[i] = display_lines_[count - remove_count - 1];
-                PushLineConfig(line);
+                PushLine(line);
                 ++remove_count;
                 --i;
             }
@@ -403,6 +181,29 @@ public class EmueraContent : MonoBehaviour
         if(remove_count > 0)
             display_lines_.RemoveRange(count - remove_count, remove_count);
 
+        List<EmueraImage> image_removelist = null;
+        foreach(var kv in display_images_)
+        {
+            var image = kv.Value;
+            if(image.logic_y > pos.y + display_height ||
+                image.logic_y + image.logic_height < pos.y)
+            {
+                if(image_removelist == null)
+                    image_removelist = new List<EmueraImage>();
+                image_removelist.Add(image);
+            }
+            else
+                image.SetPosition(pos.x + image.unit_desc.posx, pos.y - image.logic_y);
+        }
+        if(image_removelist != null)
+        {
+            foreach(var image in image_removelist)
+            {
+                PushImageContainer(image);
+                display_images_.Remove(image.LineNo * 1000 + image.UnitIdx);
+            }
+        }
+
         var index = GetLineNoIndex(min_line_no - 1);
         index = GetPrevLineNoIndex(index);
         if(index >= 0)
@@ -415,13 +216,13 @@ public class EmueraContent : MonoBehaviour
         {
             UpdateLine(pos, display_height, index, +1);
         }
-        if(display_lines_.Count == 0 && console_lines_.Count > 0)
+        if(display_lines_.Count == 0 && 
+            console_lines_ != null && console_lines_.Count > 0)
         {
             index = GetLineNoIndexForPosY(pos.y);
             UpdateLine(pos, display_height, index, -1);
             UpdateLine(pos, display_height, index+1, +1);
         }
-
     }
     void UpdateLine(Vector2 local, float display_height, int index, int delta)
     {
@@ -433,37 +234,36 @@ public class EmueraContent : MonoBehaviour
                 l.position_y + l.height < local.y)
                 break;
 
-            if(l.units.Count > 1)
+            for(int li = 0; li < l.units.Count; ++li)
             {
-                for(int li = 0; li < l.units.Count; ++li)
+                var unit = l.units[li];
+                if(!unit.empty)
                 {
-                    if(l.units[li].empty)
-                        continue;
-                    var lc = PullLineConfig();
+                    var lc = PullLine();
                     lc.line_desc = l;
                     lc.UnitIdx = li;
-                    lc.SizeFitter = true;
-                    lc.Width = l.units[li].width;
+                    lc.Width = unit.width;
                     lc.UpdateContent();
-                    lc.SetPosition(l.units[li].posx + local.x, local.y - lc.logic_y);
+                    lc.SetPosition(unit.posx + local.x, local.y - lc.logic_y);
                     display_lines_.Add(lc);
                 }
-            }
-            else if(l.units.Count == 1 && !l.units[0].empty)
-            {
-                var lc = PullLineConfig();
-                lc.line_desc = l;
-                lc.UnitIdx = 0;
-                lc.SizeFitter = false;
-
-                if(l.units[0].isbutton)
-                    lc.Width = l.units[0].width;
-                else
-                    lc.Width = content_width;
-
-                lc.UpdateContent();
-                lc.SetPosition(l.units[0].posx + local.x, local.y - lc.logic_y);
-                display_lines_.Add(lc);
+                if(unit.image_indices != null && unit.image_indices.Count > 0)
+                {
+                    var hash = l.LineNo * 1000 + li;
+                    EmueraImage ic = null;
+                    if(!display_images_.TryGetValue(hash, out ic))
+                    {
+                        ic = PullImageContainer();
+                        display_images_.Add(l.LineNo * 1000 + li, ic);
+                    }
+                    else
+                        ic.Clear();
+                    ic.line_desc = l;
+                    ic.UnitIdx = li;
+                    ic.Width = unit.width;
+                    ic.UpdateContent();
+                    ic.SetPosition(unit.posx + local.x, local.y - ic.logic_y);
+                }
             }
             index += delta;
         }
@@ -500,8 +300,14 @@ public class EmueraContent : MonoBehaviour
 
         return local;
     }
+    public void SetDirty()
+    {
+        dirty = true;
+        //ToBottom();
+    }
 
     bool dirty = false;
+    uint last_click_tic = 0;
     void OnBeginDrag(UnityEngine.EventSystems.PointerEventData e)
     {
         drag_begin_position = e.position;
@@ -517,9 +323,8 @@ public class EmueraContent : MonoBehaviour
     void OnEndDrag(UnityEngine.EventSystems.PointerEventData e)
     {
         dirty = true;
-
-        float display_width = rect_transform.rect.width;
-        float display_height = rect_transform.rect.height;
+        float display_width = DISPLAY_WIDTH;
+        float display_height = DISPLAY_HEIGHT;
         local_position = GetLimitPosition(
             local_position + (e.position - drag_begin_position),
             display_width, display_height);
@@ -530,28 +335,10 @@ public class EmueraContent : MonoBehaviour
     }
     void OnClick()
     {
-        EmueraThread.instance.Input("", false);
-    }
-    void OnQuickButtonClick()
-    {
-        if(quick_buttons.IsShow)
-            quick_buttons.Hide();
-        else
-        {
-            input_pad.Hide();
-            quick_buttons.Show();
-            SetLastButtonGeneration(last_button_generation);
-        }
-    }
-    void OnInputPadButtonClick()
-    {
-        if(input_pad.IsShow)
-            input_pad.Hide();
-        else
-        {
-            quick_buttons.Hide();
-            input_pad.Show();
-        }
+        var nowtick = MinorShift._Library.WinmmTimer.TickCount;
+        var skipflag = (nowtick - last_click_tic < 200);
+        EmueraThread.instance.Input("", false, skipflag);
+        last_click_tic = nowtick;
     }
     Vector2 drag_begin_position = Vector2.zero;
     Vector2 drag_curr_position = Vector2.zero;
@@ -566,32 +353,29 @@ public class EmueraContent : MonoBehaviour
     }
     public void Ready()
     {
+        EmueraBehaviour.Ready();
+        option_window.Ready();
+        option_window.gameObject.SetActive(true);
+        
         background.color = GenericUtils.ToUnityColor(Config.BackColor);
         background_color = Config.BackColor;
         content_width = Config.WindowX;
 
-        FontUtils.SetDefaultFont(Config.FontName, true);
-
-        template_text.color = GenericUtils.ToUnityColor(Config.ForeColor);
+        FontUtils.SetDefaultFont(Config.FontName, FontUtils.GetMonospaced(Config.FontName));
+        
+        template_text.color = EmueraBehaviour.FontColor;
         template_text.font = FontUtils.default_font;
         if(template_text.font == null)
             template_text.font = FontUtils.default_font;
-        template_text.fontSize = Config.FontSize;
+        template_text.fontSize = EmueraBehaviour.FontSize;
         template_text.rectTransform.sizeDelta = 
             new Vector2(template_text.rectTransform.sizeDelta.x, 0);
         template_text.gameObject.SetActive(false);
 
-        FontSize = template_text.fontSize;
-        FontColor = template_text.color;
-
-        console_lines_ = new List<LineDesc>(max_log_count);
+        console_lines_ = new List<EmueraBehaviour.LineDesc>(max_log_count);
         while(console_lines_.Count < max_log_count)
             console_lines_.Add(null);
         invalid_count = max_log_count;
-
-        var texts = isprocess.GetComponentsInChildren<Text>();
-        foreach(var text in texts)
-            text.color = template_text.color;
     }
     bool ready_ = false;
 
@@ -603,7 +387,7 @@ public class EmueraContent : MonoBehaviour
 
         for(int i = 0; i < display_lines_.Count; ++i)
         {
-            PushLineConfig(display_lines_[i]);
+            PushLine(display_lines_[i]);
         }
 
         display_lines_.Clear();
@@ -622,7 +406,7 @@ public class EmueraContent : MonoBehaviour
             Ready();
             ready_ = true;
         }
-        LineDesc ld = new LineDesc(line, content_height, Config.LineHeight);
+        var ld = new EmueraBehaviour.LineDesc(line, content_height, Config.LineHeight);
 
         console_lines_[max_index % max_log_count] = ld;
         if(invalid_count > 0)
@@ -692,10 +476,24 @@ public class EmueraContent : MonoBehaviour
             if(display_lines_[i].LineNo >= lineno)
                 break;
         }
+        List<int> imageremove = new List<int>();
+        foreach(var image in display_images_)
+        {
+            if(image.Key / 1000 >= lineno)
+            {
+                PushImageContainer(image.Value);
+                imageremove.Add(image.Key);
+            }
+        }
+        foreach(var key in imageremove)
+        {
+            display_images_.Remove(key);
+        }
+
         var remove = 0;
         for(; i < display_lines_.Count; ++i, ++remove)
         {
-            PushLineConfig(display_lines_[i]);
+            PushLine(display_lines_[i]);
         }
         if(remove > 0)
         {
@@ -738,9 +536,15 @@ public class EmueraContent : MonoBehaviour
         dirty = true;
         Update();
     }
+    public void ShowIsInProcess(bool value)
+    {
+        option_window.inprogress.SetActive(value);
+    }
     public void SetLastButtonGeneration(int generation)
     {
         last_button_generation = generation;
+
+        var quick_buttons = option_window.quick_buttons;
         if(quick_buttons.IsShow)
         {
             quick_buttons.Clear();
@@ -801,7 +605,28 @@ public class EmueraContent : MonoBehaviour
         }
     }
     public int max_log_count { get { return MinorShift.Emuera.Config.MaxLog; } }
-    List<LineDesc> console_lines_;
+    List<EmueraBehaviour.LineDesc> console_lines_;
+
+    //RectTransform parent
+    //{
+    //    get
+    //    {
+    //        if(parent_ == null)
+    //        {
+    //            parent_ = transform.parent as RectTransform;
+    //            while(parent_.parent != null)
+    //            {
+    //                parent_ = parent_.parent as RectTransform; ;
+    //            }
+    //        }
+    //        return parent_;
+    //    }
+    //}
+    //RectTransform parent_;
+    //float DISPLAY_WIDTH { get { return parent.sizeDelta.x; } }
+    //float DISPLAY_HEIGHT { get { return parent.sizeDelta.y; } }
+    float DISPLAY_WIDTH { get { return rect_transform.rect.width; } }
+    float DISPLAY_HEIGHT { get { return rect_transform.rect.height; } }
 
     /// <summary>
     /// 偏移高
@@ -819,12 +644,18 @@ public class EmueraContent : MonoBehaviour
     /// 当前移动点
     /// </summary>
     Vector2 local_position = Vector2.zero;
-    
-    EmueraLine PullLineConfig()
+
+    List<EmueraLine> display_lines_ = new List<EmueraLine>();
+    Dictionary<int, EmueraImage> display_images_ = new Dictionary<int, EmueraImage>();
+    /// <summary>
+    /// 获取文本显示控件
+    /// </summary>
+    /// <returns></returns>
+    EmueraLine PullLine()
     {
         EmueraLine config = null;
         if(cache_lines_.Count > 0)
-            config = cache_lines_.Pop();
+            config = cache_lines_.Dequeue();
         else
         {
             var obj = GameObject.Instantiate(template_text.gameObject);
@@ -835,14 +666,78 @@ public class EmueraContent : MonoBehaviour
         config.gameObject.SetActive(true);  
         return config;
     }
-    void PushLineConfig(EmueraLine config)
+    /// <summary>
+    /// 交还文本显示控件
+    /// </summary>
+    /// <param name="line"></param>
+    void PushLine(EmueraLine line)
     {
-        config.Clear();
-        config.gameObject.SetActive(false);
-        config.gameObject.name = "unused";
-        cache_lines_.Push(config);
+        line.Clear();
+        line.gameObject.SetActive(false);
+        line.gameObject.name = "unused";
+        cache_lines_.Enqueue(line);
     }
+    Queue<EmueraLine> cache_lines_ = new Queue<EmueraLine>();
 
-    List<EmueraLine> display_lines_ = new List<EmueraLine>();
-    Stack<EmueraLine> cache_lines_ = new Stack<EmueraLine>();
+    /// <summary>
+    /// 获取图片显示控件
+    /// </summary>
+    /// <returns></returns>
+    EmueraImage PullImageContainer()
+    {
+        EmueraImage image = null;
+        if(cache_image_containers_.Count > 0)
+            image = cache_image_containers_.Pop();
+        else
+        {
+            var obj = GameObject.Instantiate(template_images.gameObject);
+            image = obj.GetComponent<EmueraImage>(); 
+        }
+        image.transform.SetParent(image_content);
+        image.transform.localScale = Vector3.one;
+        image.gameObject.SetActive(true);
+        return image;
+    }
+    /// <summary>
+    /// 交还图片显示控件
+    /// </summary>
+    /// <param name="image"></param>
+    void PushImageContainer(EmueraImage image)
+    {
+        image.Clear();
+        image.gameObject.SetActive(false);
+        image.gameObject.name = "unused";
+        image.transform.SetParent(cache_images);
+        cache_image_containers_.Push(image);
+    }
+    Stack<EmueraImage> cache_image_containers_ = new Stack<EmueraImage>();
+
+    public Image PullImage()
+    {
+        Image image = null;
+        if(cache_images_.Count > 0)
+            image = cache_images_.Pop();
+        else
+        {
+            var obj = new GameObject();
+            image = obj.AddComponent<Image>();
+            image.transform.SetParent(cache_images);
+            var rt = image.transform as RectTransform;
+            rt.anchorMin = new Vector2(0, 1);
+            rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 1);
+            rt.localScale = Vector3.one;
+        }
+        image.gameObject.SetActive(true);
+        return image;
+    }
+    public void PushImage(Image image)
+    {
+        image.gameObject.SetActive(false);
+        image.gameObject.name = "unused";
+        image.sprite = null;
+        image.transform.SetParent(cache_images);
+        cache_images_.Push(image);
+    }
+    Stack<Image> cache_images_ = new Stack<Image>();
 }

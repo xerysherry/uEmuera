@@ -34,5 +34,14 @@ namespace MinorShift.Emuera.GameView
                           inputReq.InputType == GameProc.InputType.StrValue);
             }
         }
+        internal GameProc.InputType InputType
+        {
+            get
+            {
+                if(inputReq == null)
+                    return GameProc.InputType.Void;
+                return inputReq.InputType;
+            }
+        }
     }
 }

@@ -8,13 +8,23 @@ namespace MinorShift.Emuera.Sub
 	/// </summary>
 	internal sealed class StringStream
 	{
-		public StringStream(string s)
+        public StringStream(string s)
 		{
 			source = s;
 			if (source == null)
 				source = "";
 			pointer = 0;
 		}
+
+        public StringStream()
+        { }
+        public void Set(string s)
+        {
+            source = s;
+            if(source == null)
+                source = "";
+            pointer = 0;
+        }
 
 		string source;
 		public const char EndOfString = '\0';

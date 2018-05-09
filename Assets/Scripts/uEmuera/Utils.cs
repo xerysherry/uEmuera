@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 
 namespace uEmuera
 {
@@ -66,6 +67,13 @@ namespace uEmuera
             return "";
         }
 
+        public static string GetSuffix(string filename)
+        {
+            int last_slash = filename.LastIndexOf('.');
+            if(last_slash != -1)
+                return filename.Substring(last_slash + 1);
+            return filename;
+        }
         /// <summary>
         /// 获取文本长
         /// </summary>
@@ -147,5 +155,155 @@ namespace uEmuera
             }
             return count;
         }
+        public static List<string> GetFiles(string search, string extension, SearchOption option)
+        {
+            var files = Directory.GetFiles(search, "*.???", option);
+            var result = new List<string>();
+            foreach(var file in files)
+            {
+                string ext = Path.GetExtension(file);
+                if(string.Compare(ext, extension, true) == 0)
+                    result.Add(file);
+            }
+            return result;
+        }
+        public static List<string> GetFiles(string search, string[] extensions, SearchOption option)
+        {
+            var extension_checker = new HashSet<string>();
+            for(int i = 0; i < extensions.Length; ++i)
+                extension_checker.Add(extensions[i].ToUpper());
+
+            var files = Directory.GetFiles(search, "*.???", option);
+            var result = new List<string>();
+            foreach(var file in files)
+            {
+                string ext = Path.GetExtension(file).ToUpper();
+                if(extension_checker.Contains(ext))
+                    result.Add(file);
+            }
+            return result;
+        }
+        public static Dictionary<string, string> GetContentFiles()
+        {
+            if(content_files != null)
+                return content_files;
+            content_files = new Dictionary<string, string>();
+
+            var contentdir = MinorShift._Library.Sys.ExeDir + "resources/";
+            if(!Directory.Exists(contentdir))
+                return content_files;
+
+            List<string> bmpfilelist = new List<string>();
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.png", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.bmp", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.jpg", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.gif", SearchOption.TopDirectoryOnly));
+#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.PNG", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.BMP", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.JPG", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.GIF", SearchOption.TopDirectoryOnly));
+#endif
+            foreach(var filename in bmpfilelist)
+            {
+                string name = Path.GetFileName(filename).ToUpper();
+                content_files.Add(name, filename);
+            }
+            return content_files;
+        }
+        public static string[] GetResourceCSVLines(
+            string csvpath, System.Text.Encoding encoding)
+        {
+            string[] lines = null;
+            if(resource_csv_lines_ != null &&
+                resource_csv_lines_.TryGetValue(csvpath, out lines))
+                return lines;
+            lines = File.ReadAllLines(csvpath, encoding);
+            return lines;
+        }
+        public static void ResourcePrepare()
+        {
+            var content_files = GetContentFiles();
+            if(content_files.Count == 0)
+                return;
+
+            var contentdir = MinorShift._Library.Sys.ExeDir + "resources/";
+            List<string> csvFiles = new List<string>(Directory.GetFiles(
+                contentdir, "*.csv", SearchOption.TopDirectoryOnly));
+#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            csvFiles.AddRange(Directory.GetFiles(
+                contentdir, "*.CSV", SearchOption.TopDirectoryOnly));
+#endif
+            resource_csv_lines_ = new Dictionary<string, string[]>();
+
+            var encoder = MinorShift.Emuera.Config.Encode;
+            foreach(var filename in csvFiles)
+            {   
+                //SpriteManager.ClearResourceCSVLines(filename);
+                string[] lines = SpriteManager.GetResourceCSVLines(filename);
+                if(lines != null)
+                {
+                    resource_csv_lines_.Add(filename, lines);
+                    continue;
+                }
+
+                List<string> newlines = new List<string>();
+                lines = File.ReadAllLines(filename, encoder);
+                int fixcount = 0;
+                for(int i = 0; i < lines.Length; ++i)
+                {
+                    var line = lines[i];
+                    if(line.Length == 0)
+                        continue;
+                    string str = line.Trim();
+                    if(str.Length == 0 || str.StartsWith(";"))
+                        continue;
+
+                    string[] tokens = str.Split(',');
+                    if(tokens.Length > 4)
+                    {
+                        if(!string.IsNullOrEmpty(tokens[2]) &&
+                            !string.IsNullOrEmpty(tokens[3]))
+                        {
+                            newlines.Add(line);
+                            continue;
+                        }
+                    }
+
+                    string name = tokens[1].ToUpper();
+                    string imagepath = null;
+                    content_files.TryGetValue(name, out imagepath);
+                    if(imagepath == null)
+                        continue;
+
+                    var ti = SpriteManager.GetTextureInfo(name, imagepath);
+                    if(ti == null)
+                        continue;
+                    line = string.Format("{0},{1},0,0,{2},{3}",
+                        tokens[0], tokens[1], ti.width, ti.height);
+                    newlines.Add(line);
+                    fixcount += 1;
+                }
+                lines = newlines.ToArray();
+                resource_csv_lines_.Add(filename, lines);
+                if(fixcount > 0)
+                    SpriteManager.SetResourceCSVLine(filename, lines);
+            }
+        }
+        public static void ResourceClear()
+        {
+            if(content_files != null)
+            {
+                content_files.Clear();
+                content_files = null;
+            }
+            if(resource_csv_lines_ != null)
+            {
+                resource_csv_lines_.Clear();
+                resource_csv_lines_ = null;
+            }
+        }
+        static Dictionary<string, string> content_files = null;
+        static Dictionary<string, string[]> resource_csv_lines_ = null;
     }
 }

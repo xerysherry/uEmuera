@@ -101,8 +101,10 @@ namespace uEmuera.Window
             else if(console_.IsInProcess)
             {
                 CheckProcess();
-                //if(!dirty_)
-                return;
+                if(wait_process && !EmueraThread.instance.IsSkipFlag)
+                    return;
+                if(!dirty_)
+                    return;
             }
             else if(!dirty_)
             {
@@ -210,5 +212,6 @@ namespace uEmuera.Window
             }
         }
         uint last_process_tic = 0;
+        bool wait_process = true;
     }
 }
