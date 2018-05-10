@@ -49,11 +49,7 @@ public class EmueraMain : MonoBehaviour
         if(GlobalStatic.MainWindow != null)
             GlobalStatic.MainWindow.Update();
 
-        if(last_orientation_ != Input.deviceOrientation)
-        {
-            last_orientation_ = Input.deviceOrientation;
-            dirty_flag_ = true;
-        }
+        UpdateOrientation();
         ApplyScale();
     }
     bool working_ = false;
@@ -112,5 +108,17 @@ public class EmueraMain : MonoBehaviour
     float next_scale_value_ = 1;
     float last_scale_value_ = -1.0f;
 
+    void UpdateOrientation()
+    {
+        if(last_orientation_ != Input.deviceOrientation)
+        {
+            if(Input.deviceOrientation == DeviceOrientation.FaceDown ||
+                Input.deviceOrientation == DeviceOrientation.FaceUp ||
+                Input.deviceOrientation == DeviceOrientation.Unknown)
+                return;
+            last_orientation_ = Input.deviceOrientation;
+            dirty_flag_ = true;
+        }
+    }
     DeviceOrientation last_orientation_ = DeviceOrientation.Unknown;
 }

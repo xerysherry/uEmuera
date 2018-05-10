@@ -1553,7 +1553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6112d4d90a5cb494aa1c9cae2e6a3a3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  era_path: c:\game\era
+  era_path: 
 --- !u!4 &461951792
 Transform:
   m_ObjectHideFlags: 0

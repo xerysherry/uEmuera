@@ -70,39 +70,12 @@ public class OptionWindow : MonoBehaviour
     }
     void OnLockOrientationClick()
     {
-        if(Screen.autorotateToLandscapeLeft &&
-            Screen.autorotateToLandscapeRight &&
-            Screen.autorotateToPortrait &&
-            Screen.autorotateToPortraitUpsideDown)
+        if(auto_rotation)
         {
             Screen.autorotateToLandscapeLeft = false;
             Screen.autorotateToLandscapeRight = false;
             Screen.autorotateToPortrait = false;
             Screen.autorotateToPortraitUpsideDown = false;
-            switch(Input.deviceOrientation)
-            {
-            case DeviceOrientation.LandscapeLeft:
-                Screen.autorotateToLandscapeLeft = true;
-                Screen.autorotateToLandscapeRight = true;
-                Screen.orientation = ScreenOrientation.LandscapeLeft;
-                break;
-            case DeviceOrientation.LandscapeRight:
-                Screen.autorotateToLandscapeLeft = true;
-                Screen.autorotateToLandscapeRight = true;
-                Screen.orientation = ScreenOrientation.LandscapeRight;
-                break;
-            case DeviceOrientation.PortraitUpsideDown:
-                Screen.autorotateToPortrait = true;
-                Screen.autorotateToPortraitUpsideDown = true;
-                Screen.orientation = ScreenOrientation.PortraitUpsideDown;
-                break;
-            case DeviceOrientation.Portrait:
-            default:
-                Screen.autorotateToPortrait = true;
-                Screen.autorotateToPortraitUpsideDown = true;
-                Screen.orientation = ScreenOrientation.Portrait;
-                break;
-            }
             orientation_lock_image.sprite = lock_sprite;
         }
         else
@@ -111,7 +84,6 @@ public class OptionWindow : MonoBehaviour
             Screen.autorotateToLandscapeRight = true;
             Screen.autorotateToPortrait = true;
             Screen.autorotateToPortraitUpsideDown = true;
-            Screen.orientation = ScreenOrientation.AutoRotation;
             orientation_lock_image.sprite = unlock_sprite;
         }
     }
@@ -152,10 +124,7 @@ public class OptionWindow : MonoBehaviour
     public void ShowGameButton(bool value)
     {
         game_button.SetActive(value);
-        if( Screen.autorotateToLandscapeLeft &&
-            Screen.autorotateToLandscapeRight &&
-            Screen.autorotateToPortrait &&
-            Screen.autorotateToPortraitUpsideDown)
+        if(auto_rotation)
             orientation_lock_image.sprite = unlock_sprite;
         else
             orientation_lock_image.sprite = lock_sprite;
@@ -192,4 +161,15 @@ public class OptionWindow : MonoBehaviour
     public QuickButtons quick_buttons;
     public Inputpad input_pad;
     public Scalepad scale_pad;
+
+    bool auto_rotation
+    {
+        get
+        {
+            return Screen.autorotateToLandscapeLeft &&
+                    Screen.autorotateToLandscapeRight &&
+                    Screen.autorotateToPortrait &&
+                    Screen.autorotateToPortraitUpsideDown;
+        }
+    }
 }
