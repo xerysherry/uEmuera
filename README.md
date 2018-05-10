@@ -42,8 +42,10 @@ Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台�
 开始界面
 ![Screenshot1](Screenshot/screenshot1.png)
 游戏运行界面
-![Screenshot1](Screenshot/screenshot2.png)
+![Screenshot2](Screenshot/screenshot2.png)
 快捷按钮
-![Screenshot1](Screenshot/screenshot3.png)
+![Screenshot3](Screenshot/screenshot3.png)
 指令输入
-![Screenshot1](Screenshot/screenshot4.png)
+![Screenshot4](Screenshot/screenshot4.png)
+缩放控制
+![Screenshot5](Screenshot/screenshot5.png)
