@@ -381,9 +381,10 @@ public class EmueraContent : MonoBehaviour
 
     public void Clear()
     {
-        invalid_count = 0;
+        invalid_count = max_log_count;
         max_index = 0;
-        console_lines_.Clear();
+        for(int i = 0; i < console_lines_.Count; ++i)
+            console_lines_[i] = null;
 
         for(int i = 0; i < display_lines_.Count; ++i)
         {

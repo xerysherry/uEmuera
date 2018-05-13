@@ -107,9 +107,14 @@ namespace MinorShift.Emuera.GameView
 			//	bottom = Config.FontSize;
 			if (ButtonResourceName != null)
 			{
-				cImageB = Content.AppContents.GetContent<CroppedImage>(ButtonResourceName);
-				if (cImageB != null && !cImageB.Enabled)
-					cImageB = null;
+                if(ButtonResourceName == ResourceName)
+                    cImageB = cImage;
+                else
+                {
+                    cImageB = Content.AppContents.GetContent<CroppedImage>(ButtonResourceName);
+                    if(cImageB != null && !cImageB.Enabled)
+                        cImageB = null;
+                }
 			}
 		}
 

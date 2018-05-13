@@ -11,6 +11,33 @@ public class EmueraMain : MonoBehaviour
         working_ = true;
     }
 
+    public void Restart()
+    {
+        GenericUtils.ShowIsInProcess(true);
+        GenericUtils.StartCoroutine(RestartCo());
+    }
+
+    System.Collections.IEnumerator RestartCo()
+    {
+        while(EmueraThread.instance.Running())
+            yield return null;
+
+        GenericUtils.ShowIsInProcess(true);
+
+        var console = MinorShift.Emuera.GlobalStatic.Console;
+        console.ClearDisplay();
+        console.Dispose();
+
+        EmueraThread.instance.End();
+        EmueraContent.instance.Clear();
+
+        MinorShift.Emuera.Content.AppContents.UnloadContents();
+        System.GC.Collect();
+
+        yield return null;
+        EmueraThread.instance.Start(debug, use_coroutine);
+    }
+
     void Start()
     {
         canvas_ = GetComponent<Canvas>();

@@ -13,6 +13,7 @@ public class MainEntry : MonoBehaviour
         item_ = GenericUtils.FindChildByName(first_window_, "Item", true);
         GenericUtils.FindChildByName<UnityEngine.UI.Text>(first_window_, "version")
             .text = Application.version + " ";
+        uEmuera.Window.MainWindow.uEmueraVer = Application.version;
     }
 
     void Start()

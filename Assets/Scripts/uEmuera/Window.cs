@@ -32,6 +32,8 @@ namespace uEmuera.Window
 
     public class MainWindow : IDisposable
     {
+        public static string uEmueraVer = "";
+
         public MainWindow()
         {}
 
@@ -182,15 +184,12 @@ namespace uEmuera.Window
         private EmueraConsole console_ = null;
         private bool dirty_ = false;
 
-        public string InternalEmueraVer { get { return ""; } }
-        public string EmueraVerText { get { return ""; } }
+        public string InternalEmueraVer { get { return uEmueraVer; } }
+        public string EmueraVerText { get { return uEmueraVer; } }
 
         public bool Created { get { return created_; } }
         bool created_ = false;
 
-        public FormWindowState WindowState { get { return FormWindowState.Maximized; } }
-        public Size ClientSize = new Size(0, 0);
-        public Point Location = new Point(0, 0);
         public ScrollBar ScrollBar = new ScrollBar();
         public PictureBox MainPicBox = new PictureBox();
         public string Text { get; set; }

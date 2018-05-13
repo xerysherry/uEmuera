@@ -26,8 +26,8 @@ namespace MinorShift.Emuera.Content
 			if (Loaded)
 				return;
 
-            //Enabled = System.IO.File.Exists(Filepath);
-            Enabled = true;
+            Enabled = System.IO.File.Exists(Filepath);
+            //Enabled = true;
             if(Enabled)
             {
                 texture = new Bitmap();

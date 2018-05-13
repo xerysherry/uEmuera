@@ -35,6 +35,14 @@ public class EmueraThread
         running = false;
     }
 
+    public bool Running()
+    {
+        var console = MinorShift.Emuera.GlobalStatic.Console;
+        if(console != null && console.IsInProcess)
+            return true;
+        return false;
+    }
+
     public void Input(string c, bool from_button, bool skip = false)
     {
         var console = MinorShift.Emuera.GlobalStatic.Console;
@@ -76,7 +84,6 @@ public class EmueraThread
                 if(console.IsWaitingEnterKey)
                     input = "";
                 console.PressEnterKey(skipflag, input, false);
-                //GC.Collect();
             }
             Thread.Sleep(10);
             input = null;
