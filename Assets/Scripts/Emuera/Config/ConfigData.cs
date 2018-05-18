@@ -18,10 +18,12 @@ namespace MinorShift.Emuera
 	/// </summary>
 	internal sealed class ConfigData
 	{
-		readonly static string configPath = Program.ExeDir + "emuera.config";
-		readonly static string configdebugPath = Program.DebugDir + "debug.config";
+		static string configPath
+        { get { return Program.ExeDir + "emuera.config"; } }
+		static string configdebugPath
+        { get { return Program.DebugDir + "debug.config"; } }
 
-		static ConfigData() { }
+static ConfigData() { }
 		private static ConfigData instance = new ConfigData();
 		public static ConfigData Instance { get { return instance; } }
 
@@ -138,7 +140,15 @@ namespace MinorShift.Emuera
 			replaceArray[i++] = new ConfigItem<Int64>(ConfigCode.pbandDef, "PBANDの初期値", 4);
             replaceArray[i++] = new ConfigItem<Int64>(ConfigCode.RelationDef, "RELATIONの初期値", 0);
 		}
-        
+
+        public void Clear()
+        {
+            configArray = new AConfigItem[70];
+            replaceArray = new AConfigItem[50];
+            debugArray = new AConfigItem[20];
+            setDefault();
+        }
+
 		public ConfigData Copy()
 		{
 			ConfigData config = new ConfigData();

@@ -91,10 +91,22 @@ namespace uEmuera.Drawing
 
     public sealed class Font : IDisposable
     {
+        static bool GetMonospaced(string name)
+        {
+            return !monospaced_disable_set.Contains(name);
+        }
+        static readonly System.Collections.Generic.HashSet<string> monospaced_disable_set = 
+            new System.Collections.Generic.HashSet<string>
+        {
+            "ＭＳ Ｐゴシック",
+            "MS PGothic",
+        };
+
         public Font(string familyName, float emSize, FontStyle style, 
             GraphicsUnit unit)
         {
             fontFamily = new FontFamily(familyName);
+            monospaced = GetMonospaced(familyName);
             size = emSize;
             fontStyle = style;
             graphicsUnit = unit;
@@ -103,6 +115,7 @@ namespace uEmuera.Drawing
             GraphicsUnit unit, byte gdiCharSet)
         {
             fontFamily = new FontFamily(familyName);
+            monospaced = GetMonospaced(familyName);
             size = emSize;
             fontStyle = style;
             graphicsUnit = unit;
@@ -111,6 +124,7 @@ namespace uEmuera.Drawing
             GraphicsUnit unit, byte gdiCharSet, bool gdiVericalFont)
         {
             fontFamily = new FontFamily(familyName);
+            monospaced = GetMonospaced(familyName);
             size = emSize;
             fontStyle = style;
             graphicsUnit = unit;
@@ -121,6 +135,9 @@ namespace uEmuera.Drawing
 
         public FontFamily FontFamily { get { return fontFamily; } }
         FontFamily fontFamily;
+
+        public bool Monospaced { get { return monospaced; } }
+        bool monospaced = true;
 
         public float Size { get { return size; } }
         float size;

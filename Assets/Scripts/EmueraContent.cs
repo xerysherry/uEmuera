@@ -26,7 +26,7 @@ public class EmueraContent : MonoBehaviour
 
     void Awake()
     {
-        FontUtils.SetDefaultFont(default_fontname, true);
+        FontUtils.SetDefaultFont(default_fontname);
     }
 
     void Start()
@@ -58,7 +58,7 @@ public class EmueraContent : MonoBehaviour
             else
             {
                 found = mid;
-                break; 
+                break;
             }
         }
 
@@ -148,7 +148,7 @@ public class EmueraContent : MonoBehaviour
             if((local_position.x <= display_width - content_width && drag_delta.x < 0) ||
                 (local_position.x >= 0 && drag_delta.x > 0))
                 drag_delta.x = 0;
-            if((local_position.y >= content_height - display_height && drag_delta.y > 0) || 
+            if((local_position.y >= content_height - display_height && drag_delta.y > 0) ||
                 (local_position.y <= offset_height && drag_delta.y < 0))
                 drag_delta.y = 0;
         }
@@ -216,12 +216,12 @@ public class EmueraContent : MonoBehaviour
         {
             UpdateLine(pos, display_height, index, +1);
         }
-        if(display_lines_.Count == 0 && 
+        if(display_lines_.Count == 0 &&
             console_lines_ != null && console_lines_.Count > 0)
         {
             index = GetLineNoIndexForPosY(pos.y);
             UpdateLine(pos, display_height, index, -1);
-            UpdateLine(pos, display_height, index+1, +1);
+            UpdateLine(pos, display_height, index + 1, +1);
         }
     }
     void UpdateLine(Vector2 local, float display_height, int index, int delta)
@@ -356,19 +356,19 @@ public class EmueraContent : MonoBehaviour
         EmueraBehaviour.Ready();
         option_window.Ready();
         option_window.gameObject.SetActive(true);
-        
+
         background.color = GenericUtils.ToUnityColor(Config.BackColor);
         background_color = Config.BackColor;
         content_width = Config.WindowX;
 
-        FontUtils.SetDefaultFont(Config.FontName, FontUtils.GetMonospaced(Config.FontName));
-        
+        FontUtils.SetDefaultFont(Config.FontName);
+
         template_text.color = EmueraBehaviour.FontColor;
         template_text.font = FontUtils.default_font;
         if(template_text.font == null)
             template_text.font = FontUtils.default_font;
         template_text.fontSize = EmueraBehaviour.FontSize;
-        template_text.rectTransform.sizeDelta = 
+        template_text.rectTransform.sizeDelta =
             new Vector2(template_text.rectTransform.sizeDelta.x, 0);
         template_text.gameObject.SetActive(false);
 
@@ -377,6 +377,7 @@ public class EmueraContent : MonoBehaviour
             console_lines_.Add(null);
         invalid_count = max_log_count;
     }
+    public void SetNoReady() { ready_ = false; }
     bool ready_ = false;
 
     public void Clear()
@@ -392,6 +393,15 @@ public class EmueraContent : MonoBehaviour
         }
 
         display_lines_.Clear();
+
+        foreach(var line in cache_lines_)
+            GameObject.Destroy(line.gameObject);
+        foreach(var image in cache_images_)
+            GameObject.Destroy(image.gameObject);
+
+        cache_lines_.Clear();
+        cache_images_.Clear();
+
         content_height = 0;
         offset_height = 0;
         local_position = Vector2.zero;

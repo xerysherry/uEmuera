@@ -11,6 +11,40 @@ public class EmueraMain : MonoBehaviour
         working_ = true;
     }
 
+    public void Clear()
+    {
+        GenericUtils.StartCoroutine(ClearCo());
+    }
+
+    System.Collections.IEnumerator ClearCo()
+    {
+        while(EmueraThread.instance.Running())
+            yield return null;
+
+        GenericUtils.ShowIsInProcess(true);
+
+        var console = MinorShift.Emuera.GlobalStatic.Console;
+        console.ClearDisplay();
+        console.Dispose();
+
+        EmueraThread.instance.End();
+        EmueraContent.instance.Clear();
+        
+        MinorShift.Emuera.Content.AppContents.UnloadContents();
+        ConfigData.Instance.Clear();
+        SpriteManager.ForceClear();
+
+        System.GC.Collect();
+
+        var async = Resources.UnloadUnusedAssets();
+        while(!async.isDone)
+            yield return null;
+
+        var ow = EmueraContent.instance.option_window;
+        ow.ShowGameButton(false);
+        FirstWindow.Show();
+    }
+
     public void Restart()
     {
         GenericUtils.ShowIsInProcess(true);
@@ -32,6 +66,7 @@ public class EmueraMain : MonoBehaviour
         EmueraContent.instance.Clear();
 
         MinorShift.Emuera.Content.AppContents.UnloadContents();
+        ConfigData.Instance.Clear();
         System.GC.Collect();
 
         yield return null;
@@ -51,8 +86,15 @@ public class EmueraMain : MonoBehaviour
         size_delta_.y = Mathf.Min(w, h);
     }
 
+    public bool restart = false;
     void Update()
     {
+        if(restart)
+        {
+            Restart();
+            restart = false;
+        }
+
         if(!working_)
             return;
 

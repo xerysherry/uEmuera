@@ -11,15 +11,22 @@ public class OptionWindow : MonoBehaviour
         GenericUtils.SetListenerOnClick(quick_button.gameObject, OnQuickButtonClick);
         GenericUtils.SetListenerOnClick(input_button.gameObject, OnInputPadButtonClick);
         GenericUtils.SetListenerOnClick(magnifier_button.gameObject, OnScalePadButtonClick);
+        GenericUtils.SetListenerOnClick(option_button.gameObject, OnShowMenu2);
 
         orientation_lock_image = orientation_lock_button.GetComponent<Image>();
         GenericUtils.SetListenerOnClick(orientation_lock_button.gameObject, OnLockOrientationClick);
+
+        GenericUtils.SetListenerOnClick(msg_confirm, OnMsgConfirm);
+        GenericUtils.SetListenerOnClick(msg_cancel, OnMsgCancel);
+
+        GenericUtils.SetListenerOnClick(menu_pad, OnMenuPad);
+        GenericUtils.SetListenerOnClick(menu_1_exit, OnMenuExit);
+
+        GenericUtils.SetListenerOnClick(menu_2_back, OnMenu2Back);
+        GenericUtils.SetListenerOnClick(menu_2_restart, OnMenu2Restart);
+        GenericUtils.SetListenerOnClick(menu_2_exit, OnMenuExit);
     }
 	
-	void Update () {
-		
-	}
-
     void OnQuickButtonClick()
     {
         if(quick_buttons.IsShow)
@@ -88,6 +95,65 @@ public class OptionWindow : MonoBehaviour
         }
     }
 
+    public void ShowMenu()
+    {
+        menu_pad.SetActive(true);
+        menu_1.SetActive(true);
+    }
+
+    void OnShowMenu2()
+    {
+        menu_pad.SetActive(true);
+        menu_2.SetActive(true);
+    }
+    void OnMenu2Back()
+    {
+        if(EmueraThread.instance.Running())
+        {
+            ShowMessageBox("等待", "请等待核心完成！");
+        }
+        else
+        {
+            ShowMessageBox("回到选单", "是否回到选单？",
+                () =>
+                {
+                    var emuera = GameObject.FindObjectOfType<EmueraMain>();
+                    emuera.Clear();
+                }, () => { });
+        }
+        HideMenu();
+    }
+    void OnMenu2Restart()
+    {
+        if(EmueraThread.instance.Running())
+        {
+            ShowMessageBox("等待", "请等待核心完成！");
+        }
+        else
+        {
+            ShowMessageBox("重新加载游戏", "是否重新加载游戏？",
+            () =>
+            {
+                var emuera = GameObject.FindObjectOfType<EmueraMain>();
+                emuera.Restart();
+            }, () => { });
+        }
+        HideMenu();
+    }
+    void OnMenuExit()
+    {
+        ShowMessageBox("退出游戏", "是否退出游戏？", 
+            ()=> {
+                Application.Quit();
+            }, ()=> { });
+        HideMenu();
+    }
+
+    void OnMenuPad()
+    {
+        HideMenu();
+    }
+
     public void Ready()
     {
         var texts = inprogress.GetComponentsInChildren<Text>();
@@ -144,6 +210,45 @@ public class OptionWindow : MonoBehaviour
         }
     }
 
+    void HideMenu()
+    {
+        menu_1.SetActive(false);
+        menu_2.SetActive(false);
+        menu_pad.SetActive(false);
+    }
+
+    void ShowMessageBox(string title, string content,
+        System.Action confirm_callback = null,
+        System.Action cancel_callback = null)
+    {
+        msg_confirm_callback = confirm_callback;
+        msg_cancel_callback = cancel_callback;
+        msg_cancel.SetActive(msg_cancel_callback != null);
+        msg_title.text = title;
+        msg_content.text = content;
+        msg_box.SetActive(true);
+    }
+    void HideMessageBox()
+    {
+        msg_title.text = "";
+        msg_content.text = "";
+        msg_confirm_callback = null;
+        msg_cancel_callback = null;
+        msg_box.SetActive(false);
+    }
+    void OnMsgConfirm()
+    {
+        if(msg_confirm_callback != null)
+            msg_confirm_callback();
+        HideMessageBox();
+    }
+    void OnMsgCancel()
+    {
+        if(msg_cancel_callback != null)
+            msg_cancel_callback();
+        HideMessageBox();
+    }
+
     public GameObject game_button;
     public Button quick_button;
     public Button input_button;
@@ -161,6 +266,23 @@ public class OptionWindow : MonoBehaviour
     public QuickButtons quick_buttons;
     public Inputpad input_pad;
     public Scalepad scale_pad;
+
+    public GameObject msg_box;
+    public Text msg_title;
+    public Text msg_content;
+    public GameObject msg_confirm;
+    public GameObject msg_cancel;
+    System.Action msg_confirm_callback;
+    System.Action msg_cancel_callback;
+
+    public GameObject menu_pad;
+    public GameObject menu_1;
+    public GameObject menu_1_exit;
+
+    public GameObject menu_2;
+    public GameObject menu_2_back;
+    public GameObject menu_2_restart;
+    public GameObject menu_2_exit;
 
     bool auto_rotation
     {

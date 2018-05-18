@@ -77,16 +77,12 @@ public class EmueraLine : EmueraBehaviour
         }
 
         var font = FontUtils.default_font;
-        var monospaced = FontUtils.default_monospaced;
         if(ud.fontname != null)
-        {
             font = FontUtils.GetFont(ud.fontname);
-            monospaced = FontUtils.GetMonospaced(ud.fontname);
-        }
         if(text.font != font)
             text.font = font;
 
-        monospaced_.enabled = monospaced;
+        monospaced_.enabled = ud.monospaced;
 
         logic_y = line_desc.position_y;
         logic_height = line_desc.height;

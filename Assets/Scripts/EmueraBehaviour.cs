@@ -73,6 +73,11 @@ public abstract class EmueraBehaviour : MonoBehaviour
             get { return ((flags >> 4) & 0x1) == 1; }
             set { flags = value ? (flags | (0x1U << 4)) : (flags & (0xFFFFFFFF ^ (0x1U << 4))); }
         }
+        public bool monospaced
+        {
+            get { return ((flags >> 5) & 0x1) == 1; }
+            set { flags = value ? (flags | (0x1U << 5)) : (flags & (0xFFFFFFFF ^ (0x1U << 5))); }
+        }
     }
     public class LineDesc
     {
@@ -108,6 +113,7 @@ public abstract class EmueraBehaviour : MonoBehaviour
                 var richedit = false;
                 ud.width = 0;
                 ud.color = FontColor;
+                ud.monospaced = true;
                 StringBuilder content = new StringBuilder();
                 for(int si = 0; si < btnlength; ++si)
                 {
@@ -151,6 +157,7 @@ public abstract class EmueraBehaviour : MonoBehaviour
                         fontsize = u.Font.Size;
                         fontstyle = u.Font.Style;
                         fontname = u.Font.FontFamily.Name;
+                        ud.monospaced = u.Font.Monospaced;
                     }
                     if(s is MinorShift.Emuera.GameView.AConsoleColoredPart)
                     {

@@ -19,9 +19,9 @@ namespace MinorShift.Emuera.GameView
 		public StringMeasure()
 		{
 			textDrawingMode = Config.TextDrawingMode;
-			layoutSize = new Size(Config.WindowX * 2, Config.LineHeight);
-			layoutRect = new RectangleF(0, 0, Config.WindowX * 2, Config.LineHeight);
-			fontDisplaySize = Config.Font.Size / 2 * 1.04f;//実際には指定したフォントより若干幅をとる？
+			//layoutSize = new Size(Config.WindowX * 2, Config.LineHeight);
+			//layoutRect = new RectangleF(0, 0, Config.WindowX * 2, Config.LineHeight);
+			//fontDisplaySize = Config.Font.Size / 2 * 1.04f;//実際には指定したフォントより若干幅をとる？
 			////bmp = new Bitmap(Config.WindowX, Config.LineHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 			//bmp = new Bitmap(16, 16, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 			//graph = Graphics.FromImage(bmp);
@@ -32,21 +32,21 @@ namespace MinorShift.Emuera.GameView
 		readonly TextDrawingMode textDrawingMode;
 		//readonly StringFormat sf = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		//readonly CharacterRange[] ranges = new CharacterRange[] { new CharacterRange(0, 1) };
-		readonly Size layoutSize;
-		readonly RectangleF layoutRect;
-		readonly float fontDisplaySize;
+		//readonly Size layoutSize;
+		//readonly RectangleF layoutRect;
+		//readonly float fontDisplaySize;
 
-		readonly Graphics graph = null;
+		//readonly Graphics graph = null;
 		//readonly Bitmap bmp = null;
 
 		public int GetDisplayLength(string s, Font font)
 		{
-            //if (string.IsNullOrEmpty(s))
-            //	return 0;
-            //if (textDrawingMode == TextDrawingMode.GRAPHICS)
-            //{
-            //	if (s.Contains("\t"))
-            //		s = s.Replace("\t", "        ");
+            if (string.IsNullOrEmpty(s))
+            	return 0;
+            if (textDrawingMode == TextDrawingMode.GRAPHICS)
+            {
+            	if (s.Contains("\t"))
+            		s = s.Replace("\t", "        ");
             //	ranges[0].Length = s.Length;
             //	//CharacterRange[] ranges = new CharacterRange[] { new CharacterRange(0, s.Length) };
             //	sf.SetMeasurableCharacterRanges(ranges);
@@ -54,7 +54,7 @@ namespace MinorShift.Emuera.GameView
             //	RectangleF rectF = regions[0].GetBounds(graph);
             //	//return (int)rectF.Width;//プロポーショナルでなくても数ピクセルずれる
             //	return (int)((int)((rectF.Width - 1) / fontDisplaySize + 0.95f) * fontDisplaySize);
-            //}
+            }
             //else if (textDrawingMode == TextDrawingMode.TEXTRENDERER)
             //{
             //	Size size = TextRenderer.MeasureText(graph, s, font, layoutSize, TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix);
@@ -74,7 +74,7 @@ namespace MinorShift.Emuera.GameView
 		}
 
 
-		bool disposed = false;
+		//bool disposed = false;
 		public void Dispose()
 		{
 			//if (disposed)
