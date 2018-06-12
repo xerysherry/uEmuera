@@ -663,7 +663,7 @@ namespace MinorShift.Emuera.GameData.Variable
 				array = (Int64[])identifier.GetArray();
 
 			if (start >= array.Length)
-				throw new CodeEE("命令ARRAYREMOVEの第４引数(" + start.ToString() + ")が配列" + identifier.Name + "の範囲を超えています");
+				throw new CodeEE("命令ARRAYSHIFTの第４引数(" + start.ToString() + ")が配列" + p.Identifier.Name + "の範囲を超えています");
 
 			if (num == -1)
 				num = array.Length - start;
@@ -737,7 +737,7 @@ namespace MinorShift.Emuera.GameData.Variable
 				arrays = (string[])identifier.GetArray();
 
 			if (start >= arrays.Length)
-				throw new CodeEE("命令ARRAYREMOVEの第４引数(" + start.ToString() + ")が配列" + identifier.Name + "の範囲を超えています");
+				throw new CodeEE("命令ARRAYSHIFTの第４引数(" + start.ToString() + ")が配列" + p.Identifier.Name + "の範囲を超えています");
 
 			//for (int i = 0; i < arrays.Length; i++)
 			//    arrays[i] = "";

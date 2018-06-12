@@ -111,7 +111,9 @@ namespace MinorShift.Emuera.GameProc
 					{
 						if (skipPrint)
 							break;
-						SpButtonArgument bArg = (SpButtonArgument)func.Argument;
+                        exm.Console.UseUserStyle = true;
+                        exm.Console.UseSetColorStyle = true;
+                        SpButtonArgument bArg = (SpButtonArgument)func.Argument;
 						str = bArg.PrintStrTerm.GetStrValue(exm);
 						//ボタン処理に絡んで表示がおかしくなるため、PRINTBUTTONでの改行コードはオミット
 						str = str.Replace("\n", "");
@@ -126,7 +128,9 @@ namespace MinorShift.Emuera.GameProc
 					{
 						if (skipPrint)
 							break;
-						SpButtonArgument bArg = (SpButtonArgument)func.Argument;
+                        exm.Console.UseUserStyle = true;
+                        exm.Console.UseSetColorStyle = true;
+                        SpButtonArgument bArg = (SpButtonArgument)func.Argument;
 						str = bArg.PrintStrTerm.GetStrValue(exm);
 						//ボタン処理に絡んで表示がおかしくなるため、PRINTBUTTONでの改行コードはオミット
 						str = str.Replace("\n", "");
@@ -142,7 +146,9 @@ namespace MinorShift.Emuera.GameProc
 					{
 						if (skipPrint)
 							break;
-						term = ((ExpressionArgument)func.Argument).Term;
+                        exm.Console.UseUserStyle = true;
+                        exm.Console.UseSetColorStyle = true;
+                        term = ((ExpressionArgument)func.Argument).Term;
 						exm.Console.PrintPlain(term.GetStrValue(exm));
 					}
 					break;
@@ -595,7 +601,7 @@ namespace MinorShift.Emuera.GameProc
 						{
 							num = (int)arrayArg.Num4.GetIntValue(exm);
 							if (num < 0)
-								throw new CodeEE("ARRAYSHIFTの第５引数が負の値(" + start.ToString() + ")です");
+								throw new CodeEE("ARRAYSHIFTの第５引数が負の値(" + num.ToString() + ")です");
 							if (num == 0)
 								break;
 						}

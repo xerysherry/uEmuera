@@ -126,7 +126,9 @@ namespace MinorShift.Emuera.GameView
 		private readonly int top;
 		private readonly int bottom;
 		private readonly Rectangle destRect;
+#pragma warning disable CS0649 // フィールド 'ConsoleImagePart.ia' は割り当てられません。常に既定値 null を使用します。
 		private readonly ImageAttributes ia;
+#pragma warning restore CS0649 // フィールド 'ConsoleImagePart.ia' は割り当てられません。常に既定値 null を使用します。
 		public readonly string ResourceName;
 		public readonly string ButtonResourceName;
 		public override int Top { get { return top; } }

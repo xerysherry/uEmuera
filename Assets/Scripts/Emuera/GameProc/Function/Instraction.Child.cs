@@ -398,7 +398,7 @@ namespace MinorShift.Emuera.GameProc.Function
 			public override void DoInstruction(ExpressionMediator exm, InstructionLine func, ProcessState state)
 			{
 				IOperandTerm term = ((MethodArgument)func.Argument).MethodTerm;
-				Type type = term.GetOperandType();
+				//Type type = term.GetOperandType();
 				if (term.GetOperandType() == typeof(Int64))
 					exm.VEvaluator.RESULT = term.GetIntValue(exm);
 				else// if (func.Argument.MethodTerm.GetOperandType() == typeof(string))
@@ -1482,7 +1482,9 @@ namespace MinorShift.Emuera.GameProc.Function
 			public override void DoInstruction(ExpressionMediator exm, InstructionLine func, ProcessState state)
 			{
 				throw new NotImplCodeEE();
+#pragma warning disable CS0162 // 到達できないコードが検出されました
 				RefArgument arg = (RefArgument)func.Argument;
+#pragma warning restore CS0162 // 到達できないコードが検出されました
 				string str = null;
 				if (arg.SrcTerm != null)
 					str = arg.SrcTerm.GetStrValue(exm);

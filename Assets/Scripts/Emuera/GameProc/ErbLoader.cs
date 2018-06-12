@@ -978,7 +978,15 @@ namespace MinorShift.Emuera.GameProc
 								ParserMediator.Warn("REPEAT文が入れ子にされています", func, 2, true, false);
                                 break;
 							}
-						}
+                            else if (iLine.FunctionCode == FunctionCode.FOR)
+                            {
+                                if (((SpForNextArgment)iLine.Argument).Cnt.Identifier.Name == "COUNT")
+                                {
+                                    ParserMediator.Warn("カウンタ変数にCOUNTを用いたFOR文の中でREPEATが呼び出されています", func, 2, true, false);
+                                    break;
+                                }
+                            }
+                        }
 						if (func.IsError)
 							break;
 						nestStack.Push(func);
@@ -994,7 +1002,39 @@ namespace MinorShift.Emuera.GameProc
                         SelectcaseStack.Push(func);
 						break;
 					case FunctionCode.FOR:
-					case FunctionCode.WHILE:
+                        //ネストエラーチェックのためにコストはかかるが、ここでチェックする
+                        if (func.Argument == null)
+                            ArgumentParser.SetArgumentTo(func);
+                        //上で引数解析がなされていることは保証されているので、
+                        //それでこれがfalseになるのは、引数解析でエラーが起きた場合のみ
+                        if (func.Argument != null)
+                        {
+                            VariableTerm Cnt = ((SpForNextArgment)func.Argument).Cnt;
+                            if (Cnt.Identifier.Name == "COUNT")
+                            {
+                                foreach (InstructionLine iLine in nestStack)
+                                {
+                                    if (iLine.FunctionCode == FunctionCode.REPEAT)
+                                    {
+                                        ParserMediator.Warn("REPEAT文の中でカウンタ変数にCOUNTを用いたFORが使われています", func, 2, true, false);
+                                        break;
+                                    }
+                                    else if (iLine.FunctionCode == FunctionCode.FOR)
+                                    {
+                                        if (((SpForNextArgment)iLine.Argument).Cnt.Identifier.Name == "COUNT")
+                                        {
+                                            ParserMediator.Warn("カウンタ変数にCOUNTを用いたFOR文が入れ子にされています", func, 2, true, false);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (func.IsError)
+                            break;
+                        nestStack.Push(func);
+                        break;
+                    case FunctionCode.WHILE:
 					case FunctionCode.TRYCGOTO:
 					case FunctionCode.TRYCJUMP:
 					case FunctionCode.TRYCCALL:

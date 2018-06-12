@@ -1013,7 +1013,9 @@ namespace MinorShift.Emuera.GameView
 		StringBuilder dConsoleLog = new StringBuilder("");
 		public string DebugConsoleLog { get { return dConsoleLog.ToString(); } }
 		List<string> dTraceLogList = new List<string>();
+#pragma warning disable CS0414 // フィールド 'EmueraConsole.dTraceLogChanged' が割り当てられていますが、値は使用されていません。
 		bool dTraceLogChanged = true;
+#pragma warning restore CS0414 // フィールド 'EmueraConsole.dTraceLogChanged' が割り当てられていますが、値は使用されていません。
 		public string GetDebugTraceLog(bool force)
 		{
 			//if (!dTraceLogChanged && !force)

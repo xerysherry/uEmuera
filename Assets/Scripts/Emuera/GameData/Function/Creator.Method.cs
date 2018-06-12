@@ -2571,8 +2571,8 @@ namespace MinorShift.Emuera.GameData.Function
             {
                 ReturnType = typeof(string);
                 argumentTypeArray = null;
-                HasUniqueRestructure = false;
-                CanRestructure = false;
+                HasUniqueRestructure = true;
+                CanRestructure = true;
             }
             public override string CheckArgumentType(string name, IOperandTerm[] arguments)
             {
@@ -2612,6 +2612,20 @@ namespace MinorShift.Emuera.GameData.Function
 
                 p.IsArrayRangeValid(index1, index2, "STRJOIN", 2L, 3L);
                 return (exm.VEvaluator.GetJoinedStr(p, delimiter, index1, index2));
+            }
+            public override bool UniqueRestructure(ExpressionMediator exm, IOperandTerm[] arguments)
+            {                
+                //第1変数は変数名なので、定数文字列変数だと事故が起こるので独自対応
+                VariableTerm varTerm = (VariableTerm)arguments[0];
+                bool canRerstructure = varTerm.Identifier.IsConst;
+                for (int i = 1; i < arguments.Length; i++)
+                {
+                    if (arguments[i] == null)
+                        continue;
+                    arguments[i] = arguments[i].Restructure(exm);
+                    canRerstructure &= arguments[i] is SingleTerm;
+                }
+                return canRerstructure;
             }
         }
 		
