@@ -52,6 +52,22 @@ namespace MinorShift.Emuera.Sub
 	}
 
 	/// <summary>
+	/// スクリプト側に起因すると思われるエラーのうち、未定義の識別子に関連するもの
+	/// </summary>
+	[Serializable]
+	internal class IdentifierNotFoundCodeEE : CodeEE
+	{
+		public IdentifierNotFoundCodeEE(string errormes, ScriptPosition position)
+			: base(errormes, position)
+		{
+		}
+		public IdentifierNotFoundCodeEE(string errormes)
+			: base(errormes)
+		{
+		}
+	}
+
+	/// <summary>
 	/// 未実装エラー
 	/// </summary>
     [Serializable]

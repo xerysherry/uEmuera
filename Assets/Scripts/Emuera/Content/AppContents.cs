@@ -123,10 +123,8 @@ namespace MinorShift.Emuera.Content
 							{
 								case "NORESIZE":
 									throw new NotImplCodeEE();
-#pragma warning disable CS0162 // 到達できないコードが検出されました
-									noresize = true;
-#pragma warning restore CS0162 // 到達できないコードが検出されました
-									break;
+									//noresize = true;
+									//break;
 							}
 						}
 					}

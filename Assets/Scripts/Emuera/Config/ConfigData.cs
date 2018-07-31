@@ -514,7 +514,7 @@ static ConfigData() { }
 							((ConfigItem<string>)item).Value = tokens[1];
 							continue;
 						}
-                        if (item.Code == ConfigCode.MaxLog)
+                        if (item.Code == ConfigCode.MaxLog && Program.AnalysisMode)
                         {
                             //解析モード時はここを上書きして十分な長さを確保する
                             tokens[1] = "10000";

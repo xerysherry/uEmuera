@@ -28,6 +28,13 @@ namespace MinorShift.Emuera.GameProc
 		public bool Private = false;
 		public bool CharaData = false;
 		public bool Const = false;
+		
+		//1822 Privateの方もDIMだけ遅延させようとしたけどちょっと課題がおおいのでやめとく
+		public static UserDefinedVariableData Create(DimLineWC dimline)
+		{
+			return Create(dimline.WC, dimline.Dims, dimline.IsPrivate, dimline.SC);
+		}
+
 		public static UserDefinedVariableData Create(WordCollection wc, bool dims, bool isPrivate, ScriptPosition sc)
 		{
 			string dimtype = dims ? "#DIM" : "#DIMS";
@@ -80,7 +87,7 @@ namespace MinorShift.Emuera.GameProc
 						if (ret.Reference)
 							throw new CodeEE(keyword + "キーワードが二重に指定されています", sc);
 						ret.Reference = true;
-						ret.Static = true;
+						ret.Static = false;
 						break;
 					case "DYNAMIC":
 						if (!isPrivate)
@@ -313,6 +320,20 @@ namespace MinorShift.Emuera.GameProc
 					throw new CodeEE("キャラ型変数にSAVEDATAフラグを付ける場合には「バイナリ型セーブ」オプションが必須です", sc);
 			}
 			return ret;
+		}
+	}
+	internal sealed class DimLineWC
+	{
+		public WordCollection WC;
+		public bool Dims;
+		public bool IsPrivate;
+		public ScriptPosition SC;
+		public DimLineWC(WordCollection wc, bool isString, bool isPrivate, ScriptPosition position)
+		{
+			WC = wc;
+			Dims = isString;
+			IsPrivate = isPrivate;
+			SC = position;
 		}
 	}
 

@@ -10,6 +10,7 @@ namespace MinorShift._Library
         {
             _WorkFolder = folder;
         }
+        public static string WorkFolder { get { return _WorkFolder; } }
         private static string _WorkFolder;
 
         public static void SetSourceFolder(string folder)

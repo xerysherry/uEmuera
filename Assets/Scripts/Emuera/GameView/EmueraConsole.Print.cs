@@ -577,7 +577,7 @@ namespace MinorShift.Emuera.GameView
 			StreamWriter writer = null;
 			try
 			{
-				writer = new StreamWriter(fullpath, false, Encoding.Unicode);
+				writer = new StreamWriter(fullpath, false, Encoding.UTF8);
 				foreach (ConsoleDisplayLine line in displayLineList)
 				{
 					writer.WriteLine(line.ToString());

@@ -24,6 +24,8 @@ public class OptionWindow : MonoBehaviour
 
         GenericUtils.SetListenerOnClick(menu_2_back, OnMenu2Back);
         GenericUtils.SetListenerOnClick(menu_2_restart, OnMenu2Restart);
+        GenericUtils.SetListenerOnClick(menu_2_gototitle, OnMenuGotoTitle);
+        GenericUtils.SetListenerOnClick(menu_2_savelog, OnMenuSaveLog);
         GenericUtils.SetListenerOnClick(menu_2_exit, OnMenuExit);
     }
 	
@@ -138,6 +140,34 @@ public class OptionWindow : MonoBehaviour
                 emuera.Restart();
             }, () => { });
         }
+        HideMenu();
+    }
+    void OnMenuGotoTitle()
+    {
+        if(EmueraThread.instance.Running())
+        {
+            ShowMessageBox("等待", "请等待核心完成！");
+        }
+        else
+        {
+            ShowMessageBox("回到标题", "是否回到标题？",
+            () =>
+            {
+                MinorShift.Emuera.GlobalStatic.Console.GotoTitle();
+            }, () => { });
+        }
+        HideMenu();
+    }
+    void OnMenuSaveLog()
+    {
+        var path = MinorShift.Emuera.Program.ExeDir;
+        System.DateTime time = System.DateTime.Now;
+        string fname = time.ToString("yyyyMMdd-HHmmss");
+        path = path + fname + ".log";
+        bool result = MinorShift.Emuera.GlobalStatic.Console.OutputLog(path);
+
+        ShowMessageBox("保存日志", 
+            result ? string.Format("日志路径：\n{0}", path) :"失败");
         HideMenu();
     }
     void OnMenuExit()
@@ -282,6 +312,8 @@ public class OptionWindow : MonoBehaviour
     public GameObject menu_2;
     public GameObject menu_2_back;
     public GameObject menu_2_restart;
+    public GameObject menu_2_gototitle;
+    public GameObject menu_2_savelog;
     public GameObject menu_2_exit;
 
     bool auto_rotation
