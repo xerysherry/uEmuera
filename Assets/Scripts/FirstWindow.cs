@@ -51,21 +51,17 @@ public class FirstWindow : MonoBehaviour
             .text = Application.version + " ";
 
         GetList(Application.persistentDataPath);
-
-#if UNITY_EDITOR
-        var main_entry = GameObject.FindObjectOfType<MainEntry>();
-        if(!string.IsNullOrEmpty(main_entry.era_path))
-            GetList(main_entry.era_path);
-#endif
-#if UNITY_ANDROID && !UNITY_EDITOR
-        GetList("storage/emulated/0/emuera");
-        GetList("storage/emulated/1/emuera");
-        GetList("storage/emulated/2/emuera");
-
-        GetList("storage/sdcard0/emuera");
-        GetList("storage/sdcard1/emuera");
-        GetList("storage/sdcard2/emuera");
-#endif
+        if(Application.platform == RuntimePlatform.Android) {
+            GetList("storage/emulated/0/emuera");
+            GetList("storage/emulated/1/emuera");
+            GetList("storage/emulated/2/emuera");
+            GetList("storage/sdcard0/emuera");
+            GetList("storage/sdcard1/emuera");
+            GetList("storage/sdcard2/emuera");
+        }
+        else {
+            GetList("game");
+        }
     }
 
     void OnOptionClick()
@@ -120,6 +116,7 @@ public class FirstWindow : MonoBehaviour
         try
         {
             var paths = Directory.GetDirectories(workspace, "*", SearchOption.TopDirectoryOnly);
+            print(paths);
             foreach(var p in paths)
             {
                 var path = uEmuera.Utils.NormalizePath(p);
