@@ -34,15 +34,22 @@ namespace uEmuera
         {
             shiftjis_to_utf8 = dict;
         }
+        public static void SetUTF8ZHCN_to_UTF8Dict(Dictionary<string, string> dict)
+        {
+            utf8zhcn_to_utf8 = dict;
+        }
         public static string SHIFTJIS_to_UTF8(string text)
         {
             if(shiftjis_to_utf8 == null)
                 return null;
             string result = null;
             shiftjis_to_utf8.TryGetValue(text, out result);
+            if(string.IsNullOrEmpty(result))
+                utf8zhcn_to_utf8.TryGetValue(text, out result);
             return result;
         }
         static Dictionary<string, string> shiftjis_to_utf8;
+        static Dictionary<string, string> utf8zhcn_to_utf8;
 
         /// <summary>
         /// 标准化目录
