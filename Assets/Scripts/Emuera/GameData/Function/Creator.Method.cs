@@ -11,6 +11,7 @@ using MinorShift.Emuera.GameData.Variable;
 //using Microsoft.VisualBasic;
 //using System.Windows.Forms;
 using MinorShift.Emuera.GameView;
+using MinorShift.Emuera.Content;
 using uEmuera.Drawing;
 using uEmuera.VisualBasic;
 
@@ -1944,6 +1945,154 @@ namespace MinorShift.Emuera.GameData.Function
                 }
             }
         }
+
+		private sealed class ArrayMultiSortMethod : FunctionMethod
+		{
+			public ArrayMultiSortMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = null;
+				CanRestructure = false;
+				HasUniqueRestructure = true;
+			}
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+				if (arguments.Length < 2)
+					return string.Format("{0}関数:少なくとも{1}の引数が必要です", name, 2);
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format("{0}関数:{1}番目の引数は省略できません", name, i + 1);
+					VariableTerm varTerm = arguments[i] as VariableTerm;
+					if (varTerm == null || varTerm.Identifier.IsCalc || varTerm.Identifier.IsConst)
+						return string.Format("{0}関数:{1}番目の引数が変数ではありません", name, i + 1);
+					if (varTerm.Identifier.IsCharacterData)
+						return string.Format("{0}関数:{1}番目の引数がキャラクタ変数です", name, i + 1);
+					if (i == 0 && !varTerm.Identifier.IsArray1D)
+						return string.Format("{0}関数:{1}番目の引数が一次元配列ではありません", name, i + 1);
+					if (!varTerm.Identifier.IsArray1D && !varTerm.Identifier.IsArray2D && !varTerm.Identifier.IsArray2D)
+						return string.Format("{0}関数:{1}番目の引数が配列変数ではありません", name, i + 1);
+				}
+				return null;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				VariableTerm varTerm = arguments[0] as VariableTerm;
+				int[] sortedArray;
+				if (varTerm.Identifier.IsInteger)
+				{
+					List<KeyValuePair<Int64, int>> sortList = new List<KeyValuePair<long, int>>();
+					Int64[] array = (Int64[])varTerm.Identifier.GetArray();
+					for (int i = 0; i < array.Length; i++)
+					{
+						if (array[i] == 0)
+							break;
+						if (array[i] < int.MinValue || array[i] > int.MaxValue)
+							return 0;
+						sortList.Add(new KeyValuePair<long, int>(array[i], i));
+					}
+					sortList.Sort((a, b) => { return (int)(a.Key - b.Key); });
+					sortedArray = new int[sortList.Count];
+					for (int i = 0; i < sortedArray.Length; i++)
+						sortedArray[i] = sortList[i].Value;
+				}
+				else
+				{
+					List<KeyValuePair<string, int>> sortList = new List<KeyValuePair<string, int>>();
+					string[] array = (string[])varTerm.Identifier.GetArray();
+					for (int i = 0; i < array.Length; i++)
+					{
+						if (string.IsNullOrEmpty(array[i]))
+							return 0;
+						sortList.Add(new KeyValuePair<string, int>(array[i], i));
+					}
+					sortList.Sort((a, b) => { return a.Key.CompareTo(b.Key); });
+					sortedArray = new int[sortList.Count];
+					for (int i = 0; i < sortedArray.Length; i++)
+						sortedArray[i] = sortList[i].Value;
+				}
+				foreach (VariableTerm term in arguments)//もう少し賢い方法はないものだろうか
+				{
+					if (term.Identifier.IsArray1D)
+					{
+						if (term.IsInteger)
+						{
+							var array = (Int64[])term.Identifier.GetArray();
+							var clone = (Int64[])array.Clone();
+							if (array.Length < sortedArray.Length)
+								return 0;
+							for (int i = 0; i < sortedArray.Length; i++)
+								array[i] = clone[sortedArray[i]];
+						}
+						else
+						{
+							var array = (string[])term.Identifier.GetArray();
+							var clone = (string[])array.Clone();
+							if (array.Length < sortedArray.Length)
+								return 0;
+							for (int i = 0; i < sortedArray.Length; i++)
+								array[i] = clone[sortedArray[i]];
+						}
+					}
+					else if (term.Identifier.IsArray2D)
+					{
+						if (term.IsInteger)
+						{
+							var array = (Int64[,])term.Identifier.GetArray();
+							var clone = (Int64[,])array.Clone();
+							if (array.GetLength(0) < sortedArray.Length)
+								return 0;
+							for (int i = 0; i < sortedArray.Length; i++)
+								for (int x = 0; x < array.GetLength(1); x++)
+									array[i, x] = clone[sortedArray[i], x];
+						}
+						else
+						{
+							var array = (string[,])term.Identifier.GetArray();
+							var clone = (string[,])array.Clone();
+							if (array.GetLength(0) < sortedArray.Length)
+								return 0;
+							for (int i = 0; i < sortedArray.Length; i++)
+								for (int x = 0; x < array.GetLength(1); x++)
+									array[i, x] = clone[sortedArray[i], x];
+						}
+					}
+					else if (term.Identifier.IsArray3D)
+					{
+						if (term.IsInteger)
+						{
+							var array = (Int64[, ,])term.Identifier.GetArray();
+							var clone = (Int64[, ,])array.Clone();
+							if (array.GetLength(0) < sortedArray.Length)
+								return 0;
+							for (int i = 0; i < sortedArray.Length; i++)
+								for (int x = 0; x < array.GetLength(1); x++)
+									for (int y = 0; y < array.GetLength(2); y++)
+										array[i, x, y] = clone[sortedArray[i], x, y];
+						}
+						else
+						{
+							var array = (string[, ,])term.Identifier.GetArray();
+							var clone = (string[, ,])array.Clone();
+							if (array.GetLength(0) < sortedArray.Length)
+								return 0;
+							for (int i = 0; i < sortedArray.Length; i++)
+								for (int x = 0; x < array.GetLength(1); x++)
+									for (int y = 0; y < array.GetLength(2); y++)
+										array[i, x, y] = clone[sortedArray[i], x, y];
+						}
+					}
+					else { throw new ExeEE("異常な配列"); }
+				}
+				return 1;
+			}
+			public override bool UniqueRestructure(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				for (int i = 0; i < arguments.Length; i++)
+					arguments[i] = arguments[i].Restructure(exm);
+				return false;
+			}
+		}
         #endregion
 
         #region 文字列操作系
@@ -2759,6 +2908,1315 @@ namespace MinorShift.Emuera.GameData.Function
 				return HtmlManager.Escape(arguments[0].GetStrValue(exm));
 			}
 		}
+		#endregion
+
+		#region 画像処理系
+		private static GraphicsImage ReadGraphics(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
+		{
+			Int64 target = arguments[argNo].GetIntValue(exm);
+			if (target < 0)//funcname + "関数:GraphicsIDに負の値(" + target.ToString() + ")が指定されました"
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGraphicsID0, Name, target));
+			else if (target > int.MaxValue)//funcname + "関数:GraphicsIDの値(" + target.ToString() + ")が大きすぎます"
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGraphicsID1, Name, target));
+			int id = (int)target;
+			return AppContents.GetGraphics((int)target);
+		}
+
+		private static Color ReadColor(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
+		{
+			Int64 c64 = arguments[argNo].GetIntValue(exm);
+			if (c64 < 0 || c64 > 0xFFFFFFFF)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodColorARGB0, Name, c64));
+			return Color.FromArgb((int)(c64 >> 24) & 0xFF, (int)(c64 >> 16) & 0xFF, (int)(c64 >> 8) & 0xFF, (int)c64 & 0xFF);
+		}
+
+		private static Point ReadPoint(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
+		{
+			Int64 x64 = arguments[argNo].GetIntValue(exm);
+			if(x64<int.MinValue || x64>int.MaxValue)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name,x64, argNo+1));
+			Int64 y64 = arguments[argNo+1].GetIntValue(exm);
+			if(y64<int.MinValue || y64>int.MaxValue)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name,y64, argNo+1+1));
+			return new Point((int)x64, (int)y64);
+		}
+
+		private static Rectangle ReadRectangle(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
+		{
+			Int64 x64 = arguments[argNo].GetIntValue(exm);
+			if (x64 < int.MinValue || x64 > int.MaxValue)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, x64, argNo + 1));
+			Int64 y64 = arguments[argNo + 1].GetIntValue(exm);
+			if (y64 < int.MinValue || y64 > int.MaxValue)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, y64, argNo + 1 + 1));
+
+			Int64 w64 = arguments[argNo + 2].GetIntValue(exm);
+			if (w64 < int.MinValue || w64 > int.MaxValue || w64 == 0)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, w64, argNo + 2 + 1));
+			Int64 h64 = arguments[argNo + 3].GetIntValue(exm);
+			if (h64 < int.MinValue || h64 > int.MaxValue || h64 == 0)
+				throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, h64, argNo + 3 + 1));
+			return new Rectangle((int)x64, (int)y64, (int)w64, (int)h64);
+		}
+
+		private static float[][] ReadColormatrix(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
+		{
+			//数値型二次元以上配列変数のはず
+			FixedVariableTerm p = ((VariableTerm)arguments[argNo]).GetFixedVariableTerm(exm);
+			Int64 e1, e2;
+			float[][] cm = new float[5][];
+			if (p.Identifier.IsArray2D)
+			{
+				Int64[,] array;
+				if (p.Identifier.IsCharacterData)
+				{
+					array = p.Identifier.GetArrayChara((int)p.Index1) as Int64[,];
+					e1 = p.Index2;
+					e2 = p.Index3;
+				}
+				else
+				{
+					array = p.Identifier.GetArray() as Int64[,];
+					e1 = p.Index1;
+					e2 = p.Index2;
+				}
+				if (e1 < 0 || e2 < 0 || e1 + 5 > array.GetLength(0) || e2 + 5 > array.GetLength(1))
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGColorMatrix0, Name, e1, e2));
+				for (int x = 0; x < 5; x++)
+				{
+					cm[x] = new float[5];
+					for (int y = 0; y < 5; y++)
+					{
+						cm[x][y] = ((float)array[e1+x, e2+y]) / 256f;
+					}
+				}
+			}
+			if(p.Identifier.IsArray3D)
+			{
+				Int64[, ,] array; Int64 e3;
+				if (p.Identifier.IsCharacterData)
+				{
+					throw new NotImplCodeEE();
+				}
+				else
+				{
+					array = p.Identifier.GetArray() as Int64[,,];
+					e1 = p.Index1;
+					e2 = p.Index2;
+					e3 = p.Index3;
+				}
+				if (e1 < 0 || e1 >= array.GetLength(0))
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGColorMatrix0, Name, e2, e3));
+				if (e2 < 0 || e3 < 0 || e2 + 5 > array.GetLength(1) || e3 + 5 > array.GetLength(2))
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGColorMatrix0, Name, e2, e3));
+				for (int x = 0; x < 5; x++)
+				{
+					cm[x] = new float[5];
+					for (int y = 0; y < 5; y++)
+					{
+						cm[x][y] = ((float)array[e1,e2+x, e3+y]) / 256f;
+					}
+				}
+			}
+			return cm;
+		}
+
+		public sealed class GraphicsStateMethod : FunctionMethod
+		{
+			public GraphicsStateMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				switch (Name)
+				{
+					case "GCREATED":
+						return 1;
+					case "GWIDTH":
+						return g.Width;
+					case "GHEIGHT":
+						return g.Height;
+				}
+				throw new ExeEE("GraphicsState:" + Name + ":異常な分岐");
+			}
+		}
+
+		public sealed class GraphicsGetColorMethod : FunctionMethod
+		{
+			public GraphicsGetColorMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				//失敗したら負の値を返す。他と戻り値違うけど仕方ないね
+				if (!g.IsCreated)
+					return -1;
+				Point p = ReadPoint(Name, exm, arguments, 1);
+				if (p.X < 0 || p.X >= g.Width || p.X < 0 || p.Y >= g.Height)
+					return -1;
+				Color c = g.GGetColor(p.X,p.Y);
+				//Color.ToArgb()はInt32の負の値をとることがあり、Int64にうまく変換できない?（と思ったが気のせいだった
+				return ((Int64)c.ToArgb()) & 0xFFFFFFFFL;
+			}
+		}
+
+		public sealed class GraphicsSetColorMethod : FunctionMethod
+		{
+			public GraphicsSetColorMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				Color c = ReadColor(Name, exm, arguments, 1);
+				Point p = ReadPoint(Name, exm, arguments, 2);
+				if (p.X < 0 || p.X >= g.Width || p.X < 0 || p.Y >= g.Height)
+					return 0;
+				g.GSetColor(c, p.X, p.Y);
+				return 1;
+			}
+		}
+		
+		public sealed class GraphicsSetBrushMethod : FunctionMethod
+		{
+			public GraphicsSetBrushMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				Color c = ReadColor(Name, exm, arguments, 1);
+				g.GSetBrush(new SolidBrush(c));
+				return 1;
+			}
+		}
+		public sealed class GraphicsSetFontMethod : FunctionMethod
+		{
+			public GraphicsSetFontMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(string), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				string fontname = arguments[1].GetStrValue(exm);
+				Int64 fontsize = arguments[2].GetIntValue(exm);
+				
+				Font styledFont = null;
+				try
+				{
+					styledFont = new Font(fontname, fontsize, FontStyle.Regular, GraphicsUnit.Pixel);
+				}
+				catch
+				{
+					return 0;
+				}
+				g.GSetFont(styledFont);
+				return 1;
+			}
+		}
+		
+		public sealed class GraphicsSetPenMethod : FunctionMethod
+		{
+			public GraphicsSetPenMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				Color c = ReadColor(Name, exm, arguments, 1);
+				Int64 width = arguments[2].GetIntValue(exm);
+				g.GSetPen(new Pen(c,width));
+				return 1;
+			}
+		}
+
+		public sealed class SpriteStateMethod : FunctionMethod
+		{
+			public SpriteStateMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				string imgname = arguments[0].GetStrValue(exm);
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img == null || !img.IsCreated)
+					return 0;
+				switch (Name)
+				{
+					case "SPRITECREATED":
+						return 1;
+					case "SPRITEWIDTH":
+						return img.Rectangle.Width;
+					case "SPRITEHEIGHT":
+						return img.Rectangle.Height;
+					case "SPRITEPOSX":
+						return img.Position.X;
+					case "SPRITEPOSY":
+						return img.Position.Y;
+				}
+				throw new ExeEE("SpriteStateMethod:" + Name + ":異常な分岐");
+			}
+		}
+
+		public sealed class SpriteSetPosMethod : FunctionMethod
+		{
+			public SpriteSetPosMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string) , typeof(Int64),typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				string imgname = arguments[0].GetStrValue(exm);
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img == null || !img.IsCreated)
+					return 0;
+				Point p = ReadPoint(Name, exm, arguments, 1);
+				switch (Name)
+				{
+					case "SPRITEMOVE":
+						img.Position.Offset(p);
+						return 1;
+					case "SPRITESETPOS":
+						img.Position = p;
+						return 1;
+				}
+				throw new ExeEE("SpriteStateMethod:" + Name + ":異常な分岐");
+			}
+		}
+
+		public sealed class SpriteGetColorMethod : FunctionMethod
+		{
+			public SpriteGetColorMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				string imgname = arguments[0].GetStrValue(exm);
+				ASprite img = AppContents.GetSprite(imgname);
+				//他と違って失敗は0ではなく負の値
+				if (img == null || !img.IsCreated)
+					return -1;
+				Point p = ReadPoint(Name, exm, arguments, 1);
+				if (img.Rectangle.Width >= 0)
+				{
+					if (p.X < 0 || p.X >= img.Rectangle.Width)
+						return -1;
+				}
+				else
+				{
+					p.X = -p.X;
+					if (p.X < 0 || p.X >= -img.Rectangle.Width)
+						return -1;
+				}
+				if (img.Rectangle.Height >= 0)
+				{
+					if (p.Y < 0 || p.Y >= img.Rectangle.Height)
+						return -1;
+				}
+				else
+				{
+					p.Y = -p.Y;
+					if (p.Y < 0 || p.Y >= -img.Rectangle.Height)
+						return -1;
+				}
+				Color c = img.SpriteGetColor(p.X, p.Y);
+				//Color.ToArgb()はInt32の負の値をとることがあり、Int64にうまく変換できない？（と思ったが気のせいだった
+				return ((Int64)c.A) << 24 + c.R << 16 + c.G << 8 + c.B;
+			}
+		}
+
+		public sealed class ClientSizeMethod : FunctionMethod
+		{
+			public ClientSizeMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] {};
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				switch (Name)
+				{
+					case "CLIENTWIDTH":
+						return exm.Console.ClientWidth;
+					case "CLIENTHEIGHT":
+						return exm.Console.ClientHeight;
+				}
+				throw new ExeEE("ClientSize:" + Name + ":異常な分岐");
+			}
+		}
+
+		public sealed class GraphicsCreateMethod : FunctionMethod
+		{
+			public GraphicsCreateMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (g.IsCreated)
+					return 0;
+
+				Point p = ReadPoint(Name, exm, arguments, 1);
+				int width = p.X; int height = p.Y;
+				if (width <= 0)//{0}関数:GraphicsのWidthに0以下の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth0, Name, width));
+				else if (width > 8192)//{0}関数:GraphicsのWidthに8192以上の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth1, Name, width, 8192));
+				if (height <= 0)//{0}関数:GraphicsのHeightに0以下の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight0, Name, height));
+				else if (height > 8192)//{0}関数:GraphicsのHeightに8192以上の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight1, Name, height, 8192));
+
+				g.GCreate(width, height, false);
+				return 1;
+
+			}
+		}
+
+		public sealed class GraphicsCreateFromFileMethod : FunctionMethod
+		{
+			public GraphicsCreateFromFileMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(string) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (g.IsCreated)
+					return 0;
+
+				string filename = arguments[1].GetStrValue(exm);
+				Bitmap bmp = null;
+				try
+				{
+					string filepath = filename;
+					if(!System.IO.Path.IsPathRooted(filepath))
+						filepath = Program.ContentDir + filename;
+					if (!System.IO.File.Exists(filepath))
+						return 0;
+					bmp = new Bitmap(filepath);
+					if (bmp.Width > 8192 || bmp.Height > 8192)
+						return 0;
+					g.GCreateFromF(bmp, (Config.TextDrawingMode == TextDrawingMode.WINAPI));
+				}
+				catch (Exception e)
+				{
+					if (e is CodeEE)
+						throw;
+				}
+				finally
+				{
+					if (bmp != null)
+						bmp.Dispose();
+				}
+				//画像ファイルではなかった、などによる失敗
+				if (!g.IsCreated)
+					return 0;
+				return 1;
+			}
+		}
+
+		public sealed class GraphicsDisposeMethod : FunctionMethod
+		{
+			public GraphicsDisposeMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				g.GDispose();
+				return 1;
+			}
+		}
+		/// <summary>
+		/// SPRITECREATE(str imgName, int gID, int x, int y, int width, int height)
+		/// SPRITECREATE(str imgName, int gID)
+		/// </summary>
+		public sealed class SpriteCreateMethod : FunctionMethod
+		{
+			public SpriteCreateMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string) };
+				CanRestructure = false;
+			}
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+
+				if (arguments.Length < 2)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum1, name, 2);
+				if (arguments.Length > 6)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum2, name);
+				if (arguments[0] == null)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, 0 + 1);
+				if (arguments[1] == null)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, 1 + 1);
+				if (arguments[0].GetOperandType() != typeof(string))
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, 0 + 1);
+				if (arguments[1].GetOperandType() != typeof(Int64))
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, 1 + 1);
+				if (arguments.Length == 2)
+					return null;
+				if (arguments.Length != 6)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum0, name);
+				for (int i = 2; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i + 1);
+					if (arguments[i].GetOperandType() != typeof(Int64))
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
+				}
+				return null;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				string imgname = arguments[0].GetStrValue(exm);
+				if (string.IsNullOrEmpty(imgname))
+					return 0;
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img != null && img.IsCreated)
+					return 0;
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 1);
+				if (!g.IsCreated)
+					return 0;
+
+				Rectangle rect = new Rectangle(0, 0, g.Width, g.Height);
+				if(arguments.Length == 6)
+				{//四角形は正でも負でもよいが親画像の外を指してはいけない
+					rect = ReadRectangle(Name, exm, arguments, 2);
+					if (rect.X + rect.Width < 0 || rect.X + rect.Width > g.Width || rect.Y + rect.Height < 0 || rect.Y + rect.Height > g.Height)
+						throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodCIMGCreateOutOfRange0, Name));
+				}
+				AppContents.CreateSpriteG(imgname, g, rect);
+				return 1;
+			}
+		}
+		public sealed class SpriteDisposeMethod : FunctionMethod
+		{
+			public SpriteDisposeMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				string imgname = arguments[0].GetStrValue(exm);
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img == null || !img.IsCreated)
+					return 0;
+				AppContents.SpriteDispose(imgname);
+				return 1;
+			}
+		}
+
+
+		/// <summary>
+		/// GCLEAR(int ID, int cARGB)
+		/// </summary>
+		public sealed class GraphicsClearMethod : FunctionMethod
+		{
+			public GraphicsClearMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				Color c = ReadColor(Name, exm, arguments, 1);
+				if (!g.IsCreated)
+					return 0;
+				g.GClear(c);
+				return 1;
+			}
+		}
+
+		/// <summary>
+		/// GFILLRECTANGLE(int ID, int cARGB, int x, int y, int width, int height)
+		/// </summary>
+		public sealed class GraphicsFillRectangleMethod : FunctionMethod
+		{
+			public GraphicsFillRectangleMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				Rectangle rect = ReadRectangle(Name, exm, arguments, 1);
+				g.GFillRectangle(rect);
+				return 1;
+			}
+		}
+
+		/// <summary>
+		/// GDRAWG(int ID, int srcID, int destX, int destY, int destWidth, int destHeight, int srcX, int srcY, int srcWidth, int srcHeight)
+		/// GDRAWG(int ID, int srcID, int destX, int destY, int destWidth, int destHeight, int srcX, int srcY, int srcWidth, int srcHeight, var CM)
+		/// </summary>
+		public sealed class GraphicsDrawGMethod : FunctionMethod
+		{
+			public GraphicsDrawGMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = null;
+				CanRestructure = false;
+				HasUniqueRestructure = true;
+			}
+			
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+
+				if (arguments.Length < 10)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum1, name, 10);
+				if (arguments.Length > 11)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum2, name);
+				for (int i = 0; i < 10; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i + 1);
+					if (typeof(Int64) != arguments[i].GetOperandType())
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
+				}
+				if (arguments.Length == 10)
+					return null;
+				VariableTerm varToken = arguments[10] as VariableTerm;
+				if (varToken == null || !varToken.IsInteger || (!varToken.Identifier.IsArray2D&&!varToken.Identifier.IsArray3D))
+					return string.Format(Properties.Resources.SyntaxErrMesMethodGraphicsColorMatrix0, name);
+				return null;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage dest = ReadGraphics(Name, exm, arguments, 0);
+				if (!dest.IsCreated)
+					return 0;
+				GraphicsImage src = ReadGraphics(Name, exm, arguments, 1);
+				if (!src.IsCreated)
+					return 0;
+				Rectangle destRect = ReadRectangle(Name, exm, arguments, 2);
+				Rectangle srcRect = ReadRectangle(Name, exm, arguments, 6);
+				if (arguments.Length == 10 || arguments[10] == null)
+				{
+					dest.GDrawG(src, destRect, srcRect);
+					return 1;
+				}
+				float[][] cm = ReadColormatrix(Name, exm, arguments, 10);
+				dest.GDrawG(src, destRect, srcRect, cm);
+				return 1;
+			}
+
+			public override bool UniqueRestructure(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						continue;
+					//11番目の引数はColorMatrixの配列を指しているので定数にしてはいけない
+					if (i == 10)
+						arguments[i].Restructure(exm);
+					else
+						arguments[i] = arguments[i].Restructure(exm);
+				}
+				return false;
+			}
+		}
+		
+		/// <summary>
+		/// GDRAWGWITHMASK(int ID, int srcID, int maskID, int destX, int destY)
+		/// </summary>
+		public sealed class GraphicsDrawGWithMaskMethod : FunctionMethod
+		{
+			public GraphicsDrawGWithMaskMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			
+
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage dest = ReadGraphics(Name, exm, arguments, 0);
+				if (!dest.IsCreated)
+					return 0;
+				GraphicsImage src = ReadGraphics(Name, exm, arguments, 1);
+				if (!src.IsCreated)
+					return 0;
+				GraphicsImage mask = ReadGraphics(Name, exm, arguments, 2);
+				if (!mask.IsCreated)
+					return 0;
+				if (src.Width != mask.Width || src.Height != mask.Height)
+					return 0;
+				Point destPoint = ReadPoint(Name, exm, arguments, 3);
+				if (destPoint.X + src.Width > dest.Width || destPoint.Y + src.Height > dest.Height)
+					return 0;
+				dest.GDrawGWithMask(src, mask, destPoint);
+				return 1;
+			}
+
+
+		}
+
+		/// <summary>
+		/// GDRAWCIMG(int ID, str imgName)
+		/// GDRAWCIMG(int ID, str imgName, int destX, int destY)
+		/// GDRAWCIMG(int ID, str imgName, int destX, int destY, int destWidth, int destHeight)
+		/// GDRAWCIMG(int ID, str imgName, int destX, int destY, int destWidth, int destHeight, var CM)
+		/// </summary>
+		public sealed class GraphicsDrawSpriteMethod : FunctionMethod
+		{
+			public GraphicsDrawSpriteMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(string), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+				HasUniqueRestructure = true;
+			}
+
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+
+				if (arguments.Length < 2)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum1, name, 2);
+				if (arguments.Length > 7)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum2, name);
+				if (arguments.Length != 2 && arguments.Length != 4 && arguments.Length != 6 && arguments.Length != 7)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum0, name);
+
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i + 1);
+					
+					if (i < argumentTypeArray.Length && argumentTypeArray[i] != arguments[i].GetOperandType())
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
+				}
+				if (arguments.Length <= 6)
+					return null;
+				VariableTerm varToken = arguments[6] as VariableTerm;
+				if (varToken == null || !varToken.IsInteger || (!varToken.Identifier.IsArray2D && !varToken.Identifier.IsArray3D))
+					return string.Format(Properties.Resources.SyntaxErrMesMethodGraphicsColorMatrix0, name);
+				return null;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage dest = ReadGraphics(Name, exm, arguments, 0);
+				if (!dest.IsCreated)
+					return 0;
+
+				string imgname = arguments[1].GetStrValue(exm);
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img == null || !img.IsCreated)
+					return 0;
+
+				Rectangle destRect = new Rectangle(0,0,img.Rectangle.Width, img.Rectangle.Height);
+				if (arguments.Length == 2)
+				{
+					dest.GDrawCImg(img, destRect);
+					return 1;
+				}
+				if (arguments.Length == 4)
+				{
+					Point p = ReadPoint(Name, exm, arguments, 2);
+					destRect.X = p.X;
+					destRect.Y = p.Y;
+					dest.GDrawCImg(img, destRect);
+					return 1;
+				}
+				if (arguments.Length == 6)
+				{
+					destRect = ReadRectangle(Name, exm, arguments, 2);
+					dest.GDrawCImg(img, destRect);
+					return 1;
+				}
+				//if (arguments.Length == 7)
+				destRect = ReadRectangle(Name, exm, arguments, 2);
+				float[][] cm = ReadColormatrix(Name, exm, arguments, 6);
+				dest.GDrawCImg(img, destRect, cm);
+				return 1;
+			}
+
+			public override bool UniqueRestructure(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						continue;
+					//7番目の引数はColorMatrixの配列を指しているので定数にしてはいけない
+					if (i == 6)
+						arguments[i].Restructure(exm);
+					else
+						arguments[i] = arguments[i].Restructure(exm);
+				}
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// CBGCLEAR
+		/// </summary>
+		public sealed class CBGClearMethod : FunctionMethod
+		{
+			public CBGClearMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] {};
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				//if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+				//	throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				exm.Console.CBG_Clear();
+				return 1;
+			}
+		}
+
+		/// <summary>
+		/// CBGREMOVERANGE(int zmin, int zmax)
+		/// </summary>
+		public sealed class CBGRemoveRangeMethod : FunctionMethod
+		{
+			public CBGRemoveRangeMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+
+				Int64 x64 = arguments[0].GetIntValue(exm);
+				Int64 y64 = arguments[1].GetIntValue(exm);
+				unchecked
+				{
+					exm.Console.CBG_ClearRange((int)x64, (int)y64);
+				}
+				return 1;
+			}
+		}
+		/// <summary>
+		/// CBGCLEARBUTTON
+		/// </summary>
+		public sealed class CBGClearButtonMethod : FunctionMethod
+		{
+			public CBGClearButtonMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				//if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+				//	throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				exm.Console.CBG_ClearButton();
+				return 1;
+			}
+		}
+		/// <summary>
+		/// CBGREMOVEBMAP
+		/// </summary>
+		public sealed class CBGRemoveBMapMethod : FunctionMethod
+		{
+			public CBGRemoveBMapMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				//if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+				//	throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				exm.Console.CBG_ClearBMap();
+				return 1;
+			}
+		}
+		/// <summary>
+		/// CBGSETG(int ID, int x, int y, int zdepth)
+		/// </summary>
+		public sealed class CBGSetGraphicsMethod : FunctionMethod
+		{
+			public CBGSetGraphicsMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				Point p = ReadPoint(Name, exm, arguments, 1);
+				Int64 z64 = arguments[3].GetIntValue(exm);
+				if (z64 < int.MinValue || z64 > int.MaxValue || z64 == 0)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, z64, 3 + 1));
+				exm.Console.CBG_SetGraphics(g, p.X, p.Y, (int)z64);
+				return 1;
+
+			}
+		}
+		/// <summary>
+		/// CBGSETBMAPG(int ID, int x, int y, int zdepth)
+		/// </summary>
+		public sealed class CBGSetBMapGMethod : FunctionMethod
+		{
+			public CBGSetBMapGMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64)};
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+				exm.Console.CBG_SetButtonMap(g);
+				return 1;
+
+			}
+		}
+
+		/// <summary>
+		/// CBGSETCIMG(str imgName, int x, int y, int zdepth)
+		/// </summary>
+		public sealed class CBGSetCIMGMethod : FunctionMethod
+		{
+			public CBGSetCIMGMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				//if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+				//	throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+
+				string imgname = arguments[0].GetStrValue(exm);
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img == null || !img.IsCreated)
+					return 0;
+				Point p = ReadPoint(Name, exm, arguments, 1);
+				Int64 z64 = arguments[3].GetIntValue(exm);
+				if (z64 < int.MinValue || z64 > int.MaxValue || z64 == 0)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, z64, 3 + 1));
+				if (!exm.Console.CBG_SetImage(img, p.X,p.Y, (int)z64))
+					return 0;
+				return 1;
+
+			}
+		}
+
+		/// <summary>
+		/// CBGSETBUTTONCIMG(int button, str imgName, str imgName, int x, int y,int zdepth str tooltipmes)
+		/// </summary>
+		public sealed class CBGSETButtonSpriteMethod : FunctionMethod
+		{
+			public CBGSETButtonSpriteMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(string), typeof(string), typeof(Int64), typeof(Int64), typeof(Int64), typeof(string) };
+				CanRestructure = false;
+			}
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+
+				if (arguments.Length < 6)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum1, name, 6);
+				if (arguments.Length > 7)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum2, name);
+				if (arguments.Length != 6 && arguments.Length != 7)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum0, name);
+
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i + 1);
+
+					if (i < argumentTypeArray.Length && argumentTypeArray[i] != arguments[i].GetOperandType())
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
+				}
+				return null;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+
+				Int64 b64 = arguments[0].GetIntValue(exm);
+				if (b64 < 0 || b64 > 0xFFFFFF)
+					return 0;
+				string imgnameN = arguments[1].GetStrValue(exm);
+				ASprite imgN = AppContents.GetSprite(imgnameN);
+				string imgnameB = arguments[2].GetStrValue(exm);
+				ASprite imgB = AppContents.GetSprite(imgnameB);
+
+				Point p = ReadPoint(Name, exm, arguments, 3);
+				Int64 z64 = arguments[5].GetIntValue(exm);
+				if (z64 < int.MinValue || z64 > int.MaxValue || z64 == 0)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, z64, 5 + 1));
+				string tooltip = null;
+				if(arguments.Length > 6)
+					tooltip = arguments[6].GetStrValue(exm);
+				if (!exm.Console.CBG_SetButtonImage((int)b64, imgN, imgB, p.X, p.Y, (int)z64, tooltip))
+					return 0;
+				return 1;
+
+			}
+		}
+
+		static short[] keytoggle = new short[256];
+		private sealed class GetKeyStateMethod : FunctionMethod
+		{
+			public GetKeyStateMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (!exm.Console.IsActive)//アクティブでないならスルー
+					return 0;
+				Int64 keycode = arguments[0].GetIntValue(exm);
+				if (keycode < 0 || keycode > 255)
+					return 0;
+				short s = WinInput.GetKeyState((int)keycode);
+				short toggle = keytoggle[keycode];
+				keytoggle[keycode] = (short)((s & 1) + 1);//初期値0、トグル状態に応じて1か2を代入。
+				switch(Name)
+				{
+					case "GETKEY": return (s < 0) ? 1 : 0;
+					case "GETKEYTRIGGERED": return (s < 0) && (toggle != keytoggle[keycode]) ? 1 : 0;//初回はtrue、2回目以降はトグル状態が前回と違う場合のみ1
+				}
+				throw new ExeEE("異常な分岐");
+			}
+		}
+
+		private sealed class MousePosMethod : FunctionMethod
+		{
+			public MousePosMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				switch(Name)
+				{
+					case "MOUSEX": return exm.Console.GetMousePosition().X;
+					case "MOUSEY": return exm.Console.GetMousePosition().Y;
+				}
+				throw new ExeEE("異常な名前");
+			}
+		}
+
+
+		private sealed class IsActiveMethod : FunctionMethod
+		{
+			public IsActiveMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				return exm.Console.IsActive ? 1 : 0;
+			}
+		}
+
+		/// <summary>
+		/// int SAVETEXT str text, int fileNo{, int force_savdir, int force_UTF8}
+		/// </summary>
+		private sealed class SaveTextMethod : FunctionMethod
+		{
+			public SaveTextMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string) ,typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+
+				if (arguments.Length < 2)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum1, name, 2);
+				if (arguments.Length > 4)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum2, name);
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i + 1);
+
+					if (i < argumentTypeArray.Length && argumentTypeArray[i] != arguments[i].GetOperandType())
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
+				}
+				return null;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				string savText = arguments[0].GetStrValue(exm);
+				Int64 i64 = arguments[1].GetIntValue(exm);
+				if (i64 < 0 || i64 > int.MaxValue)
+					return 0;
+				bool forceSavdir = arguments.Length > 2 && (arguments[2].GetIntValue(exm) != 0);
+				bool forceUTF8 = arguments.Length > 3 && (arguments[3].GetIntValue(exm) != 0);
+				int fileIndex = (int)i64;
+				string filepath = forceSavdir ?
+					getSaveDataPathText(fileIndex, Config.ForceSavDir) :
+					getSaveDataPathText(fileIndex, Config.SavDir);
+				Encoding encoding = forceUTF8 ?
+					Encoding.GetEncoding("UTF-8") :
+					Config.SaveEncode;
+				try
+				{
+					if (forceSavdir)
+						Config.ForceCreateSavDir();
+					else
+						Config.CreateSavDir();
+					System.IO.File.WriteAllText(filepath, savText, encoding);
+				}
+				catch { return 0; }
+				return 1;
+			}
+		}
+		/// <summary>
+		/// str LOADTEXT int fileNo{, int force_savdir, int force_UTF8}
+		/// </summary>
+		private sealed class LoadTextMethod : FunctionMethod
+		{
+			public LoadTextMethod()
+			{
+				ReturnType = typeof(string);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override string CheckArgumentType(string name, IOperandTerm[] arguments)
+			{
+
+				if (arguments.Length < 1)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum1, name, 1);
+				if (arguments.Length > 3)
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum2, name);
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					if (arguments[i] == null)
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i + 1);
+					if (i < argumentTypeArray.Length && argumentTypeArray[i] != arguments[i].GetOperandType())
+						return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
+				}
+				return null;
+			}
+			public override string GetStrValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				string ret = "";
+				Int64 i64 = arguments[0].GetIntValue(exm);
+				if (i64 < 0 || i64 > int.MaxValue)
+					return "";
+				bool forceSavdir = arguments.Length > 1 && (arguments[1].GetIntValue(exm) != 0);
+				bool forceUTF8 = arguments.Length > 2 && (arguments[2].GetIntValue(exm) != 0);
+				int fileIndex = (int)i64;
+				string filepath = forceSavdir ?
+					getSaveDataPathText(fileIndex, Config.ForceSavDir) :
+					getSaveDataPathText(fileIndex, Config.SavDir);
+				Encoding encoding = forceUTF8 ?
+					Encoding.GetEncoding("UTF-8") :
+					Config.SaveEncode;
+				if (!System.IO.File.Exists(filepath))
+					return "";
+				try
+				{
+					ret = System.IO.File.ReadAllText(filepath, encoding);
+				}
+				catch { return ""; }
+				return ret;
+			}
+		}
+		private static string getSaveDataPathText(int index, string dir) { return string.Format("{0}txt{1:00}.txt", dir, index); }
+		private static string getSaveDataPathGraphics(int index) { return string.Format("{0}img{1:0000}.png", Config.SavDir, index); }
+
+		/// <summary>
+		/// int GSAVE int ID, int fileNo
+		/// </summary>
+		public sealed class GraphicsSaveMethod : FunctionMethod
+		{
+			public GraphicsSaveMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (!g.IsCreated)
+					return 0;
+
+				Int64 i64 = arguments[1].GetIntValue(exm);
+				if (i64 < 0 || i64 > int.MaxValue)
+					return 0;
+
+				string filepath = getSaveDataPathGraphics((int)i64);
+				try
+				{
+					Config.CreateSavDir();
+					g.Bitmap.Save(filepath);
+				}
+				catch
+				{
+					return 0;
+				}
+				return 1;
+			}
+		}
+		/// <summary>
+		/// int GLOAD int ID, int fileNo
+		/// </summary>
+		public sealed class GraphicsLoadMethod : FunctionMethod
+		{
+			public GraphicsLoadMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+                if(Config.TextDrawingMode == TextDrawingMode.WINAPI)
+                    throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+                GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+                if(g.IsCreated)
+                    return 0;
+
+                Int64 i64 = arguments[1].GetIntValue(exm);
+                if(i64 < 0 || i64 > int.MaxValue)
+                    return 0;
+
+                string filepath = getSaveDataPathGraphics((int)i64);
+                Bitmap bmp = null;
+                try
+                {
+                    if(!System.IO.File.Exists(filepath))
+                        return 0;
+                    bmp = new Bitmap(filepath);
+                    if(bmp.Width > 8192 || bmp.Height > 8192)
+                        return 0;
+                    g.GCreateFromF(bmp, (Config.TextDrawingMode == TextDrawingMode.WINAPI));
+                }
+                catch(Exception e)
+                {
+                    if(e is CodeEE)
+                        throw;
+                }
+                finally
+                {
+                    if(bmp != null)
+                        bmp.Dispose();
+                }
+                if(!g.IsCreated)
+                    return 0;
+                return 1;
+            }
+		}
+
 		#endregion
 	}
 }

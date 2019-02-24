@@ -14,6 +14,23 @@ namespace MinorShift.Emuera.GameProc.Function
 		public Int64 ConstInt;
 	}
 
+	/// <summary>
+	/// 一般的な引数。複数の文字列式及び数式
+	/// </summary>
+	internal sealed class ExpressionsArgument : Argument
+	{
+		public ExpressionsArgument(Type[] types, IOperandTerm[] terms)
+		{
+			ArgumentTypeArray = types;
+			ArgumentArray = terms;
+		}
+		/// <summary>
+		/// 引数の型(ArgumentArrayよりもLengthが大きい可能性があるので見るのはArgumentArrayにすること)
+		/// </summary>
+		readonly public Type[] ArgumentTypeArray;
+		readonly public IOperandTerm[] ArgumentArray;
+	}
+
 	internal sealed class VoidArgument : Argument
 	{
 		public VoidArgument() { }

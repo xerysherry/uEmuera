@@ -23,7 +23,7 @@ public class EmueraImage : EmueraBehaviour
             }
             c.SetSprite(spriteinfo);
         }
-        public void Load(CroppedImage src)
+        public void Load(ASprite src)
         {
             SpriteManager.GetSprite(src, this, ImageInfo.OnLoadImageCallback);
         }
@@ -117,8 +117,8 @@ public class EmueraImage : EmueraBehaviour
 
             var str_index = image_indices[i];
             var image_part = cb.StrArray[str_index] as ConsoleImagePart;
-            image.name = image_part.cropped_image.Name;
-            imageinfo.Load(image_part.cropped_image);
+            image.name = image_part.Image.Name;
+            imageinfo.Load(image_part.Image);
             image_infos_.Add(imageinfo);
 
             var image_rect = image_part.dest_rect;

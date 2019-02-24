@@ -485,60 +485,46 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			if (isLast)
 			{
-                if(isExact)
-                {
-                    for(int i = (int)end - 1; i >= (int)start; --i)
-                    {
-                        //Nullならないものと見なして飛ばす
-                        if(array[i] == null)
-                            continue;
-                        Match match = target.Match(array[i]);
-                        //正規表現に引っかかった文字列の長さ＝元の文字列の長さなら完全一致
-                        if(match.Success && array[i].Length == match.Length)
-                            return (Int64)i;
-                    }
-				}
-				else
-                {
-                    for(int i = (int)end - 1; i >= (int)start; --i)
-                    {
-						//Nullならないものと見なして飛ばす
-						if (array[i] == null)
-							continue;
+				for (int i = (int)end - 1; i >= (int)start; --i)
+				{
+					//1823 Nullなら空文字列として扱う
+					string str = array[i] ?? "";
+					if (isExact)
+					{
+						Match match = target.Match(str);
+						//正規表現に引っかかった文字列の長さ＝元の文字列の長さなら完全一致
+						if (match.Success && str.Length == match.Length)
+							return (Int64)i;
+					}
+					else
+					{
 						//部分一致なのでひっかかればOK
-						if (target.IsMatch(array[i]))
+						if (target.IsMatch(str))
 							return (Int64)i;
 					}
 				}
 			}
 			else
 			{
-                if(isExact)
-                {
-                    for(int i = (int)start; i < (int)end; ++i)
-                    {
-                        //Nullならないものと見なして飛ばす
-                        if(array[i] == null)
-                            continue;
-                        //正規表現に引っかかった文字列の長さ＝元の文字列の長さなら完全一致
-                        Match match = target.Match(array[i]);
-                        if(match.Success && array[i].Length == match.Length)
-                            return (Int64)i;
-                    }
-                }
-                else
-                {
-                    for(int i = (int)start; i < (int)end; ++i)
-                    {
-                        //Nullならないものと見なして飛ばす
-                        if(array[i] == null)
-                            continue;
-                        //部分一致なのでひっかかればOK
-                        if(target.IsMatch(array[i]))
-                            return (Int64)i;
-                    }
-                }
-            }
+				for (int i = (int)start; i < (int)end; ++i)
+				{
+					//1823 Nullなら空文字列として扱う
+					string str = array[i] ?? "";
+					if (isExact)
+					{
+						//正規表現に引っかかった文字列の長さ＝元の文字列の長さなら完全一致
+						Match match = target.Match(str);
+						if (match.Success && str.Length == match.Length)
+							return (Int64)i;
+					}
+					else
+					{
+						//部分一致なのでひっかかればOK
+						if (target.IsMatch(str))
+							return (Int64)i;
+					}
+				}
+			}
 			return -1;
 		}
 
@@ -2341,51 +2327,56 @@ namespace MinorShift.Emuera.GameData.Variable
 		public bool SaveGlobal()
 		{
 			string filepath = getSaveDataPathG();
-			EraDataWriter writer = null;
-			EraBinaryDataWriter bWriter = null;
-			FileStream fs = null;
 			try
 			{
 				Config.CreateSavDir();
-				fs = new FileStream(filepath, FileMode.Create, FileAccess.Write);
-				if (Config.SystemSaveInBinary)
+				using (FileStream fs = new FileStream(filepath, FileMode.Create, FileAccess.Write))
 				{
+					if (Config.SystemSaveInBinary)
+					{
 
-					bWriter = new EraBinaryDataWriter(fs);
-					bWriter.WriteHeader();
-					bWriter.WriteFileType(EraSaveFileType.Global);
-					bWriter.WriteInt64(gamebase.ScriptUniqueCode);
-					bWriter.WriteInt64(gamebase.ScriptVersion);
-					bWriter.WriteString("");//saveMes
-					varData.SaveGlobalToStreamBinary(bWriter);
-					bWriter.WriteEOF();
-				}
-				else
-				{
-					writer = new EraDataWriter(fs);
-					writer.Write(gamebase.ScriptUniqueCode);
-					writer.Write(gamebase.ScriptVersion);
-					varData.SaveGlobalToStream(writer);
-					writer.EmuStart();
-					varData.SaveGlobalToStream1808(writer);
+						using (EraBinaryDataWriter bWriter = new EraBinaryDataWriter(fs))
+						{
+							bWriter.WriteHeader();
+							bWriter.WriteFileType(EraSaveFileType.Global);
+							bWriter.WriteInt64(gamebase.ScriptUniqueCode);
+							bWriter.WriteInt64(gamebase.ScriptVersion);
+							bWriter.WriteString("");//saveMes
+							varData.SaveGlobalToStreamBinary(bWriter);
+							bWriter.WriteEOF();
+							bWriter.Close();
+						}
+					}
+					else
+					{
+						using (EraDataWriter writer = new EraDataWriter(fs))
+						{
+							writer.Write(gamebase.ScriptUniqueCode);
+							writer.Write(gamebase.ScriptVersion);
+							varData.SaveGlobalToStream(writer);
+							writer.EmuStart();
+							varData.SaveGlobalToStream1808(writer);
+							writer.Close();
+						}
+					}
 				}
 			}
-			//catch (SystemException)
-			//{
-			//	throw new CodeEE("グローバルデータの保存中にエラーが発生しました");
-			//	//console.PrintError(
-			//	//console.NewLine();
-			//	//return false;
-			//}
-			finally
+			catch (SystemException)
 			{
-				if (writer != null)
-					writer.Close();
-				else if (bWriter != null)
-					bWriter.Close();
-				else if (fs != null)
-					fs.Close();
+				throw new CodeEE("グローバルデータの保存中にエラーが発生しました");
+				//console.PrintError(
+				//console.NewLine();
+				//return false;
 			}
+			//finally
+			//{
+			//	if (writer != null)
+			//		writer.Close();
+			//	else if (bWriter != null)
+			//		bWriter.Close();
+			//	else if (fs != null)
+			//		fs.Close();
+			//}
 			return true;
 		}
 

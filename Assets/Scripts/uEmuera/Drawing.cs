@@ -2,10 +2,47 @@
 
 namespace uEmuera.Drawing
 {
-    public class Bitmap
+    public class Bitmap : IDisposable
     {
+        public Bitmap(string path)
+        {
+            this.path = path;
+            this.filename = GenericUtils.GetFilename(path);
+        }
+
+        public readonly string path;
+        public readonly string filename;
         public string name;
         public Size size;
+
+        public void Dispose()
+        { }
+        public int Width
+        {
+            get { return size.Width; }
+        }
+        public int Height
+        {
+            get { return size.Height; }
+        }
+        public Size Size { get { return size; } }
+        public Color GetPixel(int x, int y)
+        {
+            var ti = SpriteManager.GetTextureInfo(name, path);
+            var uc = ti.texture.GetPixel(x, y);
+            return new Color(uc.r, uc.g, uc.b, uc.a);
+        }
+        public void SetPixel(Color c, int x, int y)
+        {
+            var ti = SpriteManager.GetTextureInfo(name, path);
+            ti.texture.SetPixel(x, y, new UnityEngine.Color(c.r, c.g, c.b, c.a));
+        }
+        public void Save(string path)
+        {
+            var ti = SpriteManager.GetTextureInfo(name, path);
+            var data = UnityEngine.ImageConversion.EncodeToPNG(ti.texture);
+            System.IO.File.WriteAllBytes(path, data);
+        }
     }
 
     public enum GraphicsUnit
@@ -68,6 +105,14 @@ namespace uEmuera.Drawing
         }
 
         public Color Color { get; set; }
+    }
+
+    public sealed class Pen
+    {
+        public Pen()
+        { }
+        public Pen(Color c, Int64 width)
+        { }
     }
 
     public enum FontStyle
@@ -228,6 +273,7 @@ namespace uEmuera.Drawing
         public static readonly Color Green = new Color(0, 255, 0);
         public static readonly Color Grey = new Color(128, 128, 128);
         public static readonly Color Gray = Grey;
+        public static readonly Color Transparent = new Color(0, 0, 0, 0);
 
         //public static Color Clear { get { return new Color(uColor.clear); } }
         //public static Color Cyan { get { return new Color(uColor.cyan); } }
@@ -309,6 +355,11 @@ namespace uEmuera.Drawing
         }
         public int X { get; set; }
         public int Y { get; set; }
+        public void Offset(Point pt)
+        {
+            X += pt.X;
+            Y += pt.Y;
+        }
     }
 
     public struct Size

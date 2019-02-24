@@ -129,6 +129,7 @@ namespace MinorShift.Emuera
         //一文字変数の禁止オプションを考えた名残
         //ForbidOneCodeVariable,
 		SystemNoTarget,
+		SystemIgnoreStringSet,
 
 		MoneyLabel = 100,
 		MoneyFirst = 101,

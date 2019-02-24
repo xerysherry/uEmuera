@@ -44,13 +44,14 @@ public class FirstWindow : MonoBehaviour
     {
         scroll_rect_ = GenericUtils.FindChildByName<ScrollRect>(gameObject, "ScrollRect");
         item_ = GenericUtils.FindChildByName(gameObject, "Item", true);
-        setting_ = GenericUtils.FindChildByName(gameObject, "optionbtn");
+        setting_ = GenericUtils.FindChildByName(gameObject, "optionbtn", true);
         GenericUtils.SetListenerOnClick(setting_, OnOptionClick);
 
         GenericUtils.FindChildByName<Text>(gameObject, "version")
             .text = Application.version + " ";
 
         GetList(Application.persistentDataPath);
+        setting_.SetActive(true);
 
 #if UNITY_EDITOR
         var main_entry = GameObject.FindObjectOfType<MainEntry>();

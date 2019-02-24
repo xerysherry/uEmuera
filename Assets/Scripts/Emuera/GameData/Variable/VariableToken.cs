@@ -2622,7 +2622,9 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValue(Int64[] values, Int64[] arguments)
 			{
-				int start = (int)arguments[2];
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
+				int start = (int)arguments[1];
 				int end = start + values.Length;
 				for (int i = start; i < end; i++)
 					((Int64[,])array)[arguments[0], i] = values[i - start];
@@ -2630,6 +2632,8 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValueAll(long value, int start, int end, int charaPos)
 			{
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
 				int a1 = array.GetLength(0);
 				int a2 = array.GetLength(1);
 				for (int i = 0; i < a1; i++)
@@ -2671,6 +2675,8 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValue(Int64[] values, Int64[] arguments)
 			{
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
 				int start = (int)arguments[2];
 				int end = start + values.Length;
 				for (int i = start; i < end; i++)
@@ -2679,6 +2685,8 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValueAll(long value, int start, int end, int charaPos)
 			{
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
 				int a1 = array.GetLength(0);
 				int a2 = array.GetLength(1);
 				int a3 = array.GetLength(2);
@@ -2763,7 +2771,9 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValue(string[] values, Int64[] arguments)
 			{
-				int start = (int)arguments[2];
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
+				int start = (int)arguments[1];
 				int end = start + values.Length;
 				for (int i = start; i < end; i++)
 					((string[,])array)[arguments[0], i] = values[i - start];
@@ -2771,6 +2781,8 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValueAll(string value, int start, int end, int charaPos)
 			{
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
 				int a1 = array.GetLength(0);
 				int a2 = array.GetLength(1);
 				for (int i = 0; i < a1; i++)
@@ -2803,6 +2815,8 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValue(string[] values, Int64[] arguments)
 			{
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
 				int start = (int)arguments[2];
 				int end = start + values.Length;
 				for (int i = start; i < end; i++)
@@ -2811,6 +2825,8 @@ namespace MinorShift.Emuera.GameData.Variable
 
 			public override void SetValueAll(string value, int start, int end, int charaPos)
 			{
+				if (array == null)
+					throw new CodeEE("参照型変数" + varName + "は何も参照していません");
 				int a1 = array.GetLength(0);
 				int a2 = array.GetLength(1);
 				int a3 = array.GetLength(2);

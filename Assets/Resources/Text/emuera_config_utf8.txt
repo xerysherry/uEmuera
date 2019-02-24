@@ -94,3 +94,4 @@ EXPLVの初期値
 PALAMLVの初期値
 PBANDの初期値
 RELATIONの初期値
+文字列変数の代入に文字列式を強制する

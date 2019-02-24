@@ -6,9 +6,14 @@ using MinorShift._Library;
 
 public class MainEntry : MonoBehaviour
 {
-    void Start()
+    void Awake()
     {
         Application.targetFrameRate = 24;
+        ResolutionHelper.Apply();
+    }
+
+    void Start()
+    {
         LoadConfigMaps();
 
 #if UNITY_EDITOR
@@ -48,7 +53,7 @@ public class MainEntry : MonoBehaviour
             jis_map[jis_strs[i]] = utf8_strs[i];
         }
         Dictionary<string, string> utf8cn_map = new Dictionary<string, string>();
-        for(int i = 0; i < utf8_strs.Length; ++i)
+        for(int i = 0; i < utf8cn_strs.Length; ++i)
         {
             utf8cn_map[utf8cn_strs[i]] = utf8_strs[i];
         }

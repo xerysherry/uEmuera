@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MinorShift.Emuera.Content;
+using uEmuera.Drawing;
 
 internal static class SpriteManager
 {
@@ -32,7 +33,7 @@ internal static class SpriteManager
             texture = tex;
             pasttime = Time.unscaledTime + kPastTime;
         }
-        internal SpriteInfo GetSprite(CroppedImage src)
+        internal SpriteInfo GetSprite(ASprite src)
         {
             SpriteInfo sprite = null;
             if(!sprites.TryGetValue(src.Name, out sprite))
@@ -75,7 +76,7 @@ internal static class SpriteManager
     }
     class CallbackInfo
     {
-        public CallbackInfo(CroppedImage src, object obj, 
+        public CallbackInfo(ASprite src, object obj, 
                             Action<object, SpriteInfo> callback)
         {
             this.src = src;
@@ -86,7 +87,7 @@ internal static class SpriteManager
         {
             callback(obj, info);
         }
-        public CroppedImage src;
+        public ASprite src;
         object obj;
         Action<object, SpriteInfo> callback;
     }
@@ -114,10 +115,10 @@ internal static class SpriteManager
         }
 #endif
     }
-    public static void GetSprite(CroppedImage src, 
+    public static void GetSprite(ASprite src, 
                                 object obj, Action<object, SpriteInfo> callback)
     {
-        var basename = src.BaseImage.Name;
+        var basename = src.Bitmap.filename;
         TextureInfo ti = null;
         texture_dict.TryGetValue(basename, out ti);
         if(ti == null)
@@ -130,7 +131,7 @@ internal static class SpriteManager
             {
                 list = new List<CallbackInfo> { item };
                 loading_set.Add(basename, list);
-                GenericUtils.StartCoroutine(Loading(src.BaseImage));
+                GenericUtils.StartCoroutine(Loading(src.Bitmap));
             }
         }
         else
@@ -167,10 +168,10 @@ internal static class SpriteManager
         return ti;
     }
 
-    static IEnumerator Loading(BaseImage baseimage)
+    static IEnumerator Loading(Bitmap baseimage)
     {
         TextureInfo ti = null;
-        FileInfo fi = new FileInfo(baseimage.Filepath);
+        FileInfo fi = new FileInfo(baseimage.path);
         if(fi.Exists)
         {
             FileStream fs = fi.OpenRead();
@@ -183,26 +184,32 @@ internal static class SpriteManager
 
             //TextureFormat format = TextureFormat.RGB24;
             TextureFormat format = TextureFormat.DXT1;
-            if(uEmuera.Utils.GetSuffix(baseimage.Filepath).ToLower() == "png")
+            if(uEmuera.Utils.GetSuffix(baseimage.path).ToLower() == "png")
                 format = TextureFormat.DXT5;
                 //format = TextureFormat.ARGB32;
 
             var tex = new Texture2D(4, 4, format, false);
             if(tex.LoadImage(content))
             {
-                ti = new TextureInfo(baseimage.Name, tex);
-                texture_dict.Add(baseimage.Name, ti);
+                ti = new TextureInfo(baseimage.filename, tex);
+                texture_dict.Add(baseimage.filename, ti);
+
+                baseimage.size.Width = tex.width;
+                baseimage.size.Height = tex.height;
             }
         }
-        var list = loading_set[baseimage.Name];
-        foreach(var item in list)
+        List<CallbackInfo> list = null;
+        if(loading_set.TryGetValue(baseimage.filename, out list))
         {
-            item.DoCallback(GetSpriteInfo(ti, item.src));
+            foreach(var item in list)
+            {
+                item.DoCallback(GetSpriteInfo(ti, item.src));
+            }
+            list.Clear();
+            loading_set.Remove(baseimage.filename);
         }
-        list.Clear();
-        loading_set.Remove(baseimage.Name);
     }
-    static SpriteInfo GetSpriteInfo(TextureInfo textinfo, CroppedImage src)
+    static SpriteInfo GetSpriteInfo(TextureInfo textinfo, ASprite src)
     {
         return textinfo.GetSprite(src);
     }

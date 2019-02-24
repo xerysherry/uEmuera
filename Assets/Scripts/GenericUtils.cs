@@ -84,6 +84,20 @@ public static class GenericUtils
         }
         return null;
     }
+    /// <summary>
+    /// 获得文件名
+    /// ex. FolderA/FolderB/Filename -> Filename
+    /// </summary>
+    /// <param name="fullname"></param>
+    /// <returns></returns>
+    public static string GetFilename(string fullname)
+    {
+        int last_slash = fullname.LastIndexOf('/');
+        if(last_slash != -1)
+            return fullname.Substring(last_slash + 1);
+        return fullname;
+    }
+
     public static UnityEngine.Color ToUnityColor(uEmuera.Drawing.Color color)
     {
         return new UnityEngine.Color(color.r, color.g, color.b, color.a);
@@ -109,7 +123,7 @@ public static class GenericUtils
             w = width - x;
         var h = rect.Height;
         if(y + h > height)
-            h = height - x;
+            h = height - y;
         return new Rect(x, y, w, h);
     }
 

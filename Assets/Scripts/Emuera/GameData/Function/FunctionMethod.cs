@@ -10,6 +10,7 @@ namespace MinorShift.Emuera.GameData.Function
 	{
 		public Type ReturnType { get; protected set; }
 		protected Type[] argumentTypeArray;
+		protected string Name { get; private set; }
 
 		//引数の数・型が一致するかどうかのテスト
 		//正しくない場合はエラーメッセージを返す。
@@ -17,13 +18,13 @@ namespace MinorShift.Emuera.GameData.Function
 		public virtual string CheckArgumentType(string name, IOperandTerm[] arguments)
 		{
 			if (arguments.Length != argumentTypeArray.Length)
-				return name + "関数の引数の数が正しくありません";
+				return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNum0, name);
 			for (int i = 0; i < argumentTypeArray.Length; i++)
 			{
 				if (arguments[i] == null)
-					return name + "関数の" + (i + 1).ToString() + "番目の引数は省略できません";
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentNotNullable0, name, i+1);
 				if (argumentTypeArray[i] != arguments[i].GetOperandType())
-					return name + "関数の" +(i+1).ToString()+ "番目の引数の型が正しくありません";
+					return string.Format(Properties.Resources.SyntaxErrMesMethodDefaultArgumentType0, name, i + 1);
 			}
 			return null;
 		}
@@ -53,6 +54,11 @@ namespace MinorShift.Emuera.GameData.Function
 		/// <returns></returns>
 		public virtual bool UniqueRestructure(ExpressionMediator exm, IOperandTerm[] arguments)
 		{ throw new ExeEE("未実装？"); }
-		
+
+
+		internal void SetMethodName(string name)
+		{
+			Name = name;
+		}
 	}
 }

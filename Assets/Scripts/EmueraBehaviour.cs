@@ -134,7 +134,7 @@ public abstract class EmueraBehaviour : MonoBehaviour
                     if(s is MinorShift.Emuera.GameView.ConsoleImagePart)
                     {
                         var cp = s as MinorShift.Emuera.GameView.ConsoleImagePart;
-                        if(cp.cropped_image != null)
+                        if(cp.Image != null)
                         {
                             if(ud.image_indices == null)
                                 ud.image_indices = new List<int>();

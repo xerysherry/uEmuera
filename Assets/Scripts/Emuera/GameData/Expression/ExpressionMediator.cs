@@ -67,18 +67,18 @@ namespace MinorShift.Emuera.GameData.Expression
 
 		public string ConvertStringType(string str)
 		{
-            if(!(forceHiragana | forceKatakana | halftoFull))
-                return str;
-            if(forceKatakana)
+			if (!(forceHiragana | forceKatakana | halftoFull))
+				return str;
+			if (forceKatakana)
                 return Strings.StrConv(str, VbStrConv.Katakana, 0x0411);
-            else if(forceHiragana)
-            {
-                if(halftoFull)
+			else if (forceHiragana)
+			{
+				if (halftoFull)
                     return Strings.StrConv(str, VbStrConv.Hiragana | VbStrConv.Wide, 0x0411);
-                else
+				else
                     return Strings.StrConv(str, VbStrConv.Hiragana, 0x0411);
-            }
-            return str;
+			}
+			return str;
 		}
 
 		public string CheckEscape(string str)

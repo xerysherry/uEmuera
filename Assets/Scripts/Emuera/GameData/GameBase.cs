@@ -78,6 +78,11 @@ namespace MinorShift.Emuera.GameData
 			return false;
 		}
 
+		/// <summary>
+		/// GAMEBASE読み込み。GAMEBASE.csvの存在は必須ではないので読み込み失敗したらなかったことにする。
+		/// </summary>
+		/// <param name="basePath"></param>
+		/// <returns>読み込み続行するなら真、エラー終了なら偽</returns>
 		public bool LoadGameBaseCsv(string basePath)
 		{
             if (!File.Exists(basePath))

@@ -54,6 +54,7 @@ namespace MinorShift.Emuera.GameProc.Function
 		ONEINPUTS,
 		TONEINPUT,
 		TONEINPUTS,
+		AWAIT,//入力不可 DoEvents
 
 		DRAWLINE,//画面の左端から右端まで----と線を引く。
 		BAR,//[*****....]のようなグラフを書く。BAR (変数) , (最大値), (長さ)
@@ -353,5 +354,6 @@ namespace MinorShift.Emuera.GameProc.Function
 		PRINT_RECT,
 		PRINT_SPACE,
 
+		INPUTMOUSEKEY,
 	}
 }

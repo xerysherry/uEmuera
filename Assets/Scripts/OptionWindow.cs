@@ -20,6 +20,7 @@ public class OptionWindow : MonoBehaviour
         GenericUtils.SetListenerOnClick(msg_cancel, OnMsgCancel);
 
         GenericUtils.SetListenerOnClick(menu_pad, OnMenuPad);
+        GenericUtils.SetListenerOnClick(menu_1_resolution, OnMenuResolution);
         GenericUtils.SetListenerOnClick(menu_1_exit, OnMenuExit);
 
         GenericUtils.SetListenerOnClick(menu_2_back, OnMenu2Back);
@@ -27,8 +28,32 @@ public class OptionWindow : MonoBehaviour
         GenericUtils.SetListenerOnClick(menu_2_gototitle, OnMenuGotoTitle);
         GenericUtils.SetListenerOnClick(menu_2_savelog, OnMenuSaveLog);
         GenericUtils.SetListenerOnClick(menu_2_exit, OnMenuExit);
+
+        GenericUtils.SetListenerOnClick(resolution_pad, OnResolutionOut);
+        GenericUtils.SetListenerOnClick(resolution_1080p, OnResolution1080p);
+        GenericUtils.SetListenerOnClick(resolution_900p, OnResolution900p);
+        GenericUtils.SetListenerOnClick(resolution_720p, OnResolution720p);
+        GenericUtils.SetListenerOnClick(resolution_540p, OnResolution540p);
+
+        HideResolutionIcon();
+        switch(ResolutionHelper.resolution_index)
+        {
+        case 2:
+            resolution_900p_icon.SetActive(true);
+            break;
+        case 3:
+            resolution_720p_icon.SetActive(true);
+            break;
+        case 4:
+            resolution_540p_icon.SetActive(true);
+            break;
+        case 1:
+        default:
+            resolution_1080p_icon.SetActive(true);
+            break;
+        }
     }
-	
+
     void OnQuickButtonClick()
     {
         if(quick_buttons.IsShow)
@@ -170,6 +195,11 @@ public class OptionWindow : MonoBehaviour
             result ? string.Format("日志路径：\n{0}", path) :"失败");
         HideMenu();
     }
+    void OnMenuResolution()
+    {
+        resolution_pad.SetActive(true);
+        HideMenu();
+    }
     void OnMenuExit()
     {
         ShowMessageBox("退出游戏", "是否退出游戏？", 
@@ -182,6 +212,51 @@ public class OptionWindow : MonoBehaviour
     void OnMenuPad()
     {
         HideMenu();
+    }
+
+    void OnResolutionOut()
+    {
+        resolution_pad.SetActive(false);
+    }
+
+    void OnResolution1080p()
+    {
+        ResolutionHelper.resolution_index = 1;
+        ResolutionHelper.Apply();
+        HideResolutionIcon();
+        resolution_1080p_icon.SetActive(true);
+    }
+
+    void OnResolution900p()
+    {
+        ResolutionHelper.resolution_index = 2;
+        ResolutionHelper.Apply();
+        HideResolutionIcon();
+        resolution_900p_icon.SetActive(true);
+    }
+
+    void OnResolution720p()
+    {
+        ResolutionHelper.resolution_index = 3;
+        ResolutionHelper.Apply();
+        HideResolutionIcon();
+        resolution_720p_icon.SetActive(true);
+    }
+
+    void OnResolution540p()
+    {
+        ResolutionHelper.resolution_index = 4;
+        ResolutionHelper.Apply();
+        HideResolutionIcon();
+        resolution_540p_icon.SetActive(true);
+    }
+
+    void HideResolutionIcon()
+    {
+        resolution_1080p_icon.SetActive(false);
+        resolution_900p_icon.SetActive(false);
+        resolution_720p_icon.SetActive(false);
+        resolution_540p_icon.SetActive(false);
     }
 
     public void Ready()
@@ -307,6 +382,7 @@ public class OptionWindow : MonoBehaviour
 
     public GameObject menu_pad;
     public GameObject menu_1;
+    public GameObject menu_1_resolution;
     public GameObject menu_1_exit;
 
     public GameObject menu_2;
@@ -315,6 +391,16 @@ public class OptionWindow : MonoBehaviour
     public GameObject menu_2_gototitle;
     public GameObject menu_2_savelog;
     public GameObject menu_2_exit;
+
+    public GameObject resolution_pad;
+    public GameObject resolution_1080p;
+    public GameObject resolution_1080p_icon;
+    public GameObject resolution_900p;
+    public GameObject resolution_900p_icon;
+    public GameObject resolution_720p;
+    public GameObject resolution_720p_icon;
+    public GameObject resolution_540p;
+    public GameObject resolution_540p_icon;
 
     bool auto_rotation
     {

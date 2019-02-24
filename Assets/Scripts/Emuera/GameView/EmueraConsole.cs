@@ -11,6 +11,7 @@ using MinorShift.Emuera.Sub;
 using MinorShift.Emuera.GameProc;
 //using System.Drawing.Imaging;
 //using MinorShift.Emuera.Forms;
+using MinorShift.Emuera.Content;
 using MinorShift.Emuera.GameData.Expression;
 using MinorShift.Emuera.GameProc.Function;
 using uEmuera.Forms;
@@ -29,22 +30,23 @@ namespace MinorShift.Emuera.GameView
 		Error = 6,//Exceptionによる強制終了
 		Running = 7,
 		WaitInput = 20,
+        Sleep = 21,//DoEvents
 
-		//WaitKey = 1,//WAIT
-		//WaitSystemInteger = 2,//Systemが要求するInput
-		//WaitInteger = 3,//INPUT
-		//WaitString = 4,//INPUTS
-		//WaitIntegerWithTimer = 8,
-		//WaitStringWithTimer = 9,
-		//Timeout = 10,
-		//Timeouts = 11,
-		//WaitKeyWithTimer = 12,
-		//WaitKeyWithTimerF = 13,
-		//WaitOneInteger = 14,
-		//WaitOneString = 15,
-		//WaitOneIntegerWithTimer = 16,
-		//WaitOneStringWithTimer = 17,
-		//WaitAnyKey = 18,
+        //WaitKey = 1,//WAIT
+        //WaitSystemInteger = 2,//Systemが要求するInput
+        //WaitInteger = 3,//INPUT
+        //WaitString = 4,//INPUTS
+        //WaitIntegerWithTimer = 8,
+        //WaitStringWithTimer = 9,
+        //Timeout = 10,
+        //Timeouts = 11,
+        //WaitKeyWithTimer = 12,
+        //WaitKeyWithTimerF = 13,
+        //WaitOneInteger = 14,
+        //WaitOneString = 15,
+        //WaitOneIntegerWithTimer = 16,
+        //WaitOneStringWithTimer = 17,
+        //WaitAnyKey = 18,
 
     }
 
@@ -74,13 +76,170 @@ namespace MinorShift.Emuera.GameView
 			timer.Enabled = false;
 			timer.Tick += new EventHandler(tickTimer);
 			timer.Interval = 100;
+			CBG_Clear();//文字列描画用ダミー追加
         }
+#region 1823 cbg関連
+		private readonly List<ClientBackGroundImage> cbgList = new List<ClientBackGroundImage>();
+		private GraphicsImage cbgButtonMap = null;
+		private int selectingCBGButtonInt = -1;
+		private int lastSelectingCBGButtonInt = -1;
+		//ConsoleButtonString selectingButton = null;
+		//ConsoleButtonString lastSelectingButton = null;
+		class ClientBackGroundImage : IComparable<ClientBackGroundImage>
+		{
+			/// <summary>
+			/// zdepth == 0は文字列用ダミーなので他で使ってはいけない
+			/// </summary>
+			/// <param name="zdepth"></param>
+			internal ClientBackGroundImage(int zdepth)
+			{ this.zdepth = zdepth; }
+			public ASprite Img = null;
+			public ASprite ImgB = null;
+			public int x;
+			public int y;
+			public readonly int zdepth;
+			public bool isButton = false;
+			public int buttonValue;
+			public string tooltipString = null;
+			public int CompareTo(ClientBackGroundImage other)
+			{
+				if (other == null)
+					return -1;
+				//逆順でSort
+				return -zdepth.CompareTo(other.zdepth);
+			}
+		}
+		public void CBG_Clear()
+		{
+			foreach(ClientBackGroundImage cimg in cbgList)
+			{
+				//使い捨て無名Imageを一応disposeしておく
+				if (cimg.Img != null && cimg.Img.Name.Length == 0)
+					cimg.Img.Dispose();
+			}
+			cbgList.Clear();
+			CBG_ClearBMap();
+			cbgList.Add(new ClientBackGroundImage(0));
+		}
+
+		public void CBG_ClearRange(int zmin, int zmax)
+		{
+			if (zmin > zmax)
+				return;
+			for (int i = 0; i < cbgList.Count;i++)
+			{
+				ClientBackGroundImage cimg = cbgList[i];
+				if (cimg.zdepth < zmin || cimg.zdepth > zmax || cimg.zdepth == 0)//0はダミーなので削除しない
+					continue;
+
+				//使い捨て無名Imageを一応disposeしておく
+				if (cimg.Img != null && cimg.Img.Name.Length == 0)
+					cimg.Img.Dispose();
+				cbgList.RemoveAt(i);
+				i--;
+			}
+		}
+
+		public void CBG_ClearButton()
+		{
+			for (int i = 0; i < cbgList.Count; i++)
+			{
+				ClientBackGroundImage cimg = cbgList[i];
+				if (!cimg.isButton)
+					continue;
+
+				//使い捨て無名Imageを一応disposeしておく
+				if (cimg.Img != null && cimg.Img.Name.Length == 0)
+					cimg.Img.Dispose();
+				cbgList.RemoveAt(i);
+				i--;
+			}
+			CBG_ClearBMap();
+		}
+
+		public void CBG_ClearBMap()
+		{
+			cbgButtonMap = null;
+			selectingCBGButtonInt = -1;
+			lastSelectingCBGButtonInt = -1;
+		}
+
+		public bool CBG_SetGraphics(GraphicsImage gra, int x, int y, int zdepth)
+		{
+			if (gra == null || !gra.IsCreated)
+				return false;
+			return CBG_SetImage(new SpriteG("", gra, new Rectangle(0, 0, gra.Width, gra.Height)), x, y, zdepth);
+		}
+		public bool CBG_SetImage(ASprite image, int x, int y, int zdepth)
+		{
+			if (image == null || !image.IsCreated)
+				return false;
+			if (zdepth == 0)
+				throw new ArgumentOutOfRangeException();
+			ClientBackGroundImage cbg = new ClientBackGroundImage(zdepth);
+			cbg.Img = image;
+			cbg.x = x;
+			cbg.y = y;
+			//cbg.zdepth = zdepth;
+			cbgList.Add(cbg);
+			cbgList.Sort();
+			return true;
+		}
+
+		public bool CBG_SetButtonMap(GraphicsImage gra)
+		{
+			if (gra == null || !gra.IsCreated)
+				return false;
+			if (cbgButtonMap == gra)
+				return false;
+			cbgButtonMap = gra;
+			selectingCBGButtonInt = -1;
+			lastSelectingCBGButtonInt = -1;
+			return true;
+		}
+
+		public bool CBG_SetButtonImage(int buttonValue, ASprite imageN, ASprite imageB, int x, int y, int zdepth, string tooltip = null)
+		{
+			if (zdepth == 0)
+				throw new ArgumentOutOfRangeException();
+			ClientBackGroundImage cbg = new ClientBackGroundImage(zdepth);
+			cbg.Img = imageN;
+			cbg.ImgB = imageB;
+			cbg.x = x;
+			cbg.y = y;
+			//cbg.zdepth = zdepth;
+			cbg.isButton = true;
+			cbg.buttonValue = buttonValue;
+			cbg.tooltipString = tooltip;
+			cbgList.Add(cbg);
+			cbgList.Sort();
+			return true;
+		}
+		public int ClientWidth { get { return window.MainPicBox.Width; } }
+		public int ClientHeight { get { return window.MainPicBox.Height; } }
+#endregion
+
 		const string ErrorButtonsText = "__openFileWithDebug__";
         private readonly MainWindow window;
 
 		MinorShift.Emuera.GameProc.Process emuera;
 		ConsoleState state = ConsoleState.Initializing;
 		public bool Enabled { get { return window.Created; } }
+
+		/// <summary>
+		/// 現在、Emueraがアクティブかどうか
+		/// </summary>
+		internal bool IsActive
+		{
+            get
+            {
+                return !(
+                    window == null || 
+                    !window.Created 
+                    //|| Form.ActiveForm == null
+                    );
+            }
+        }
 
 		/// <summary>
 		/// スクリプトが継続中かどうか
@@ -101,6 +260,8 @@ namespace MinorShift.Emuera.GameView
 			get
 			{
 				if (state == ConsoleState.Initializing)
+					return true;
+				if (state == ConsoleState.Sleep)
 					return true;
 				if (inProcess)
 					return true;
@@ -152,6 +313,16 @@ namespace MinorShift.Emuera.GameView
 			}
 		}
 
+		internal bool IsWaitingPrimitive
+		{
+			get
+			{
+				if (state == ConsoleState.WaitInput)
+					return (inputReq.InputType == InputType.PrimitiveMouseKey);
+				return false;
+			}
+		}
+		
 		internal string SelectedString
 		{
 			get
@@ -287,11 +458,36 @@ namespace MinorShift.Emuera.GameView
 		//string defStr;
 
 		private InputRequest inputReq = null;
+		public void Await(int time)
+		{
+			if (!Enabled || state != ConsoleState.Running)
+			{
+				this.Quit();
+				return;
+			}
+			RefreshStrings(true);
+			state = ConsoleState.Sleep;
+			emuera.UpdateCheckInfiniteLoopState();
+
+			//System.Windows.Forms.Application.DoEvents();
+			//if (time > 0)
+			//	System.Threading.Thread.Sleep(time);
+
+			////DoEvents()の間にウインドウが閉じられたらおしまい。
+			//if (!Enabled || state != ConsoleState.Sleep)
+			//{
+			//	ReadAnyKey();
+			//	return;
+			//}
+
+			state = ConsoleState.Running;
+		}
+
 		public void WaitInput(InputRequest req)
 		{
 			state = ConsoleState.WaitInput;
 			inputReq = req;
-			//TODO:Timelimitが0以下だったら？
+			//TODO 1823:Timelimitが0以下だったら？
 			if (req.Timelimit > 0)
 			{
 				if (req.OneInput)
@@ -397,6 +593,12 @@ namespace MinorShift.Emuera.GameView
                 return;
 			stopTimer();
             isTimeout = true;
+			if(IsWaitingPrimitive)
+			{
+				//callEmueraProgramは呼び出し先で行う。
+				InputMouseKey(4, 0, 0, 0,0);
+				return;
+			}
 			if (inputReq.DisplayTime)
 				changeLastLine(inputReq.TimeUpMes);
 			else if (inputReq.TimeUpMes != null)
@@ -427,10 +629,15 @@ namespace MinorShift.Emuera.GameView
 		/// <param name="str"></param>
 		private void callEmueraProgram(string str)
 		{
-			if (!doInputToEmueraProgram(str))
-				return;
-            if (state == ConsoleState.Error)
-				return;
+			//入力文字列の表示処理を行わない場合はstr == null
+			if (str != null)
+			{
+				//INPUT文字列をPRINTする処理など
+				if (!doInputToEmueraProgram(str))
+					return;
+				if (state == ConsoleState.Error)
+					return;
+			}
 			state = ConsoleState.Running;
 			emuera.DoScript();
 			if (state == ConsoleState.Running)
@@ -490,6 +697,75 @@ namespace MinorShift.Emuera.GameView
 		public bool MesSkip = false;
 		private bool inProcess = false;
 		volatile public bool KillMacro = false;
+		
+		internal void MouseWheel(Point point, int delta)
+		{
+			if (!IsWaitingPrimitive)
+				return;
+			//pointはクライアント左上基準の座標。
+			//clientPointをクライアント左下基準の座標に置き換え
+			Point clientPoint = point;
+			clientPoint.Y = point.Y - ClientHeight;
+			InputMouseKey(2, delta, clientPoint.X, clientPoint.Y, 0);
+		}
+
+		internal void MouseDown(Point point, MouseButtons button)
+		{
+			if (!IsWaitingPrimitive)
+				return;
+			//pointはクライアント左上基準の座標。
+			//clientPointをクライアント左下基準の座標に置き換え
+			Point clientPoint = point;
+			clientPoint.Y = point.Y - ClientHeight;
+			int buttonNum = -1;
+			if(cbgButtonMap != null && cbgButtonMap.IsCreated)
+			{
+				//マップ画像の左上基準の座標に置き換え
+				Point mapPoint = clientPoint;
+				mapPoint.Y = clientPoint.Y + cbgButtonMap.Height;
+				if(mapPoint.X >= 0 && mapPoint.Y >= 0 && mapPoint.X < cbgButtonMap.Width && mapPoint.Y < cbgButtonMap.Height)
+				{
+					Color c = cbgButtonMap.Bitmap.GetPixel(mapPoint.X, mapPoint.Y);
+					if(c.A == 255)
+					{
+						buttonNum = c.ToArgb() & 0xFFFFFF;
+					}
+				}
+
+			}
+			InputMouseKey(1, (int)button, clientPoint.X, clientPoint.Y, buttonNum);
+		}
+
+		//1823 Key入力を捕まえる
+		internal void PressPrimitiveKey(int keycode, int keydata, int keymod)
+		{
+			if (IsWaitingPrimitive)
+				InputMouseKey(3, (int)keycode, (int)keydata, 0, 0);
+		}
+
+		//1823 Key入力を捕まえる
+		internal void InputMouseKey(int type, int result1, int result2, int result3, int result4)
+		{
+			emuera.InputResult5(type, result1, result2, result3, result4);
+
+			inProcess = true;
+			try
+			{
+				//1823 Escキーもマクロも右クリックも不可。単純に押されたキーを送るのみ。
+				callEmueraProgram(null);
+				if (state == ConsoleState.WaitInput && inputReq.NeedValue)
+				{
+					Point point = window.MainPicBox.PointToClient(Control.MousePosition);
+					if (window.MainPicBox.ClientRectangle.Contains(point))
+						MoveMouse(point);
+				}
+			}
+			finally
+			{
+				inProcess = false;
+			}
+			RefreshStrings(true);
+		}
 
 		public void PressEnterKey(bool keySkip, string str, bool changedByMouse)
 		{
@@ -518,21 +794,27 @@ namespace MinorShift.Emuera.GameView
 			KillMacro = false;
 			try
 			{
-				if (str.StartsWith("@") && !inputReq.OneInput)
+				string[] text;
+				if(changedByMouse)//1823 マウスによって入力されたならマクロ解析を行わない
+				{ text = new string[] { str }; }
+				else
 				{
-					doSystemCommand(str);
-					return;
+					if (str.StartsWith("@") && !inputReq.OneInput)
+					{
+						doSystemCommand(str);
+						return;
+					}
+					if (inputReq.InputType == InputType.Void)
+						return;
+					if (timer.Enabled &&
+						(inputReq.InputType == InputType.AnyKey || inputReq.InputType == InputType.EnterKey))
+						stopTimer();
+					//if((inputReq.InputType == InputType.IntValue || inputReq.InputType == InputType.StrValue)
+					if (str.Contains("("))
+						str = parseInput(new StringStream(str), false);
+					text = str.Split(spliter, StringSplitOptions.None);
 				}
-				if (inputReq.InputType == InputType.Void)
-					return;
-				if (timer.Enabled &&
-					(inputReq.InputType == InputType.AnyKey || inputReq.InputType == InputType.EnterKey))
-					stopTimer();
-				//if((inputReq.InputType == InputType.IntValue || inputReq.InputType == InputType.StrValue)
-				if (str.Contains("("))
-					str = parseInput(new StringStream(str), false);
-				string[] text = str.Split(spliter, StringSplitOptions.None);
-
+				
 				inProcess = true;
 				for (int i = 0; i < text.Length; i++)
 				{
@@ -1201,6 +1483,19 @@ namespace MinorShift.Emuera.GameView
 		#endregion
 
 		#region Window.Form系
+
+		internal Point GetMousePosition()
+		{
+            //if (window == null || !window.Created)
+            //	return new Point();
+            ////クライアント左上基準の座標取得
+            //Point pos = window.MainPicBox.PointToClient(Cursor.Position);
+            ////クライアント左下基準の座標に置き換え
+            //pos.Y = pos.Y - ClientHeight;
+            //return pos;
+            return Point.Empty;
+		}
+
 		/// <summary>
 		/// マウス位置をボタンの選択状態に反映させる
 		/// </summary>
@@ -1208,94 +1503,130 @@ namespace MinorShift.Emuera.GameView
 		/// <returns>この後でRefreshStringsが必要かどうか</returns>
 		public bool MoveMouse(Point point)
 		{
-			ConsoleButtonString select = null;
-			ConsoleButtonString pointing = null;
-			bool canSelect = false;
-			//数値か文字列の入力待ち状態でなければ選択中にはならない
-			if (state == ConsoleState.Error)
-				canSelect = true;
-			else if (state == ConsoleState.WaitInput && inputReq.NeedValue)
-				canSelect = true;
-			//スクリプト実行中は無視//入力・マクロ処理中は無視
-			if(this.IsInProcess)
-				goto end;
-			//履歴表示中は無視
-			//if (window.ScrollBar.Value != window.ScrollBar.Maximum)
-			//	goto end;
-			int pointX = point.X;
-			int pointY = point.Y;
-			ConsoleDisplayLine curLine = null;
+            return false;
+		//	if (cbgButtonMap != null && cbgButtonMap.IsCreated)
+		//	{
+		//		//pointはクライアント左上基準の座標。
+		//		//clientPointをクライアント左下基準の座標に置き換え
+		//		Point clientPoint = point;
+		//		clientPoint.Y = point.Y - ClientHeight;
+		//		int buttonNum = -1;
+		//		//マップ画像の左上基準の座標に置き換え
+		//		Point mapPoint = clientPoint;
+		//		mapPoint.Y = mapPoint.Y + cbgButtonMap.Height;
+		//		if (mapPoint.X >= 0 && mapPoint.Y >= 0 && mapPoint.X < cbgButtonMap.Width && mapPoint.Y < cbgButtonMap.Height)
+		//		{
+		//			Color c = cbgButtonMap.Bitmap.GetPixel(mapPoint.X, mapPoint.Y);
+		//			if (c.A == 255)
+		//			{
+		//				buttonNum = c.ToArgb() & 0xFFFFFF;
+		//			}
+		//		}
+		//		if (buttonNum >= 0)
+		//		{
+		//			bool ret = (pointingString != null || selectingButton != null || buttonNum != selectingCBGButtonInt);
+		//			selectingCBGButtonInt = buttonNum;
+		//			pointingString = null;
+		//			selectingButton = null;
+		//			return ret;
+		//		}
+		//		else if (selectingCBGButtonInt >= 0)
+		//		{
+		//			selectingCBGButtonInt = -1;
+		//			pointingString = null;
+		//			selectingButton = null;
+		//			return true;
+		//		}
+		//	}
+		//	selectingCBGButtonInt = -1;
+		//	ConsoleButtonString select = null;
+		//	ConsoleButtonString pointing = null;
+		//	bool canSelect = false;
+		//	//数値か文字列の入力待ち状態でなければ選択中にはならない
+		//	if (state == ConsoleState.Error)
+		//		canSelect = true;
+		//	else if (state == ConsoleState.WaitInput && inputReq.NeedValue)
+		//		canSelect = true;
+		//	//スクリプト実行中は無視//入力・マクロ処理中は無視
+		//	if(this.IsInProcess)
+		//		goto end;
+		//	//履歴表示中は無視
+		//	//if (window.ScrollBar.Value != window.ScrollBar.Maximum)
+		//	//	goto end;
+		//	int pointX = point.X;
+		//	int pointY = point.Y;
+		//	ConsoleDisplayLine curLine = null;
 
-			int bottomLineNo = window.ScrollBar.Value - 1;
-			if (displayLineList.Count - 1 < bottomLineNo)
-				bottomLineNo = displayLineList.Count - 1;//1820 この処理不要な気がするけどエラー報告があったので入れとく
-			int topLineNo = bottomLineNo - (window.MainPicBox.Height/ Config.LineHeight);
-			if (topLineNo < 0)
-				topLineNo = 0;
-			int relPointY = pointY - window.MainPicBox.Height;
-			//下から上へ探索し発見次第打ち切り
-			for (int i = bottomLineNo; i >= topLineNo; i--)
-			{
-				relPointY += Config.LineHeight;
-				curLine = displayLineList[i];
+		//	int bottomLineNo = window.ScrollBar.Value - 1;
+		//	if (displayLineList.Count - 1 < bottomLineNo)
+		//		bottomLineNo = displayLineList.Count - 1;//1820 この処理不要な気がするけどエラー報告があったので入れとく
+		//	int topLineNo = bottomLineNo - (window.MainPicBox.Height/ Config.LineHeight);
+		//	if (topLineNo < 0)
+		//		topLineNo = 0;
+		//	int relPointY = pointY - window.MainPicBox.Height;
+		//	//下から上へ探索し発見次第打ち切り
+		//	for (int i = bottomLineNo; i >= topLineNo; i--)
+		//	{
+		//		relPointY += Config.LineHeight;
+		//		curLine = displayLineList[i];
 				
-				for (int b = 0; b < curLine.Buttons.Length; b++)
-				{
-					ConsoleButtonString button = curLine.Buttons[curLine.Buttons.Length - b - 1];
-					if(button == null || button.StrArray == null)
-						continue;
-					if ((button.PointX <= pointX) && (button.PointX + button.Width >= pointX))
-					{
-						//if (relPointY >= 0 && relPointY <= Config.FontSize)
-						//{
-						//	pointing = button;
-						//	if(pointing.IsButton)
-						//		goto breakfor;
-						//}
-						foreach(AConsoleDisplayPart part in button.StrArray)
-						{
-							if(part == null)
-								continue;
-							if ((part.PointX <= pointX) && (part.PointX + part.Width >= pointX)
-								&& (relPointY >= part.Top) && (relPointY <= part.Bottom))
-							{
-								pointing = button;
-								if (pointing.IsButton)
-									goto breakfor;
-							}
-						}
-					}
-				}
-			}
+		//		for (int b = 0; b < curLine.Buttons.Length; b++)
+		//		{
+		//			ConsoleButtonString button = curLine.Buttons[curLine.Buttons.Length - b - 1];
+		//			if(button == null || button.StrArray == null)
+		//				continue;
+		//			if ((button.PointX <= pointX) && (button.PointX + button.Width >= pointX))
+		//			{
+		//				//if (relPointY >= 0 && relPointY <= Config.FontSize)
+		//				//{
+		//				//	pointing = button;
+		//				//	if(pointing.IsButton)
+		//				//		goto breakfor;
+		//				//}
+		//				foreach(AConsoleDisplayPart part in button.StrArray)
+		//				{
+		//					if(part == null)
+		//						continue;
+		//					if ((part.PointX <= pointX) && (part.PointX + part.Width >= pointX)
+		//						&& (relPointY >= part.Top) && (relPointY <= part.Bottom))
+		//					{
+		//						pointing = button;
+		//						if (pointing.IsButton)
+		//							goto breakfor;
+		//					}
+		//				}
+		//			}
+		//		}
+		//	}
 
 
-			//int posy_bottom2up = window.MainPicBox.Height - pointY;
-			//int logNum = window.ScrollBar.Maximum - window.ScrollBar.Value;
-			////表示中の一番下の行番号
-			//int curBottomLineNo = displayLineList.Count - logNum;
-			//int curPointingLineNo = curBottomLineNo - (posy_bottom2up / Config.LineHeight + 1);
-			//if ((curPointingLineNo < 0) || (curPointingLineNo >= displayLineList.Count))
-			//	curLine = null;
-			//else
-			//	curLine =  displayLineList[curPointingLineNo];
-			//if (curLine == null)
-			//	goto end;
+		//	//int posy_bottom2up = window.MainPicBox.Height - pointY;
+		//	//int logNum = window.ScrollBar.Maximum - window.ScrollBar.Value;
+		//	////表示中の一番下の行番号
+		//	//int curBottomLineNo = displayLineList.Count - logNum;
+		//	//int curPointingLineNo = curBottomLineNo - (posy_bottom2up / Config.LineHeight + 1);
+		//	//if ((curPointingLineNo < 0) || (curPointingLineNo >= displayLineList.Count))
+		//	//	curLine = null;
+		//	//else
+		//	//	curLine =  displayLineList[curPointingLineNo];
+		//	//if (curLine == null)
+		//	//	goto end;
 			
-			//pointing = curLine.GetPointingButton(pointX);
-		breakfor:
-			if ((pointing == null) || (pointing.Generation != lastButtonGeneration))
-				canSelect = false;
-			else if (!pointing.IsButton)
-				canSelect = false;
-			else if ((state == ConsoleState.WaitInput && inputReq.InputType == InputType.IntValue) && (!pointing.IsInteger))
-				canSelect = false;
-		end:
-			if (canSelect)
-				select = pointing;
-			bool needRefresh = select != selectingButton || pointing != pointingString;
-			pointingString = pointing;
-			selectingButton = select;
-			return needRefresh;
+		//	//pointing = curLine.GetPointingButton(pointX);
+		//breakfor:
+		//	if ((pointing == null) || (pointing.Generation != lastButtonGeneration))
+		//		canSelect = false;
+		//	else if (!pointing.IsButton)
+		//		canSelect = false;
+		//	else if ((state == ConsoleState.WaitInput && inputReq.InputType == InputType.IntValue) && (!pointing.IsInteger))
+		//		canSelect = false;
+		//end:
+		//	if (canSelect)
+		//		select = pointing;
+		//	bool needRefresh = select != selectingButton || pointing != pointingString;
+		//	pointingString = pointing;
+		//	selectingButton = select;
+		//	return needRefresh;
 		}
 
 

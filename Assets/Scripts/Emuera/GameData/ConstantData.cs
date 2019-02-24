@@ -984,10 +984,10 @@ check1break:
 				{
 					targetList = spList;
 				}
-				if (targetList.ContainsKey(tmpl.No))
+                CharacterTemplate ct = null;
+                if (targetList.TryGetValue(tmpl.No, out ct))
 				{
-
-					if (!Config.CompatiSPChara && (tmpl.IsSpchara!= targetList[tmpl.No].IsSpchara))
+					if (!Config.CompatiSPChara && (tmpl.IsSpchara!= ct.IsSpchara))
 						ParserMediator.Warn("番号" + tmpl.No.ToString() + "のキャラが複数回定義されています(SPキャラとして定義するには互換性オプション「SPキャラを使用する」をONにしてください)", null, 1);
 					else
 						ParserMediator.Warn("番号" + tmpl.No.ToString() + "のキャラが複数回定義されています", null, 1);

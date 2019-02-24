@@ -409,6 +409,9 @@ namespace MinorShift.Emuera.GameProc.Function
 			}
 		}
 
+		/// <summary>
+		/// 代入文
+		/// </summary>
 		private sealed class SET_Instruction : AbstractInstruction
 		{
 			public SET_Instruction()
@@ -1482,6 +1485,7 @@ namespace MinorShift.Emuera.GameProc.Function
 			public override void DoInstruction(ExpressionMediator exm, InstructionLine func, ProcessState state)
 			{
 				throw new NotImplCodeEE();
+
 #pragma warning disable CS0162 // 到達できないコードが検出されました
 				RefArgument arg = (RefArgument)func.Argument;
 #pragma warning restore CS0162 // 到達できないコードが検出されました
@@ -1613,7 +1617,57 @@ namespace MinorShift.Emuera.GameProc.Function
                 return;
             }
         }
+		
+		private sealed class INPUTMOUSEKEY_Instruction : AbstractInstruction
+		{
+			public INPUTMOUSEKEY_Instruction()
+			{
+				ArgBuilder = ArgumentParser.GetNormalArgumentBuilder("I", 0);
+				//スキップ不可
+				//flag = IS_PRINT | IS_INPUT | EXTENDED;
+				flag =EXTENDED;
+			}
 
+			public override void DoInstruction(ExpressionMediator exm, InstructionLine func, ProcessState state)
+			{
+				ExpressionsArgument arg = (ExpressionsArgument)func.Argument;
+				Int64 time = 0;
+				if (arg.ArgumentArray.Length > 0)
+					time = arg.ArgumentArray[0].GetIntValue(exm);
+				InputRequest req = new InputRequest();
+				req.InputType = InputType.PrimitiveMouseKey; 
+				if (time > 0)
+					req.Timelimit = (int)time;
+				exm.Console.WaitInput(req);
+			}
+		}
+		
+		private sealed class AWAIT_Instruction : AbstractInstruction
+		{
+			public AWAIT_Instruction()
+			{
+				ArgBuilder = ArgumentParser.GetArgumentBuilder(FunctionArgType.EXPRESSION_NULLABLE);
+				//スキップ不可
+				//flag = IS_PRINT | IS_INPUT | EXTENDED;
+				flag = EXTENDED;
+			}
+
+			public override void DoInstruction(ExpressionMediator exm, InstructionLine func, ProcessState state)
+			{
+				Int64 waittime = -1;
+				ExpressionArgument arg = func.Argument as ExpressionArgument;
+				if (arg != null && arg.Term != null)
+				{
+					waittime = arg.Term.GetIntValue(exm);
+					if (waittime < 0)
+						throw new CodeEE("AWAIT命令:負の値(" + waittime.ToString() + ")が指定されました");
+					if (waittime > 10000)
+						throw new CodeEE("AWAIT命令:10秒以上の待機時間(" + waittime.ToString() + " ms)が指定されました");
+				}
+
+				exm.Console.Await((int)waittime);
+			}
+		}
         #endregion
 
         #region flowControlFunction

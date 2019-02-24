@@ -142,7 +142,36 @@ namespace MinorShift.Emuera.GameProc.Function
 		{
 			return argb[key];
 		}
-		
+		readonly static Dictionary<string, ArgumentBuilder> nargb = new Dictionary<string, ArgumentBuilder>();
+
+		/// <summary>
+		/// 一般的な引数作成器の呼び出し。数式と文字列式のいずれかのみを引数とし、特殊なチェックが必要ないもの
+		/// </summary>
+		/// <param name="argstr">大文字のIとSで"IIS"で(int, int, string )のように引数の数と順序を指定する。</param>
+		/// <param name="minArg">引数の最低数。これ以降は省略可能</param>
+		/// <returns></returns>
+		public static ArgumentBuilder GetNormalArgumentBuilder(string argstr, int minArg)
+		{
+			if (minArg < 0)
+				minArg = argstr.Length;
+			string key = argstr + minArg.ToString();
+            ArgumentBuilder argbuilder = null;
+			if (nargb.TryGetValue(key, out argbuilder))
+				return argbuilder;
+			Type[] types = new Type[argstr.Length];
+			for (int i = 0; i < argstr.Length; i++)
+			{
+				if (argstr[i] == 'I')
+					types[i] = typeof(Int64);
+				else if (argstr[i] == 'S')
+					types[i] = typeof(string);
+				else
+					throw new ExeEE("異常な指定");
+			}
+            argbuilder = new Expressions_ArgumentBuilder(types, minArg);
+			nargb.Add(key, argbuilder);
+			return argbuilder;
+		}
 		static ArgumentParser()
 		{
 			argb[FunctionArgType.METHOD] = new METHOD_ArgumentBuilder();
@@ -741,6 +770,8 @@ namespace MinorShift.Emuera.GameProc.Function
 				{
 					if (op == OperatorCode.Assignment)
 					{
+						if (Config.SystemIgnoreStringSet)
+						{ assignwarn("文字列代入は禁止されています（'=を用いるかコンフィグオプションを変えてください)", line, 2, false); return null; }
 						LexicalAnalyzer.SkipHalfSpace(st);//文字列の代入なら半角スペースだけを読み飛ばす
 						//eramakerは代入文では妙なTrim()をする。半端にしか再現できないがとりあえずtrim = true
 						StrFormWord sfwt = LexicalAnalyzer.AnalyseFormattedString(st, FormStrEndWith.EoL, true);
@@ -1881,5 +1912,25 @@ namespace MinorShift.Emuera.GameProc.Function
             }
         }
         #endregion		
+
+		/// <summary>
+		/// 一般型。数式と文字列式の組み合わせのみを引数とし、特殊なチェックが必要ないもの
+		/// </summary>
+		private sealed class Expressions_ArgumentBuilder : ArgumentBuilder
+		{
+			public Expressions_ArgumentBuilder(Type[] types, int minArgs = -1)
+			{
+				argumentTypeArray = types;
+				this.minArg = minArgs;
+			}
+
+			public override Argument CreateArgument(InstructionLine line, ExpressionMediator exm)
+			{
+				IOperandTerm[] terms = popTerms(line);
+				if (!checkArgumentType(line, exm, terms))
+					return null;
+				return new ExpressionsArgument(argumentTypeArray, terms);
+			}
+		}
 	}
 }
