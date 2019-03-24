@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace uEmuera
@@ -267,16 +268,27 @@ namespace uEmuera
                         continue;
 
                     string[] tokens = str.Split(',');
-                    if(tokens.Length > 4)
+                    if(tokens.Length >= 6)
                     {
-                        if(!string.IsNullOrEmpty(tokens[2]) &&
-                            !string.IsNullOrEmpty(tokens[3]))
+                        try
                         {
-                            newlines.Add(line);
-                            continue;
+                            if (!string.IsNullOrEmpty(tokens[2]) &&
+                                !string.IsNullOrEmpty(tokens[3]) &&
+                                !string.IsNullOrEmpty(tokens[4]) &&
+                                !string.IsNullOrEmpty(tokens[5]))
+                            {
+                                var w = int.Parse(tokens[4]);
+                                var h = int.Parse(tokens[5]);
+                                if (w != 0 && h != 0)
+                                {
+                                    newlines.Add(line);
+                                    continue;
+                                }
+                            }
                         }
+                        catch (Exception e)
+                        {}
                     }
-
                     string name = tokens[1].ToUpper();
                     string imagepath = null;
                     content_files.TryGetValue(name, out imagepath);
