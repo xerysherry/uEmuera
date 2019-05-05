@@ -27,8 +27,10 @@ public static class GenericUtils
         if(!obj)
             return null;
         var list = obj.GetComponentsInChildren(type, includeInactive);
-        foreach(var v in list)
+        var length = list.Length;
+        for(int i=0; i<length; ++i)
         {
+            var v = list[i];
             if(v.name.CompareTo(childname) == 0)
                 return v;
         }
@@ -45,8 +47,10 @@ public static class GenericUtils
             return result_list;
 
         var list = obj.GetComponentsInChildren<Transform>(includeInactive);
-        foreach(var v in list)
+        var length = list.Length;
+        for(int i = 0; i < length; ++i)
         {
+            var v = list[i];
             var c = v.GetComponent<T>();
             if(c)
                 result_list.Add(c);
@@ -62,8 +66,10 @@ public static class GenericUtils
         if(!obj)
             return null;
         var list = obj.GetComponentsInChildren<T>(includeInactive);
-        foreach(var v in list)
+        var length = list.Length;
+        for(int i = 0; i < length; ++i)
         {
+            var v = list[i];
             if(v.name.CompareTo(childname) == 0)
                 return v;
         }
@@ -77,12 +83,55 @@ public static class GenericUtils
         if(!obj)
             return null;
         var list = obj.GetComponentsInChildren<Transform>(includeInactive);
-        foreach(var v in list)
+        var length = list.Length;
+        for(int i = 0; i < length; ++i)
         {
+            var v = list[i];
             if(v.name.CompareTo(childname) == 0)
                 return v.gameObject;
         }
         return null;
+    }
+    public static Transform Get(string path)
+    {
+        var str = path.Split('.');
+        var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        var objs = scene.GetRootGameObjects();
+
+        Transform t = null;
+        for(int i = 0; i < objs.Length; ++i)
+        {
+            if(string.CompareOrdinal(objs[i].name, str[0]) == 0)
+            {
+                t = objs[i].transform;
+                break;
+            }
+        }
+        if(t == null)
+            return null;
+
+        Transform nt = null;
+        int si = 1;
+        while(si < str.Length)
+        {
+            var n = str[si];
+            var c = t.childCount;
+            for(int i = 0; i < c; ++i)
+            {
+                var o = t.GetChild(i);
+                if(string.CompareOrdinal(o.name, n) == 0)
+                {
+                    nt = o;
+                    break;
+                }
+            }
+            if(nt == null)
+                return null;
+            t = nt;
+            nt = null;
+            si += 1;
+        }
+        return t;
     }
     /// <summary>
     /// 获得文件名
@@ -132,11 +181,14 @@ public static class GenericUtils
         public virtual void OnPointerClick(PointerEventData eventData)
         {
             var _callbacks1 = callbacks1;
-            foreach(var callback in _callbacks1)
-                callback();
+            var iter = _callbacks1.GetEnumerator();
+            while(iter.MoveNext())
+                iter.Current();
+
             var _callbacks2 = callbacks2;
-            foreach(var callback in _callbacks2)
-                callback(eventData);
+            var iter2 = _callbacks2.GetEnumerator();
+            while(iter2.MoveNext())
+                iter2.Current(eventData);
         }
         void OnDestroy()
         {
@@ -202,8 +254,9 @@ public static class GenericUtils
     {
         public virtual void OnPointerDown(PointerEventData eventData)
         {
-            foreach(var callback in callbacks)
-                callback(eventData);
+            var iter = callbacks.GetEnumerator();
+            while(iter.MoveNext())
+                iter.Current(eventData);
         }
         void OnDestroy()
         {
@@ -243,8 +296,9 @@ public static class GenericUtils
     {
         public virtual void OnPointerUp(PointerEventData eventData)
         {
-            foreach(var callback in callbacks)
-                callback(eventData);
+            var iter = callbacks.GetEnumerator();
+            while(iter.MoveNext())
+                iter.Current(eventData);
         }
         void OnDestroy()
         {
@@ -285,8 +339,9 @@ public static class GenericUtils
     {
         public virtual void OnBeginDrag(PointerEventData eventData)
         {
-            foreach(var callback in callbacks)
-                callback(eventData);
+            var iter = callbacks.GetEnumerator();
+            while(iter.MoveNext())
+                iter.Current(eventData);
         }
         void OnDestroy()
         {
@@ -298,8 +353,9 @@ public static class GenericUtils
     {
         public virtual void OnDrag(PointerEventData eventData)
         {
-            foreach(var callback in callbacks)
-                callback(eventData);
+            var iter = callbacks.GetEnumerator();
+            while(iter.MoveNext())
+                iter.Current(eventData);
         }
         void OnDestroy()
         {
@@ -311,8 +367,9 @@ public static class GenericUtils
     {
         public virtual void OnEndDrag(PointerEventData eventData)
         {
-            foreach(var callback in callbacks)
-                callback(eventData);
+            var iter = callbacks.GetEnumerator();
+            while(iter.MoveNext())
+                iter.Current(eventData);
         }
         void OnDestroy()
         {

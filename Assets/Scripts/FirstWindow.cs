@@ -10,7 +10,8 @@ public class FirstWindow : MonoBehaviour
     public static void Show()
     {
         var obj = Resources.Load<GameObject>("Prefab/FirstWindow");
-        GameObject.Instantiate(obj);
+        obj = GameObject.Instantiate(obj);
+        obj.name = "FirstWindow";
     }
     static System.Collections.IEnumerator Run(string workspace, string era)
     {
@@ -42,6 +43,9 @@ public class FirstWindow : MonoBehaviour
 
     void Start()
     {
+        if(!string.IsNullOrEmpty(MultiLanguage.FirstWindowTitlebar))
+            titlebar.text = MultiLanguage.FirstWindowTitlebar;  
+
         scroll_rect_ = GenericUtils.FindChildByName<ScrollRect>(gameObject, "ScrollRect");
         item_ = GenericUtils.FindChildByName(gameObject, "Item", true);
         setting_ = GenericUtils.FindChildByName(gameObject, "optionbtn", true);
@@ -132,6 +136,7 @@ public class FirstWindow : MonoBehaviour
         { }
     }
 
+    public Text titlebar = null;
     ScrollRect scroll_rect_ = null;
     GameObject item_ = null;
     GameObject setting_ = null;

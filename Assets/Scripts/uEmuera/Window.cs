@@ -55,6 +55,8 @@ namespace uEmuera.Window
         {
             //uEmuera.Logger.Info("MainWindow.Refresh");
             dirty_ = true;
+            if(console_ != null)
+                console_.NeedSetTimer();
         }
 
         public void Close()

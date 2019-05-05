@@ -66,8 +66,10 @@ public class Inputpad : MonoBehaviour
     public void SetColor(Color sprite_color, Color text_color)
     {
         var images = GenericUtils.FindChildren<Image>(gameObject, true);
-        foreach(var image in images)
+        var length = images.Count;
+        for(int i=0; i<length; ++i)
         {
+            var image = images[i];
             if(image.sprite == null)
                 continue;
             image.color = sprite_color;

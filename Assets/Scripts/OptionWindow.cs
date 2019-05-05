@@ -21,6 +21,8 @@ public class OptionWindow : MonoBehaviour
 
         GenericUtils.SetListenerOnClick(menu_pad, OnMenuPad);
         GenericUtils.SetListenerOnClick(menu_1_resolution, OnMenuResolution);
+        GenericUtils.SetListenerOnClick(menu_1_language, ShowLanguageBox);
+        GenericUtils.SetListenerOnClick(menu_1_github, OnGithub);
         GenericUtils.SetListenerOnClick(menu_1_exit, OnMenuExit);
 
         GenericUtils.SetListenerOnClick(menu_2_back, OnMenu2Back);
@@ -34,6 +36,10 @@ public class OptionWindow : MonoBehaviour
         GenericUtils.SetListenerOnClick(resolution_900p, OnResolution900p);
         GenericUtils.SetListenerOnClick(resolution_720p, OnResolution720p);
         GenericUtils.SetListenerOnClick(resolution_540p, OnResolution540p);
+
+        GenericUtils.SetListenerOnClick(language_zhcn, OnSelectLanguage);
+        GenericUtils.SetListenerOnClick(language_jp, OnSelectLanguage);
+        GenericUtils.SetListenerOnClick(language_enus, OnSelectLanguage);
 
         HideResolutionIcon();
         switch(ResolutionHelper.resolution_index)
@@ -137,11 +143,15 @@ public class OptionWindow : MonoBehaviour
     {
         if(EmueraThread.instance.Running())
         {
-            ShowMessageBox("等待", "请等待核心完成！");
+            ShowMessageBox(
+                MultiLanguage.GetText("[Wait]"), 
+                MultiLanguage.GetText("[WaitContent]"));
         }
         else
         {
-            ShowMessageBox("回到选单", "是否回到选单？",
+            ShowMessageBox(
+                MultiLanguage.GetText("[BackMenu]"),
+                MultiLanguage.GetText("[BackMenuContent]"),
                 () =>
                 {
                     var emuera = GameObject.FindObjectOfType<EmueraMain>();
@@ -154,11 +164,15 @@ public class OptionWindow : MonoBehaviour
     {
         if(EmueraThread.instance.Running())
         {
-            ShowMessageBox("等待", "请等待核心完成！");
+            ShowMessageBox(
+                MultiLanguage.GetText("[Wait]"),
+                MultiLanguage.GetText("[WaitContent]"));
         }
         else
         {
-            ShowMessageBox("重新加载游戏", "是否重新加载游戏？",
+            ShowMessageBox(
+                MultiLanguage.GetText("[ReloadGame]"),
+                MultiLanguage.GetText("[ReloadGameContent]"),
             () =>
             {
                 var emuera = GameObject.FindObjectOfType<EmueraMain>();
@@ -171,11 +185,15 @@ public class OptionWindow : MonoBehaviour
     {
         if(EmueraThread.instance.Running())
         {
-            ShowMessageBox("等待", "请等待核心完成！");
+            ShowMessageBox(
+                MultiLanguage.GetText("[Wait]"),
+                MultiLanguage.GetText("[WaitContent]"));
         }
         else
         {
-            ShowMessageBox("回到标题", "是否回到标题？",
+            ShowMessageBox(
+                MultiLanguage.GetText("[BackTitle]"),
+                MultiLanguage.GetText("[BackTitleContent]"),
             () =>
             {
                 MinorShift.Emuera.GlobalStatic.Console.GotoTitle();
@@ -191,8 +209,8 @@ public class OptionWindow : MonoBehaviour
         path = path + fname + ".log";
         bool result = MinorShift.Emuera.GlobalStatic.Console.OutputLog(path);
 
-        ShowMessageBox("保存日志", 
-            result ? string.Format("日志路径：\n{0}", path) :"失败");
+        ShowMessageBox(MultiLanguage.GetText("[SaveLog]"), 
+            result ? string.Format("{1}：\n{0}", path, MultiLanguage.GetText("[SavePath]")) : MultiLanguage.GetText("[Failure]"));
         HideMenu();
     }
     void OnMenuResolution()
@@ -202,7 +220,9 @@ public class OptionWindow : MonoBehaviour
     }
     void OnMenuExit()
     {
-        ShowMessageBox("退出游戏", "是否退出游戏？", 
+        ShowMessageBox(
+            MultiLanguage.GetText("[Exit]"),
+            MultiLanguage.GetText("[ExitContent]"), 
             ()=> {
                 Application.Quit();
             }, ()=> { });
@@ -262,8 +282,12 @@ public class OptionWindow : MonoBehaviour
     public void Ready()
     {
         var texts = inprogress.GetComponentsInChildren<Text>();
-        foreach(var text in texts)
+        var length = texts.Length;
+        for(int i=0; i<length; ++i)
+        {
+            var text = texts[i];
             text.color = EmueraBehaviour.FontColor;
+        }
 
         var buttoncolor = EmueraBehaviour.FontColor;
         buttoncolor.a = 0.6f;
@@ -354,6 +378,22 @@ public class OptionWindow : MonoBehaviour
         HideMessageBox();
     }
 
+    public void ShowLanguageBox()
+    {
+        HideMenu();
+        language_box.SetActive(true);
+    }
+    void OnSelectLanguage(UnityEngine.EventSystems.PointerEventData e)
+    {
+        MultiLanguage.SetLanguage(e.pointerPress.name);
+        language_box.SetActive(false);
+    }
+
+    void OnGithub()
+    {
+        Application.OpenURL("https://github.com/xerysherry/uEmuera/releases");
+    }
+
     public GameObject game_button;
     public Button quick_button;
     public Button input_button;
@@ -383,6 +423,8 @@ public class OptionWindow : MonoBehaviour
     public GameObject menu_pad;
     public GameObject menu_1;
     public GameObject menu_1_resolution;
+    public GameObject menu_1_language;
+    public GameObject menu_1_github;
     public GameObject menu_1_exit;
 
     public GameObject menu_2;
@@ -401,6 +443,11 @@ public class OptionWindow : MonoBehaviour
     public GameObject resolution_720p_icon;
     public GameObject resolution_540p;
     public GameObject resolution_540p_icon;
+
+    public GameObject language_box;
+    public GameObject language_zhcn;
+    public GameObject language_jp;
+    public GameObject language_enus;
 
     bool auto_rotation
     {

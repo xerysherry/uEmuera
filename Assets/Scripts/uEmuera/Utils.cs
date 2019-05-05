@@ -166,9 +166,11 @@ namespace uEmuera
         public static List<string> GetFiles(string search, string extension, SearchOption option)
         {
             var files = Directory.GetFiles(search, "*.???", option);
+            var filecount = files.Length;
             var result = new List<string>();
-            foreach(var file in files)
+            for(int i=0; i<filecount; ++i)
             {
+                var file = files[i];
                 string ext = Path.GetExtension(file);
                 if(string.Compare(ext, extension, true) == 0)
                     result.Add(file);
@@ -182,9 +184,11 @@ namespace uEmuera
                 extension_checker.Add(extensions[i].ToUpper());
 
             var files = Directory.GetFiles(search, "*.???", option);
+            var filecount = files.Length;
             var result = new List<string>();
-            foreach(var file in files)
+            for(int i = 0; i < filecount; ++i)
             {
+                var file = files[i];
                 string ext = Path.GetExtension(file).ToUpper();
                 if(extension_checker.Contains(ext))
                     result.Add(file);
@@ -212,8 +216,10 @@ namespace uEmuera
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.JPG", SearchOption.TopDirectoryOnly));
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.GIF", SearchOption.TopDirectoryOnly));
 #endif
-            foreach(var filename in bmpfilelist)
+            var filecount = bmpfilelist.Count;
+            for(int i=0; i<filecount; ++i)
             {
+                var filename = bmpfilelist[i];
                 string name = Path.GetFileName(filename).ToUpper();
                 content_files.Add(name, filename);
             }
@@ -245,8 +251,10 @@ namespace uEmuera
             resource_csv_lines_ = new Dictionary<string, string[]>();
 
             var encoder = MinorShift.Emuera.Config.Encode;
-            foreach(var filename in csvFiles)
-            {   
+            var filecount = csvFiles.Count;
+            for(int index=0; index < filecount; ++index)
+            {
+                var filename = csvFiles[index];
                 //SpriteManager.ClearResourceCSVLines(filename);
                 string[] lines = SpriteManager.GetResourceCSVLines(filename);
                 if(lines != null)

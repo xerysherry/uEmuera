@@ -247,9 +247,15 @@ namespace MinorShift.Emuera.GameProc
 		{
 			if (Program.DebugMode && !isClone && GlobalStatic.Process.MethodStack() == 0)
 				console.DebugClearTraceLog();
-			foreach (CalledFunction called in functionList)
-                if (called.CurrentLabel.hasPrivDynamicVar)
+
+            CalledFunction called = null;
+            var count = functionList.Count;
+			for(var i=0; i<count; ++i)
+            {
+                called = functionList[i];
+                if(called.CurrentLabel.hasPrivDynamicVar)
                     called.CurrentLabel.Out();
+            }
 			functionList.Clear();
 			begintype = BeginType.NULL;
 		}
@@ -302,9 +308,14 @@ namespace MinorShift.Emuera.GameProc
 				console.DebugClearTraceLog();
 				console.DebugAddTraceLog("BEGIN:" + begintype.ToString());
 			}
-			foreach (CalledFunction called in functionList)
-                if (called.CurrentLabel.hasPrivDynamicVar)
+            CalledFunction called = null;
+            var count = functionList.Count;
+            for(var i = 0; i < count; ++i)
+            {
+                called = functionList[i];
+                if(called.CurrentLabel.hasPrivDynamicVar)
                     called.CurrentLabel.Out();
+            }
 			functionList.Clear();
 			begintype = BeginType.NULL;
 			return;
@@ -440,8 +451,11 @@ namespace MinorShift.Emuera.GameProc
 
 			if (call.IsEvent)
 			{
-				foreach (CalledFunction called in functionList)
-				{
+                CalledFunction called = null;
+                var count = functionList.Count;
+                for(var i = 0; i < count; ++i)
+                {
+                    called = functionList[i];
 					if (called.IsEvent)
 						throw new CodeEE("EVENT関数の解決前にCALLEVENT命令が行われました");
 				}

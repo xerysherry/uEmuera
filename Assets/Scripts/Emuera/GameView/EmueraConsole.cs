@@ -75,8 +75,13 @@ namespace MinorShift.Emuera.GameView
 			timer = new Timer();
 			timer.Enabled = false;
 			timer.Tick += new EventHandler(tickTimer);
-			timer.Interval = 100;
+			timer.Interval = 10;
 			CBG_Clear();//文字列描画用ダミー追加
+
+			redrawTimer = new Timer();
+			redrawTimer.Enabled = false;//TODO:1824アニメ用再描画タイマー有効化関数の追加
+			redrawTimer.Tick += new EventHandler(tickRedrawTimer);
+			redrawTimer.Interval = 10;
         }
 #region 1823 cbg関連
 		private readonly List<ClientBackGroundImage> cbgList = new List<ClientBackGroundImage>();
@@ -111,10 +116,11 @@ namespace MinorShift.Emuera.GameView
 		}
 		public void CBG_Clear()
 		{
-			foreach(ClientBackGroundImage cimg in cbgList)
+			for(var i=0; i<cbgList.Count; ++i)
 			{
-				//使い捨て無名Imageを一応disposeしておく
-				if (cimg.Img != null && cimg.Img.Name.Length == 0)
+                ClientBackGroundImage cimg = cbgList[i];
+                //使い捨て無名Imageを一応disposeしておく
+                if (cimg.Img != null && cimg.Img.Name.Length == 0)
 					cimg.Img.Dispose();
 			}
 			cbgList.Clear();
@@ -215,8 +221,8 @@ namespace MinorShift.Emuera.GameView
 			cbgList.Sort();
 			return true;
 		}
-		public int ClientWidth { get { return window.MainPicBox.Width; } }
-		public int ClientHeight { get { return window.MainPicBox.Height; } }
+		public int ClientWidth { get { return UnityEngine.Screen.width; } }
+		public int ClientHeight { get { return UnityEngine.Screen.height; } }
 #endregion
 
 		const string ErrorButtonsText = "__openFileWithDebug__";
@@ -487,12 +493,12 @@ namespace MinorShift.Emuera.GameView
 		{
 			state = ConsoleState.WaitInput;
 			inputReq = req;
-			//TODO 1823:Timelimitが0以下だったら？
 			if (req.Timelimit > 0)
 			{
 				if (req.OneInput)
 					window.update_lastinput();
-				setTimer();
+				presetTimer();
+//				setTimer();
 			}
 			//updateMousePosition();
 			//Point point = window.MainPicBox.PointToClient(Control.MousePosition);
@@ -517,28 +523,88 @@ namespace MinorShift.Emuera.GameView
 		}
 
 
+		/// <summary>
+		/// INPUT中のアニメーション用タイマー
+		/// </summary>
+		Timer redrawTimer = null;
+
+		private void tickRedrawTimer(object sender, EventArgs e)
+		{
+			if (!redrawTimer.Enabled)
+				return;
+			//INPUT待ちでないとき、又はタイマー付きINPUT状態の場合はこれ以外の処理に任せる
+			if (state != ConsoleState.WaitInput || timer.Enabled)
+			{
+				return;
+			}
+			window.Refresh();//OnPaint発行
+		}
+
+		/// <summary>
+		/// アニメーション用タイマーの設定。0以下の値を指定するとタイマー停止
+		/// </summary>
+		public void setRedrawTimer(uint tickcount)
+		{
+			if (tickcount <= 0)
+			{
+				redrawTimer.Enabled = false;
+				return;
+			}
+			if (tickcount < 10)
+				tickcount = 10;
+			redrawTimer.Interval = tickcount;
+			redrawTimer.Enabled = true;
+		}
+
+
+
 		Timer timer = null;
 		Int64 timerID = -1;
-        int countTime = 0;
+		Int64 timer_startTime;//現在のタイマーを開始した時のミリ秒数（WinmmTimer.TickCount基準）
+		Int64 timer_nextDisplayTime;//TINPUT系で次に残り時間を表示する時のTickCountミリ秒数
+		Int64 timer_endTime;//現在のタイマーを終了する時のTickCountミリ秒数
         bool wait_timeout = false;
         bool isTimeout = false;
         public bool IsTimeOut { get { return isTimeout; } }
 
-		private void setTimer()
-		{
-			countTime = 0;
-			isTimeout = false;
-			timerID = inputReq.ID;
-			timer.Enabled = true;
+		/// <summary>
+		/// 1824 TINPUT時に直接タイマーをセットせずに最初の再描画が終わってからタイマーをセットする（そうしないとTINPUTと再描画だけでループしてしまうので）
+		/// </summary>
+		bool need_settimer = false;
 
+		private void presetTimer()
+		{
+			need_settimer = true;
 			if (inputReq.DisplayTime)
 			{
+				//100ms未満の場合、一瞬だけ残り0が表示されて終了
+				//timer_nextDisplayTime = timer_startTime + 100;
 				long start = inputReq.Timelimit / 100;
 				string timeString1 = "残り ";
 				string timeString2 = ((double)start / 10.0).ToString();
 				PrintSingleLine(timeString1 + timeString2);
 			}
 		}
+		private void setTimer()
+		{
+			isTimeout = false;
+			timerID = inputReq.ID;
+			timer.Enabled = true;
+			timer_startTime = WinmmTimer.TickCount;
+			timer_endTime = timer_startTime + inputReq.Timelimit;
+			//if (inputReq.DisplayTime)
+			//次に残り時間を表示するタイミングの設定。inputReq.DisplayTime==tureでないなら設定するだけで参照はされない（はず
+			timer_nextDisplayTime = timer_startTime + 100;
+
+		}
+        public void NeedSetTimer()
+        {
+            if(need_settimer)
+            {
+                need_settimer = false;
+                setTimer();
+            }
+        }
 
 		//汎用
 		private void tickTimer(object sender, EventArgs e)
@@ -554,15 +620,17 @@ namespace MinorShift.Emuera.GameView
 				return;
 #endif
 			}
-			countTime += 100;
-			if (countTime >= inputReq.Timelimit)
+			long curtime = WinmmTimer.TickCount;
+			if (curtime >= timer_endTime)
 			{
 				endTimer();
 				return;
 			}
-			if(inputReq.DisplayTime)
+			if (inputReq.DisplayTime && curtime >= timer_nextDisplayTime)
 			{
-				long time = (inputReq.Timelimit - countTime) / 100;
+				//表示に時間がかかってタイマーが止まるので次の描画は100ms後。場合によっては表示が0.2一気に飛ぶ。
+				timer_nextDisplayTime = curtime + 100;
+				long time = (timer_endTime - curtime) / 100;
 				string timeString1 = "残り ";
 				string timeString2 = ((double)time / 10.0).ToString();
 				changeLastLine(timeString1 + timeString2);
@@ -740,7 +808,7 @@ namespace MinorShift.Emuera.GameView
 		internal void PressPrimitiveKey(int keycode, int keydata, int keymod)
 		{
 			if (IsWaitingPrimitive)
-				InputMouseKey(3, (int)keycode, (int)keydata, 0, 0);
+				InputMouseKey(3, keycode, keydata, 0, 0);
 		}
 
 		//1823 Key入力を捕まえる
@@ -1827,7 +1895,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			if(timer != null)
 				timer.Dispose();
-			timer = null;
+			//timer = null;
 			//stringMeasure.Dispose();
 		}
 	}

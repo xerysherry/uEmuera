@@ -905,37 +905,106 @@ check1break:
 
 		public CharacterTemplate GetCharacterTemplate(Int64 index)
 		{
-			foreach (CharacterTemplate chara in CharacterTmplList)
-			{
-				if (chara.No == index)
-					return chara;
-			}
-			return null;
+			//foreach (CharacterTemplate chara in CharacterTmplList)
+			//{
+			//	if (chara.No == index)
+			//		return chara;
+			//}
+			//return null;
+
+            int high = CharacterTmplList.Count - 1;
+            int low = 0;
+            int mid = 0;
+            CharacterTemplate ct = null;
+            while(low <= high)
+            {
+                mid = (low + high) / 2;
+                ct = CharacterTmplList[mid];
+                var k = ct.No;
+                if(k > index)
+                    high = mid - 1;
+                else if(k < index)
+                    low = mid + 1;
+                else
+                {
+                    return ct;
+                }
+            }
+            return null;
 		}
 		
 		public CharacterTemplate GetCharacterTemplate_UseSp(Int64 index, bool sp)
 		{
-			foreach (CharacterTemplate chara in CharacterTmplList)
-			{
-				if (chara.No != index)
-					continue;
-				if (Config.CompatiSPChara && sp != chara.IsSpchara)
-					continue;
-				return chara;
-			}
-			return null;
-		}
+            //foreach (CharacterTemplate chara in CharacterTmplList)
+            //{
+            //	if (chara.No != index)
+            //		continue;
+            //	if (Config.CompatiSPChara && sp != chara.IsSpchara)
+            //		continue;
+            //	return chara;
+            //}
+            //return null;
+
+            if(!Config.CompatiSPChara)
+            {
+                return GetCharacterTemplate(index);
+            }
+            int count = CharacterTmplList.Count;
+            int high = count - 1;
+            int low = 0;
+            int mid = 0;
+            bool found = false;
+            CharacterTemplate ct = null;
+            while(low <= high)
+            {
+                mid = (low + high) / 2;
+                ct = CharacterTmplList[mid];
+                var k = ct.No;
+                if(k > index)
+                    high = mid - 1;
+                else if(k < index)
+                    low = mid + 1;
+                else
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                return null;
+            if(ct.IsSpchara == sp)
+                return ct;
+            for(var i = mid - 1; i >= 0; --i)
+            {
+                ct = CharacterTmplList[i];
+                if(ct.No != index)
+                    break;
+                if(ct.IsSpchara == sp)
+                    return ct;
+            }
+            for(var i = mid + 1; i < count; ++i)
+            {
+                ct = CharacterTmplList[i];
+                if(ct.No != index)
+                    break;
+                if(ct.IsSpchara == sp)
+                    return ct;
+            }
+            return null;
+        }
 
 		public CharacterTemplate GetCharacterTemplateFromCsvNo(Int64 index)
 		{
-			foreach (CharacterTemplate chara in CharacterTmplList)
-			{
-				if (chara.csvNo != index)
-					continue;
-				return chara;
-			}
-			return null;
-		}
+            //foreach (CharacterTemplate chara in CharacterTmplList)
+            //{
+            //	if (chara.csvNo != index)
+            //		continue;
+            //	return chara;
+            //}
+            //return null;
+            return GetCharacterTemplate(index);
+
+        }
 
 		public CharacterTemplate GetPseudoChara()
 		{
@@ -967,19 +1036,30 @@ check1break:
             for(int i = 0; i < csvPaths.Count; i++)
                 loadCharacterDataFile(csvPaths[i].Value, csvPaths[i].Key, disp);
 #endif
+            SortCharacterTmplList();
+
+            var count = CharacterTmplList.Count;
+            CharacterTemplate tmpl = null;
             if(useCompatiName)
 			{
-				foreach (CharacterTemplate tmpl in CharacterTmplList)
-					if (string.IsNullOrEmpty(tmpl.Callname))
-						tmpl.Callname = tmpl.Name;
+                for(int i=0; i<count; ++i)
+                {
+                    tmpl = CharacterTmplList[i];
+                    if(string.IsNullOrEmpty(tmpl.Callname))
+                        tmpl.Callname = tmpl.Name;
+                }
 			}
-			foreach (CharacterTemplate tmpl in CharacterTmplList)
-				tmpl.SetSpFlag();
+            for(int i = 0; i < count; ++i)
+            {
+                tmpl = CharacterTmplList[i];
+                tmpl.SetSpFlag();
+            }
 			Dictionary<Int64, CharacterTemplate> nList = new Dictionary<Int64, CharacterTemplate>();
 			Dictionary<Int64, CharacterTemplate> spList = new Dictionary<Int64, CharacterTemplate>();
-			foreach (CharacterTemplate tmpl in CharacterTmplList)
-			{
-				Dictionary<Int64, CharacterTemplate>  targetList = nList;
+            for(int i = 0; i < count; ++i)
+            {
+                tmpl = CharacterTmplList[i];
+                Dictionary<Int64, CharacterTemplate>  targetList = nList;
 				if(Config.CompatiSPChara && tmpl.IsSpchara)
 				{
 					targetList = spList;
@@ -1080,6 +1160,14 @@ check1break:
 				eReader.Dispose();
 			}
 		}
+
+        private void SortCharacterTmplList()
+        {
+            CharacterTmplList.Sort((l, r) =>
+            {
+                return (int)(l.No - r.No);
+            });
+        }
 
 		private bool tryToInt64(string str, out Int64 p)
 		{

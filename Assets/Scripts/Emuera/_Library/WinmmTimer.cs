@@ -35,6 +35,14 @@ namespace MinorShift._Library
                 return (uint)(System.DateTime.Now.Ticks / 10000);
             }
         }
+		/// <summary>
+		/// 現在のフレームの描画に使うためのミリ秒数
+		/// </summary>
+		public static uint CurrentFrameTime;
+		/// <summary>
+		/// フレーム描画開始合図の時点でのミリ秒を固定するための数値
+		/// </summary>
+		public static void FrameStart() { CurrentFrameTime =TickCount; }
 
         //[DllImport("winmm.dll", EntryPoint = "timeGetTime")]
         //private static extern uint mm_GetTime();

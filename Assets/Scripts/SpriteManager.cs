@@ -56,9 +56,10 @@ internal static class SpriteManager
         }
         public void Dispose()
         {
-            foreach(var kv in sprites)
+            var iter = sprites.Values.GetEnumerator();
+            while(iter.MoveNext())
             {
-                kv.Value.Dispose();
+                iter.Current.Dispose();
             }
             sprites.Clear();
             sprites = null;
@@ -201,8 +202,11 @@ internal static class SpriteManager
         List<CallbackInfo> list = null;
         if(loading_set.TryGetValue(baseimage.filename, out list))
         {
-            foreach(var item in list)
+            var count = list.Count;
+            CallbackInfo item = null;
+            for(int i=0; i<count; ++i)
             {
+                item = list[i];
                 item.DoCallback(GetSpriteInfo(ti, item.src));
             }
             list.Clear();
@@ -230,8 +234,11 @@ internal static class SpriteManager
 
             var now = Time.unscaledTime;
             TextureInfo tinfo = null;
-            foreach(var ti in texture_dict.Values)
+            TextureInfo ti = null;
+            var iter = texture_dict.Values.GetEnumerator();
+            while(iter.MoveNext())
             {
+                ti = iter.Current;
                 if(ti.refcount == 0 && now > ti.pasttime)
                 {
                     tinfo = ti;
@@ -252,9 +259,10 @@ internal static class SpriteManager
     }
     internal static void ForceClear()
     {
-        foreach(var ti in texture_dict.Values)
+        var iter = texture_dict.Values.GetEnumerator();
+        while(iter.MoveNext())
         {
-            ti.Dispose();
+            iter.Current.Dispose();
         }
         texture_dict.Clear();
         GC.Collect();

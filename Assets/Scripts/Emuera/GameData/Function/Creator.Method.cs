@@ -2911,6 +2911,9 @@ namespace MinorShift.Emuera.GameData.Function
 		#endregion
 
 		#region 画像処理系
+		/// <summary>
+		/// argNo番目の引数をGraphicsImageのIDを示す整数値として読み取り、 GraphicsImage又はnullを返す。
+		/// </summary>
 		private static GraphicsImage ReadGraphics(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
 		{
 			Int64 target = arguments[argNo].GetIntValue(exm);
@@ -2922,6 +2925,9 @@ namespace MinorShift.Emuera.GameData.Function
 			return AppContents.GetGraphics((int)target);
 		}
 
+		/// <summary>
+		/// argNo番目の引数を整数値として読み取り、 アルファ値を含むColor構造体にして返す。
+		/// </summary>
 		private static Color ReadColor(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
 		{
 			Int64 c64 = arguments[argNo].GetIntValue(exm);
@@ -2930,6 +2936,9 @@ namespace MinorShift.Emuera.GameData.Function
 			return Color.FromArgb((int)(c64 >> 24) & 0xFF, (int)(c64 >> 16) & 0xFF, (int)(c64 >> 8) & 0xFF, (int)c64 & 0xFF);
 		}
 
+		/// <summary>
+		/// argNo番目を含む2つの引数を整数値として読み取り、Point形式にして返す。
+		/// </summary>
 		private static Point ReadPoint(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
 		{
 			Int64 x64 = arguments[argNo].GetIntValue(exm);
@@ -2941,6 +2950,9 @@ namespace MinorShift.Emuera.GameData.Function
 			return new Point((int)x64, (int)y64);
 		}
 
+		/// <summary>
+		/// argNo番目を含む4つの引数を整数値として読み取り、Rectangle形式にして返す。
+		/// </summary>
 		private static Rectangle ReadRectangle(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
 		{
 			Int64 x64 = arguments[argNo].GetIntValue(exm);
@@ -2959,6 +2971,9 @@ namespace MinorShift.Emuera.GameData.Function
 			return new Rectangle((int)x64, (int)y64, (int)w64, (int)h64);
 		}
 
+		/// <summary>
+		/// argNo番目の引数を5x5のカラーマトリクス配列変数として読み取り、 5x5のfloat[][]形式にして返す。
+		/// </summary>
 		private static float[][] ReadColormatrix(string Name, ExpressionMediator exm, IOperandTerm[] arguments, int argNo)
 		{
 			//数値型二次元以上配列変数のはず
@@ -3191,13 +3206,13 @@ namespace MinorShift.Emuera.GameData.Function
 					case "SPRITECREATED":
 						return 1;
 					case "SPRITEWIDTH":
-						return img.Rectangle.Width;
+						return img.DestBaseSize.Width;
 					case "SPRITEHEIGHT":
-						return img.Rectangle.Height;
+						return img.DestBaseSize.Height;
 					case "SPRITEPOSX":
-						return img.Position.X;
+						return img.DestBasePosition.X;
 					case "SPRITEPOSY":
-						return img.Position.Y;
+						return img.DestBasePosition.Y;
 				}
 				throw new ExeEE("SpriteStateMethod:" + Name + ":異常な分岐");
 			}
@@ -3221,10 +3236,10 @@ namespace MinorShift.Emuera.GameData.Function
 				switch (Name)
 				{
 					case "SPRITEMOVE":
-						img.Position.Offset(p);
+						img.DestBasePosition.Offset(p);
 						return 1;
 					case "SPRITESETPOS":
-						img.Position = p;
+						img.DestBasePosition = p;
 						return 1;
 				}
 				throw new ExeEE("SpriteStateMethod:" + Name + ":異常な分岐");
@@ -3247,28 +3262,10 @@ namespace MinorShift.Emuera.GameData.Function
 				if (img == null || !img.IsCreated)
 					return -1;
 				Point p = ReadPoint(Name, exm, arguments, 1);
-				if (img.Rectangle.Width >= 0)
-				{
-					if (p.X < 0 || p.X >= img.Rectangle.Width)
-						return -1;
-				}
-				else
-				{
-					p.X = -p.X;
-					if (p.X < 0 || p.X >= -img.Rectangle.Width)
-						return -1;
-				}
-				if (img.Rectangle.Height >= 0)
-				{
-					if (p.Y < 0 || p.Y >= img.Rectangle.Height)
-						return -1;
-				}
-				else
-				{
-					p.Y = -p.Y;
-					if (p.Y < 0 || p.Y >= -img.Rectangle.Height)
-						return -1;
-				}
+				if (p.X < 0 || p.X >= img.DestBaseSize.Width)
+					return -1;
+				if (p.Y < 0 || p.Y >= img.DestBaseSize.Height)
+					return -1;
 				Color c = img.SpriteGetColor(p.X, p.Y);
 				//Color.ToArgb()はInt32の負の値をとることがあり、Int64にうまく変換できない？（と思ったが気のせいだった
 				return ((Int64)c.A) << 24 + c.R << 16 + c.G << 8 + c.B;
@@ -3316,12 +3313,12 @@ namespace MinorShift.Emuera.GameData.Function
 				int width = p.X; int height = p.Y;
 				if (width <= 0)//{0}関数:GraphicsのWidthに0以下の値({1})が指定されました
 					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth0, Name, width));
-				else if (width > 8192)//{0}関数:GraphicsのWidthに8192以上の値({1})が指定されました
-					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth1, Name, width, 8192));
+				else if (width > AbstractImage.MAX_IMAGESIZE)//{0}関数:GraphicsのWidthに{2}以上の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth1, Name, width, AbstractImage.MAX_IMAGESIZE));
 				if (height <= 0)//{0}関数:GraphicsのHeightに0以下の値({1})が指定されました
 					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight0, Name, height));
-				else if (height > 8192)//{0}関数:GraphicsのHeightに8192以上の値({1})が指定されました
-					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight1, Name, height, 8192));
+				else if (height > AbstractImage.MAX_IMAGESIZE)//{0}関数:GraphicsのHeightに{2}以上の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight1, Name, height, AbstractImage.MAX_IMAGESIZE));
 
 				g.GCreate(width, height, false);
 				return 1;
@@ -3355,7 +3352,7 @@ namespace MinorShift.Emuera.GameData.Function
 					if (!System.IO.File.Exists(filepath))
 						return 0;
 					bmp = new Bitmap(filepath);
-					if (bmp.Width > 8192 || bmp.Height > 8192)
+					if (bmp.Width > AbstractImage.MAX_IMAGESIZE || bmp.Height > AbstractImage.MAX_IMAGESIZE)
 						return 0;
 					g.GCreateFromF(bmp, (Config.TextDrawingMode == TextDrawingMode.WINAPI));
 				}
@@ -3460,6 +3457,7 @@ namespace MinorShift.Emuera.GameData.Function
 				return 1;
 			}
 		}
+
 		public sealed class SpriteDisposeMethod : FunctionMethod
 		{
 			public SpriteDisposeMethod()
@@ -3693,7 +3691,7 @@ namespace MinorShift.Emuera.GameData.Function
 				if (img == null || !img.IsCreated)
 					return 0;
 
-				Rectangle destRect = new Rectangle(0,0,img.Rectangle.Width, img.Rectangle.Height);
+				Rectangle destRect = new Rectangle(0, 0, img.DestBaseSize.Width, img.DestBaseSize.Height);
 				if (arguments.Length == 2)
 				{
 					dest.GDrawCImg(img, destRect);
@@ -3735,6 +3733,84 @@ namespace MinorShift.Emuera.GameData.Function
 				return false;
 			}
 		}
+
+		/// <summary>
+		/// int SPRITEANIMECREATE (string name, int width, int height)
+		/// </summary>
+		public sealed class SpriteAnimeCreateMethod : FunctionMethod
+		{
+			public SpriteAnimeCreateMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				string imgname = arguments[0].GetStrValue(exm);
+				if (string.IsNullOrEmpty(imgname))
+					return 0;
+				//リソースチェック・既に存在しているならば失敗
+				ASprite img = AppContents.GetSprite(imgname);
+				if (img != null && img.IsCreated)
+					return 0;
+				Point pos = ReadPoint(Name, exm, arguments, 1);
+				if (pos.X <= 0)//{0}関数:GraphicsのWidthに0以下の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth0, Name, pos.X));
+				else if (pos.X > AbstractImage.MAX_IMAGESIZE)//{0}関数:GraphicsのWidthに{2}以上の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGWidth1, Name, pos.X, AbstractImage.MAX_IMAGESIZE));
+				if (pos.Y <= 0)//{0}関数:GraphicsのHeightに0以下の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight0, Name, pos.Y));
+				else if (pos.Y > AbstractImage.MAX_IMAGESIZE)//{0}関数:GraphicsのHeightに{2}以上の値({1})が指定されました
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGHeight1, Name, pos.Y, AbstractImage.MAX_IMAGESIZE));
+				AppContents.CreateSpriteAnime(imgname, pos.X, pos.Y);
+				return 1;
+			}
+		}
+
+
+		/// <summary>
+		/// SPRITEANIMEADDFRAME (string name, int graphID, int x, int y, int width, int height, int offsetx, int offsety, int delay)
+		/// </summary>
+		public sealed class SpriteAnimeAddFrameMethod : FunctionMethod
+		{
+			public SpriteAnimeAddFrameMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] { typeof(string), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64), typeof(Int64) };
+				CanRestructure = false;
+			}
+
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				string imgname = arguments[0].GetStrValue(exm);
+				if (string.IsNullOrEmpty(imgname))
+					return 0;
+				SpriteAnime img = AppContents.GetSprite(imgname) as SpriteAnime;
+				if (img == null && !img.IsCreated)
+					return 0;
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 1);
+				if (!g.IsCreated)
+					return 0;
+				Rectangle rect = ReadRectangle(Name, exm, arguments, 2);
+				//四角形は正でなければならず、かつ親画像の外を指してはいけない
+				if (rect.Width <= 0 || rect.Height <= 0 ||
+					rect.X < 0 || rect.X + rect.Width > g.Width || rect.Y < 0 || rect.Y + rect.Height > g.Height)
+					return 0;
+					//throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodCIMGCreateOutOfRange0, Name));
+				Point offset = ReadPoint(Name, exm, arguments, 6);
+				Int64 delay = arguments[8].GetIntValue(exm);
+				if (delay <= 0 || delay > int.MaxValue)
+					return 0;
+				img.AddFrame(g, rect, offset, (int)delay);
+				return 1;
+			}
+		}
+
 
 		/// <summary>
 		/// CBGCLEAR
@@ -3845,6 +3921,7 @@ namespace MinorShift.Emuera.GameData.Function
 
 			}
 		}
+
 		/// <summary>
 		/// CBGSETBMAPG(int ID, int x, int y, int zdepth)
 		/// </summary>
@@ -4021,6 +4098,24 @@ namespace MinorShift.Emuera.GameData.Function
 			}
 		}
 
+		private sealed class SetAnimeTimerMethod : FunctionMethod
+		{
+			public SetAnimeTimerMethod()
+			{
+				ReturnType = typeof(Int64);
+				argumentTypeArray = new Type[] {typeof(Int64) };
+				CanRestructure = false;
+			}
+			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
+			{
+				Int64 i64 = arguments[0].GetIntValue(exm);
+				if (i64 < int.MinValue || i64 > short.MaxValue)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, i64, 1));
+				exm.Console.setRedrawTimer((uint)i64);
+				return 1;
+			}
+		}
+
 		/// <summary>
 		/// int SAVETEXT str text, int fileNo{, int force_savdir, int force_UTF8}
 		/// </summary>
@@ -4128,6 +4223,9 @@ namespace MinorShift.Emuera.GameData.Function
 				return ret;
 			}
 		}
+
+
+
 		private static string getSaveDataPathText(int index, string dir) { return string.Format("{0}txt{1:00}.txt", dir, index); }
 		private static string getSaveDataPathGraphics(int index) { return string.Format("{0}img{1:0000}.png", Config.SavDir, index); }
 
@@ -4180,41 +4278,41 @@ namespace MinorShift.Emuera.GameData.Function
 			}
 			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
 			{
-                if(Config.TextDrawingMode == TextDrawingMode.WINAPI)
-                    throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
-                GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
-                if(g.IsCreated)
-                    return 0;
+				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
+					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodGDIPLUSOnly, Name));
+				GraphicsImage g = ReadGraphics(Name, exm, arguments, 0);
+				if (g.IsCreated)
+					return 0;
 
-                Int64 i64 = arguments[1].GetIntValue(exm);
-                if(i64 < 0 || i64 > int.MaxValue)
-                    return 0;
+				Int64 i64 = arguments[1].GetIntValue(exm);
+				if (i64 < 0 || i64 > int.MaxValue)
+					return 0;
 
-                string filepath = getSaveDataPathGraphics((int)i64);
-                Bitmap bmp = null;
-                try
-                {
-                    if(!System.IO.File.Exists(filepath))
-                        return 0;
-                    bmp = new Bitmap(filepath);
-                    if(bmp.Width > 8192 || bmp.Height > 8192)
-                        return 0;
-                    g.GCreateFromF(bmp, (Config.TextDrawingMode == TextDrawingMode.WINAPI));
-                }
-                catch(Exception e)
-                {
-                    if(e is CodeEE)
-                        throw;
-                }
-                finally
-                {
-                    if(bmp != null)
-                        bmp.Dispose();
-                }
-                if(!g.IsCreated)
-                    return 0;
-                return 1;
-            }
+				string filepath = getSaveDataPathGraphics((int)i64);
+				Bitmap bmp = null;
+				try
+				{
+					if (!System.IO.File.Exists(filepath))
+						return 0;
+					bmp = new Bitmap(filepath);
+					if (bmp.Width > AbstractImage.MAX_IMAGESIZE || bmp.Height > AbstractImage.MAX_IMAGESIZE)
+						return 0;
+					g.GCreateFromF(bmp, (Config.TextDrawingMode == TextDrawingMode.WINAPI));
+				}
+				catch (Exception e)
+				{
+					if (e is CodeEE)
+						throw;
+				}
+				finally
+				{
+					if (bmp != null)
+						bmp.Dispose();
+				}
+				if (!g.IsCreated)
+					return 0;
+				return 1;
+			}
 		}
 
 		#endregion

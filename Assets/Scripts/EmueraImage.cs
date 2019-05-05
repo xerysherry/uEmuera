@@ -135,8 +135,10 @@ public class EmueraImage : EmueraBehaviour
     }
     public void Clear()
     {
-        foreach(var image in image_infos_)
+        var count = image_infos_.Count;
+        for(var i=0; i<count; ++i)
         {
+            var image = image_infos_[i];
             image.Clear();
         }
         image_infos_.Clear();

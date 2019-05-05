@@ -46,9 +46,9 @@ namespace MinorShift.Emuera.Sub
 	enum LexAnalyzeFlag
 	{
 		None = 0,
-		AnalyzePrintV = 1,
-		AllowAssignment = 2,
-		AllowSingleQuotationStr = 4,
+		AnalyzePrintV = 1,//PRINTVの引数で'に続けて文字列を書くと数式ではないが文字列として表示される
+		AllowAssignment = 2,//代入演算子が使用できる場面であるFlag。このFlagなしで=が途中に出てきたらエラー
+		AllowSingleQuotationStr = 4,//HTML_PRINT解析用。''で囲まれた文字列を許可する。
 	}
 
 	/// <summary>

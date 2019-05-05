@@ -599,7 +599,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: uEmu<color=red>e</color><color=green>r</color><color=blue>a</color>
+  m_Text: "\u6E38\u620F\u5217\u8868"
 --- !u!114 &114700731858044910
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -722,6 +722,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe6de2d7c9cca4548b81ffbb37325288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  titlebar: {fileID: 114698434613624444}
 --- !u!114 &114956849330662536
 MonoBehaviour:
   m_ObjectHideFlags: 1

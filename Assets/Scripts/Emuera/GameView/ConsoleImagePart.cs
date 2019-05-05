@@ -62,14 +62,16 @@ namespace MinorShift.Emuera.GameView
             }
 #endif  
 			int height = 0;
-			if (raw_height == 0)
+			if (raw_height == 0)//HTMLで高さが指定されていない又は0が指定された場合、フォントサイズをそのまま高さ(px単位)として使用する。
 				height = Config.FontSize;
-			else
+			else//HTMLで高さが指定された場合、フォントサイズの100分率と解釈する。
 				height = Config.FontSize * raw_height / 100;
+			//幅が指定されていない又は0が指定された場合、元画像の縦横比を維持するように幅(px単位)を設定する。1未満は端数としてXsubpixelに記録。
+			//負の値が指定される可能性があるが、最終的なWidthは正の値になるようにあとで調整する。
 			if (raw_width == 0)
 			{
-				Width = cImage.Rectangle.Width * height / cImage.Rectangle.Height;
-				XsubPixel = ((float)cImage.Rectangle.Width * height) / cImage.Rectangle.Height - Width;
+				Width = cImage.DestBaseSize.Width * height / cImage.DestBaseSize.Height;
+				XsubPixel = ((float)cImage.DestBaseSize.Width * height) / cImage.DestBaseSize.Height - Width;
 			}
 			else
 			{
@@ -152,19 +154,14 @@ namespace MinorShift.Emuera.GameView
 			//ASprite img = cImage;
 			//if (isSelecting && cImageB != null)
 			//	img = cImageB;
-			//
+            //
 			//if (img != null && img.IsCreated)
 			//{
 			//	Rectangle rect = destRect;
 			//	//PointX微調整
 			//	rect.X = destRect.X + PointX + Config.DrawingParam_ShapePositionShift;
 			//	rect.Y = destRect.Y + pointY;
-			//	if(!img.Position.IsEmpty)
-			//	{
-			//		rect.X = rect.X + img.Position.X * rect.Width / img.Rectangle.Width;
-			//		rect.Y = rect.Y + img.Position.Y * rect.Height / img.Rectangle.Height;
-			//	}
-			//	graph.DrawImage(img.Bitmap, rect, img.Rectangle, GraphicsUnit.Pixel);
+			//	img.GraphicsDraw(graph, rect);
 			//}
 			//else
 			//{
@@ -186,12 +183,12 @@ namespace MinorShift.Emuera.GameView
 			//{
 			//	int x = PointX + destRect.X;
 			//	int y = pointY + destRect.Y;
-			//	if (!img.Position.IsEmpty)
+			//	if (!img.DestBasePosition.IsEmpty)
 			//	{
-			//		x = x + img.Position.X * destRect.Width / img.Rectangle.Width;
-			//		y = y + img.Position.Y * destRect.Height / img.Rectangle.Height;
+			//		x = x + img.DestBasePosition.X * destRect.Width / img.SrcRectangle.Width;
+			//		y = y + img.DestBasePosition.Y * destRect.Height / img.SrcRectangle.Height;
 			//	}
-			//	GDI.DrawImage(x, y, Width, destRect.Height, img.BaseImage.GDIhDC, img.Rectangle);
+			//	GDI.DrawImage(x, y, Width, destRect.Height, img.BaseImage.GDIhDC, img.SrcRectangle);
 			//}
 			//else
 			//	GDI.TabbedTextOutFull(Config.Font, Config.ForeColor, AltText, PointX, pointY);

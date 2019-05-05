@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using UnityEngine;
 using uEmuera.Drawing;
 //using System.Threading.Tasks;
 
@@ -62,12 +63,12 @@ namespace MinorShift.Emuera.Content
         /// </summary>
         public void GCreate(int x, int y, bool useGDI)
         {
-        //	if (useGDI)
-        //		throw new NotImplementedException();
-        //	this.GDispose();
-        //	Bitmap = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        //	size = new Size(x, y);
-        //	g = Graphics.FromImage(Bitmap);
+            //	if (useGDI)
+            //		throw new NotImplementedException();
+            //	this.GDispose();
+            //	Bitmap = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            //	size = new Size(x, y);
+            //	g = Graphics.FromImage(Bitmap);
         }
 
         internal void GCreateFromF(Bitmap bmp, bool useGDI)
@@ -86,7 +87,7 @@ namespace MinorShift.Emuera.Content
         /// GCLEAR(int ID, int cARGB)
         /// エラーチェックは呼び出し元でのみ行う
         /// </summary>
-        public void GClear(Color c)
+        public void GClear(uEmuera.Drawing.Color c)
         {
         //	if (g == null)
         //		throw new NullReferenceException();
@@ -174,42 +175,31 @@ namespace MinorShift.Emuera.Content
         //	}
         }
 
-        /// <summary>
-        /// GDRAWCIMG(int ID, str imgName, int destX, int destY, int destWidth, int destHeight)
-        /// エラーチェックは呼び出し元でのみ行う
-        /// </summary>
-        public void GDrawCImg(ASprite img, Rectangle destRect)
-        {
-        //	if (g == null)
-        //		throw new NullReferenceException();
-        //	if(!img.Position.IsEmpty)
-        //	{
-        //		destRect.X = destRect.X + img.Position.X * destRect.Width / img.Rectangle.Width;
-        //		destRect.Y = destRect.Y + img.Position.Y * destRect.Height / img.Rectangle.Height;
-        //	}
-        //	g.DrawImage(img.Bitmap, destRect, img.Rectangle, GraphicsUnit.Pixel);
-        }
+		/// <summary>
+		/// GDRAWCIMG(int ID, str imgName, int destX, int destY, int destWidth, int destHeight)
+		/// エラーチェックは呼び出し元でのみ行う
+		/// </summary>
+		public void GDrawCImg(ASprite img, Rectangle destRect)
+		{
+			//if (g == null)
+			//	throw new NullReferenceException();
+			//img.GraphicsDraw(g, destRect);
+		}
 
-        /// <summary>
-        /// GDRAWCIMG(int ID, str imgName, int destX, int destY, int destWidth, int destHeight, float[][] cm)
-        /// エラーチェックは呼び出し元でのみ行う
-        /// </summary>
-        public void GDrawCImg(ASprite img, Rectangle destRect, float[][] cm)
-        {
-        //	if (g == null)
-        //		throw new NullReferenceException();
-        //	ImageAttributes imageAttributes = new ImageAttributes();
-        //	ColorMatrix colorMatrix = new ColorMatrix(cm);
-        //	imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+		/// <summary>
+		/// GDRAWCIMG(int ID, str imgName, int destX, int destY, int destWidth, int destHeight, float[][] cm)
+		/// エラーチェックは呼び出し元でのみ行う
+		/// </summary>
+		public void GDrawCImg(ASprite img, Rectangle destRect, float[][] cm)
+		{
+			//if (g == null)
+			//	throw new NullReferenceException();
+			//ImageAttributes imageAttributes = new ImageAttributes();
+			//ColorMatrix colorMatrix = new ColorMatrix(cm);
+			//imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-        //	Rectangle srcRect = img.Rectangle;
-        //	if (!img.Position.IsEmpty)
-        //	{
-        //		destRect.X = destRect.X + img.Position.X * destRect.Width / srcRect.Width;
-        //		destRect.Y = destRect.Y + img.Position.Y * destRect.Height / srcRect.Height;
-        //	}
-        //	g.DrawImage(img.Bitmap, destRect, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, GraphicsUnit.Pixel, imageAttributes);
-        }
+			//img.GraphicsDraw(g, destRect, imageAttributes);
+		}
 
         /// <summary>
         /// GDRAWG(int ID, int srcID, int destX, int destY, int destWidth, int destHeight, int srcX, int srcY, int srcWidth, int srcHeight)
@@ -305,7 +295,7 @@ namespace MinorShift.Emuera.Content
         //	}
         }
 
-        public void GSetFont(Font r)
+        public void GSetFont(uEmuera.Drawing.Font r)
         {
         //	if (font != null)
         //		font.Dispose();
@@ -437,7 +427,7 @@ namespace MinorShift.Emuera.Content
         /// GSETCOLOR(int ID, int cARGB, int x, int y)
         /// エラーチェックは呼び出し元でのみ行う
         /// </summary>
-        public void GSetColor(Color c, int x, int y)
+        public void GSetColor(uEmuera.Drawing.Color c, int x, int y)
         {
         	if (Bitmap == null)
         		throw new NullReferenceException();
@@ -449,7 +439,7 @@ namespace MinorShift.Emuera.Content
         /// GGETCOLOR(int ID, int x, int y)
         /// エラーチェックは呼び出し元でのみ行う。特に画像範囲内であるかどうかチェックすること
         /// </summary>
-        public Color GGetColor(int x, int y)
+        public uEmuera.Drawing.Color GGetColor(int x, int y)
         {
         	if (Bitmap == null)
         		throw new NullReferenceException();
@@ -491,7 +481,11 @@ namespace MinorShift.Emuera.Content
 
         public override void Dispose()
         {
-        //	this.GDispose();
+            //	this.GDispose();
+            //if(render_texture != null)
+            //{
+            //    UnityEngine.Object.Destroy(render_texture);
+            //}
         }
 
         ~GraphicsImage()
@@ -500,7 +494,7 @@ namespace MinorShift.Emuera.Content
         }
         #endregion
 
-        #region 状態判定（Bitmap読み書きを伴わない）
+//#region 状態判定（Bitmap読み書きを伴わない）
         //public override bool IsCreated { get { return g != null; } }
         public override bool IsCreated { get { return true; } }
         /// <summary>
@@ -511,12 +505,6 @@ namespace MinorShift.Emuera.Content
 		/// int GHEIGHT(int ID)
 		/// </summary>
 		public int Height { get { return 0; } }
-
-
-
-
-#endregion
-
-
+        //#endregion
 	}
 }

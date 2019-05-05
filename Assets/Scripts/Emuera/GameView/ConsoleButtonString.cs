@@ -174,9 +174,10 @@ namespace MinorShift.Emuera.GameView
 			if ((strArray != null) && (strArray.Length > 0))
 			{
 				Width = 0;
-				foreach (AConsoleDisplayPart css in strArray)
+				for(var i=0; i<strArray.Length; ++i)
 				{
-					if(css.Width <= 0)
+                    AConsoleDisplayPart css = strArray[i];
+                    if(css.Width <= 0)
 						css.SetWidth(sm,subpixel);
 					Width += css.Width;
 					subpixel = css.XsubPixel;
@@ -215,22 +216,22 @@ namespace MinorShift.Emuera.GameView
 		internal void ShiftPositionX(int shiftX)
 		{
 			PointX += shiftX;
-			foreach (AConsoleDisplayPart css in strArray)
-				css.PointX += shiftX;
+            for(var i = 0; i < strArray.Length; ++i)
+                strArray[i].PointX += shiftX;
 		}
 
 		public void DrawTo(Graphics graph, int pointY, bool isBackLog, TextDrawingMode mode)
 		{
 			bool isSelecting = (IsButton) && (parent.ButtonIsSelected(this));
-			foreach (AConsoleDisplayPart css in strArray)
-				css.DrawTo(graph, pointY, isSelecting, isBackLog, mode);
+            for(var i = 0; i < strArray.Length; ++i)
+                strArray[i].DrawTo(graph, pointY, isSelecting, isBackLog, mode);
 		}
 
 		public void GDIDrawTo(int pointY, bool isBackLog)
 		{
 			bool isSelecting = (IsButton) && (parent.ButtonIsSelected(this));
-			foreach (AConsoleDisplayPart css in strArray)
-				css.GDIDrawTo(pointY, isSelecting, isBackLog);
+            for(var i = 0; i < strArray.Length; ++i)
+                strArray[i].GDIDrawTo(pointY, isSelecting, isBackLog);
 		}
 		
 		public override string ToString()
@@ -238,8 +239,8 @@ namespace MinorShift.Emuera.GameView
 			if (strArray == null)
 				return "";
 			string str = "";
-			foreach (AConsoleDisplayPart css in strArray)
-				str += css.ToString();
+            for(var i = 0; i < strArray.Length; ++i)
+                str += strArray[i].ToString();
 			return str;
 		}
 

@@ -53,9 +53,10 @@ namespace MinorShift.Emuera.Sub
 		
 		public void SetIsMacro()
 		{
-			foreach(Word word in Collection)
+            var count = Collection.Count;
+			for(var i=0; i<count; ++i)
 			{
-				word.SetIsMacro();
+                Collection[i].SetIsMacro();
 			}
 		}
 		

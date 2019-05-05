@@ -167,45 +167,46 @@ namespace MinorShift.Emuera.GameData.Function
 			methodList["SAVETEXT"] = new SaveTextMethod();
 			methodList["LOADTEXT"] = new LoadTextMethod();
 
+			methodList["GCREATED"] = new GraphicsStateMethod();// ("GCREATED");
+			methodList["GWIDTH"] = new GraphicsStateMethod();//("GWIDTH");
+			methodList["GHEIGHT"] = new GraphicsStateMethod();//("GHEIGHT");
+			methodList["GGETCOLOR"] = new GraphicsGetColorMethod();
+			methodList["SPRITEGETCOLOR"] = new SpriteGetColorMethod();
 
-			/*1824まで封印
-			//methodList["GCREATED"] = new GraphicsStateMethod();// ("GCREATED");
-			//methodList["GWIDTH"] = new GraphicsStateMethod();//("GWIDTH");
-			//methodList["GHEIGHT"] = new GraphicsStateMethod();//("GHEIGHT");
-			//methodList["GGETCOLOR"] = new GraphicsGetColorMethod();
-			//methodList["SPRITEGETCOLOR"] = new SpriteGetColorMethod();
+			methodList["GCREATE"] = new GraphicsCreateMethod();
+			methodList["GCREATEFROMFILE"] = new GraphicsCreateFromFileMethod();
+			methodList["GDISPOSE"] = new GraphicsDisposeMethod();
+			methodList["GCLEAR"] = new GraphicsClearMethod();
+			methodList["GFILLRECTANGLE"] = new GraphicsFillRectangleMethod();
+			methodList["GDRAWSPRITE"] = new GraphicsDrawSpriteMethod();
+			methodList["GSETCOLOR"] = new GraphicsSetColorMethod();
+			methodList["GDRAWG"] = new GraphicsDrawGMethod();
+			methodList["GDRAWGWITHMASK"] = new GraphicsDrawGWithMaskMethod();
 
-			//methodList["GCREATE"] = new GraphicsCreateMethod();
-			//methodList["GCREATEFROMFILE"] = new GraphicsCreateFromFileMethod();
-			//methodList["GDISPOSE"] = new GraphicsDisposeMethod();
-			//methodList["GCLEAR"] = new GraphicsClearMethod();
-			//methodList["GFILLRECTANGLE"] = new GraphicsFillRectangleMethod();
-			//methodList["GDRAWSPRITE"] = new GraphicsDrawSpriteMethod();
-			//methodList["GSETCOLOR"] = new GraphicsSetColorMethod();
-			//methodList["GDRAWG"] = new GraphicsDrawGMethod();
-			//methodList["GDRAWGWITHMASK"] = new GraphicsDrawGWithMaskMethod();
+			methodList["GSETBRUSH"] = new GraphicsSetBrushMethod();
+			methodList["GSETFONT"] = new GraphicsSetFontMethod();
+			methodList["GSETPEN"] = new GraphicsSetPenMethod();
 
-			//methodList["GSETBRUSH"] = new GraphicsSetBrushMethod();
-			//methodList["GSETFONT"] = new GraphicsSetFontMethod();
-			//methodList["GSETPEN"] = new GraphicsSetPenMethod();
+			methodList["SPRITECREATE"] = new SpriteCreateMethod();
+			methodList["SPRITEDISPOSE"] = new SpriteDisposeMethod();
 
-			//methodList["SPRITECREATE"] = new SpriteCreateMethod();
-			//methodList["SPRITEDISPOSE"] = new SpriteDisposeMethod();
+			methodList["CBGSETG"] = new CBGSetGraphicsMethod();
+			methodList["CBGSETSPRITE"] = new CBGSetCIMGMethod();
+			methodList["CBGCLEAR"] = new CBGClearMethod();
 
-			//methodList["CBGSETG"] = new CBGSetGraphicsMethod();
-			//methodList["CBGSETSPRITE"] = new CBGSetCIMGMethod();
-			//methodList["CBGCLEAR"] = new CBGClearMethod();
+			methodList["CBGCLEARBUTTON"] = new CBGClearButtonMethod();
+			methodList["CBGREMOVERANGE"] = new CBGRemoveRangeMethod();
+			methodList["CBGREMOVEBMAP"] = new CBGRemoveBMapMethod();
+			methodList["CBGSETBMAPG"] = new CBGSetBMapGMethod();
+			methodList["CBGSETBUTTONSPRITE"] = new CBGSETButtonSpriteMethod();
 
-			//methodList["CBGCLEARBUTTON"] = new CBGClearButtonMethod();
-			//methodList["CBGREMOVERANGE"] = new CBGRemoveRangeMethod();
-			//methodList["CBGREMOVEBMAP"] = new CBGRemoveBMapMethod();
-			//methodList["CBGSETBMAPG"] = new CBGSetBMapGMethod();
-			//methodList["CBGSETBUTTONSPRITE"] = new CBGSETButtonSpriteMethod();
+			methodList["GSAVE"] = new GraphicsSaveMethod();
+			methodList["GLOAD"] = new GraphicsLoadMethod();
 
-			//methodList["GSAVE"] = new GraphicsSaveMethod();
-			//methodList["GLOAD"] = new GraphicsLoadMethod();
-			*/
 
+			methodList["SPRITEANIMECREATE"] = new SpriteAnimeCreateMethod();
+			methodList["SPRITEANIMEADDFRAME"] = new SpriteAnimeAddFrameMethod();
+			methodList["SETANIMETIMER"] = new SetAnimeTimerMethod();
 
 
 			//1823 自分の関数名を知っていた方が何かと便利なので覚えさせることにした

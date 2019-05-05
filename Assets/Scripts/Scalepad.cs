@@ -37,15 +37,23 @@ public class Scalepad : MonoBehaviour
     public void SetColor(Color sprite_color)
     {
         var images = GenericUtils.FindChildren<Image>(gameObject, true);
-        foreach(var image in images)
+        var count = images.Count;
+        Image image = null;
+        for(int i=0; i<count; ++i)
         {
+            image = images[i];
             if(image.sprite == null)
                 continue;
             image.color = sprite_color;
         }
         var texts = GenericUtils.FindChildren<Text>(gameObject, true);
-        foreach(var text in texts)
+        count = texts.Count;
+        Text text = null;
+        for(int i=0; i<count; ++i)
+        {
+            text = texts[i];
             text.color = sprite_color;
+        }
     }
     public void Show()
     {

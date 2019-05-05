@@ -31,7 +31,6 @@ namespace MinorShift.Emuera.GameView
 	/// </summary>
 	internal sealed class ConsoleDisplayLine
 	{
-		
 		//public ConsoleDisplayLine(EmueraConsole parentWindow, ConsoleButtonString[] buttons, bool isLogical, bool temporary)
 		public ConsoleDisplayLine(ConsoleButtonString[] buttons, bool isLogical, bool temporary)
 		{
@@ -42,8 +41,8 @@ namespace MinorShift.Emuera.GameView
 				return;
 			}
 			this.buttons = buttons;
-			foreach (ConsoleButtonString button in buttons)
-				button.ParentLine = this;
+			for(var i=0; i<buttons.Length; ++i)
+                buttons[i].ParentLine = this;
 			IsLogicalLine = isLogical;
 			IsTemporary = temporary;
 		}
@@ -68,8 +67,8 @@ namespace MinorShift.Emuera.GameView
 				return;
 			//DisplayLineの幅
 			int width = 0;
-			foreach (ConsoleButtonString button in buttons)
-				width += button.Width;
+            for(var i = 0; i < buttons.Length; ++i)
+                width += buttons[i].Width;
 			//現在位置
 			int pointX = buttons[0].PointX;
 
@@ -95,15 +94,15 @@ namespace MinorShift.Emuera.GameView
 
 		public void ShiftPositionX(int shiftX)
 		{
-			foreach (ConsoleButtonString button in buttons)
-				button.ShiftPositionX(shiftX);
+            for(var i = 0; i < buttons.Length; ++i)
+                buttons[i].ShiftPositionX(shiftX);
 		}
 
 		public void ChangeStr(ConsoleButtonString[] newButtons)
         {
             buttons = null;
-			foreach (ConsoleButtonString button in newButtons)
-				button.ParentLine = this;
+            for(var i = 0; i < newButtons.Length; ++i)
+                newButtons[i].ParentLine = this;
 			buttons = newButtons;
         }
 
@@ -171,8 +170,8 @@ namespace MinorShift.Emuera.GameView
 			if (buttons == null)
 				return "";
 			StringBuilder builder = new StringBuilder();
-			foreach (ConsoleButtonString button in buttons)
-				builder.Append(button.ToString());
+			for(var i=0; i<buttons.Length; ++i)
+				builder.Append(buttons[i].ToString());
 			return builder.ToString();
 		}
 	}

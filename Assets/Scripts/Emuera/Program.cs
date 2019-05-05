@@ -47,6 +47,12 @@ namespace MinorShift.Emuera
 			ExeDir = Sys.ExeDir;
 #if UEMUERA_DEBUG
 			//debugMode = true;
+
+			//ExeDirにバリアントのパスを代入することでテスト実行するためのコード。
+			//ローカルパスの末尾には\必須。
+			//ローカルパスを記載した場合は頒布前に削除すること。
+			ExeDir = @"";
+			
 #endif
 			CsvDir = ExeDir + "csv/";
 			if (!Directory.Exists(CsvDir)){

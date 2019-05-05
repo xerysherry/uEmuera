@@ -17,8 +17,10 @@ namespace uEmuera.Forms
         public static void Update()
         {
             var curr_tick = WinmmTimer.TickCount;
-            foreach(var timer in timers)
+            var iter = timers.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var timer = iter.Current;
                 if(curr_tick - timer.last_tick < timer.Interval)
                     continue;
                 timer.last_tick = curr_tick;

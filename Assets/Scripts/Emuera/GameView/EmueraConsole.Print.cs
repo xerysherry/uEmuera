@@ -115,11 +115,19 @@ namespace MinorShift.Emuera.GameView
 				deleteLine(1);
 			//不適正なFontのチェック
 			AConsoleDisplayPart errorStr = null;
-			foreach (ConsoleButtonString button in line.Buttons)
+            AConsoleDisplayPart css = null;
+
+            var button_count = line.Buttons.Length;
+            var button_strcount = 0;
+            for(var b=0; b<button_count; ++b)
 			{
-				foreach (AConsoleDisplayPart css in button.StrArray)
+                ConsoleButtonString button = line.Buttons[b];
+
+                button_strcount = button.StrArray.Length;
+                for(var i=0; i<button_strcount; ++i)
 				{
-					if (css.Error)
+                    css = button.StrArray[i];
+                    if (css.Error)
 					{
 						errorStr = css;
 						break;

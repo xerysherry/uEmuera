@@ -35,8 +35,12 @@ namespace MinorShift.Emuera.GameView
 			get
 			{
 				int length = 0;
-				foreach (AConsoleDisplayPart css in m_stringList)
+
+                var count = m_stringList.Count;
+                AConsoleDisplayPart css = null;
+                for(var i=0; i<count; ++i)
 				{
+                    css = m_stringList[i];
 					if (css is ConsoleStyledString)
 						length += css.Str.Length;
 					else
@@ -397,7 +401,8 @@ namespace MinorShift.Emuera.GameView
 		{
 			int pointX = 0;
 			int count = buttonList.Count;
-			float subPixel = 0;
+			//1.824 修正。サブピクセルの初期値を0から0.5fにすることで端数処理吸収
+			float subPixel = 0.5f;
 			for (int i = 0; i < buttonList.Count; i++)
 			{
 				ConsoleButtonString button = buttonList[i];
@@ -478,8 +483,12 @@ namespace MinorShift.Emuera.GameView
 			int pointX = button.PointX;
 			int strLength = 0;
 			int index = 0;
-			foreach (AConsoleDisplayPart css in button.StrArray)
+
+            int count = button.StrArray.Length;
+            AConsoleDisplayPart css = null;
+            for(var i=0; i<count; ++i)
 			{
+                css = button.StrArray[i];
 				if (pointX + css.Width > Config.DrawableWidth)
 				{
 					if (index == 0 && !css.CanDivide)

@@ -360,6 +360,10 @@ namespace uEmuera.Drawing
             X += pt.X;
             Y += pt.Y;
         }
+        public bool IsEmpty
+        {
+            get { return X == 0 && Y == 0; }
+        }
     }
 
     public struct Size
@@ -379,10 +383,26 @@ namespace uEmuera.Drawing
 
         public int Width { get; set; }
         public int Height { get; set; }
+        public bool IsEmpty
+        {
+            get { return Width == 0 && Height == 0; }
+        }
     }
 
     public struct Rectangle
     {
+        public static Rectangle Intersect(Rectangle left, Rectangle right)
+        {
+            int l = Math.Max(left.Left, right.Left);
+            int r = Math.Min(left.Right, right.Right);
+            int t = Math.Max(left.Top, right.Top);
+            int b = Math.Min(left.Bottom, right.Bottom);
+            if(l < r && t < b)
+                return new Rectangle(l, t, r - l, b - t);
+            else
+                return new Rectangle(0, 0, 0, 0);
+        }
+
         public Rectangle(Point location, Size size)
         {
             X = location.X;
@@ -415,10 +435,20 @@ namespace uEmuera.Drawing
         public int Left { get { return X; } }
         public int Right { get { return X + Width; } }
 
+        public Size Size { get { return new Size(Width, Height); } }
+        public bool IsEmpty { get { return Width == 0 && Height == 0; } }
+
         public bool Contains(Point point)
         {
             return Left <= point.X && point.X < Right &&
                 Top <= point.Y && point.Y < Bottom;
+        }
+        public bool IntersectsWith(Rectangle rect)
+        {
+            return !(rect.Bottom <= Top ||
+                    rect.Top > Bottom ||
+                    rect.Right <= Left ||
+                    rect.Left > Right);
         }
     }
 

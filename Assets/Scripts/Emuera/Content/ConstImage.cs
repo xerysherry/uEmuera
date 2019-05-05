@@ -14,10 +14,10 @@ namespace MinorShift.Emuera.Content
         //protected IntPtr hBitmap;
         //protected IntPtr hDefaultImg;
         //protected bool gdi;
-
+		public const int MAX_IMAGESIZE = 8192;
         public Bitmap Bitmap;
-        protected Bitmap texture;
-        public Bitmap GDIhDC { get { return texture; } }
+        protected Bitmap texture { get { return Bitmap; } }
+        public Bitmap GDIhDC { get { return Bitmap; } }
 	}
 
 	internal sealed class ConstImage : AbstractImage
@@ -95,9 +95,9 @@ namespace MinorShift.Emuera.Content
 			//	Bitmap = null;
 			//}
 
-            if(texture == null)
+            if(Bitmap == null)
                 return;
-            texture = null;
+            Bitmap = null;
 		}
 
         ~ConstImage()

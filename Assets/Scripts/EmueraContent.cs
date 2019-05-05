@@ -182,9 +182,10 @@ public class EmueraContent : MonoBehaviour
             display_lines_.RemoveRange(count - remove_count, remove_count);
 
         List<EmueraImage> image_removelist = null;
-        foreach(var kv in display_images_)
+        var display_iter = display_images_.GetEnumerator();
+        while(display_iter.MoveNext())
         {
-            var image = kv.Value;
+            var image = display_iter.Current.Value;
             if(image.logic_y > pos.y + display_height ||
                 image.logic_y + image.logic_height < pos.y)
             {
@@ -197,8 +198,11 @@ public class EmueraContent : MonoBehaviour
         }
         if(image_removelist != null)
         {
-            foreach(var image in image_removelist)
+            var listcount = image_removelist.Count;
+            EmueraImage image = null;
+            for(int i=0; i<listcount; ++i)
             {
+                image = image_removelist[i];
                 PushImageContainer(image);
                 display_images_.Remove(image.LineNo * 1000 + image.UnitIdx);
             }
@@ -394,10 +398,12 @@ public class EmueraContent : MonoBehaviour
 
         display_lines_.Clear();
 
-        foreach(var line in cache_lines_)
-            GameObject.Destroy(line.gameObject);
-        foreach(var image in cache_images_)
-            GameObject.Destroy(image.gameObject);
+        var iter = cache_lines_.GetEnumerator();
+        while(iter.MoveNext())
+            GameObject.Destroy(iter.Current.gameObject);
+        var iter2 = cache_images_.GetEnumerator();
+        while(iter2.MoveNext())
+            GameObject.Destroy(iter2.Current.gameObject);
 
         cache_lines_.Clear();
         cache_images_.Clear();
@@ -488,20 +494,24 @@ public class EmueraContent : MonoBehaviour
                 break;
         }
         List<int> imageremove = new List<int>();
-        foreach(var image in display_images_)
+
+        var iter = display_images_.GetEnumerator();
+        while(iter.MoveNext())
         {
+            var image = iter.Current;
             if(image.Key / 1000 >= lineno)
             {
                 PushImageContainer(image.Value);
                 imageremove.Add(image.Key);
             }
         }
-        foreach(var key in imageremove)
+        var remove = imageremove.Count;
+        for(var j=0; j<remove; ++j)
         {
-            display_images_.Remove(key);
+            display_images_.Remove(imageremove[j]);
         }
 
-        var remove = 0;
+        remove = 0;
         for(; i < display_lines_.Count; ++i, ++remove)
         {
             PushLine(display_lines_[i]);

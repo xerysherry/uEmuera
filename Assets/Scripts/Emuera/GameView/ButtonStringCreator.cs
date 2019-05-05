@@ -23,8 +23,8 @@ namespace MinorShift.Emuera.GameView
 		{
 			List<ButtonPrimitive> list = syn(printBuffer);
 			List<string> ret = new List<string>();
-			foreach(ButtonPrimitive p in list)
-				ret.Add(p.Str);
+            for(var i=0; i < list.Count; ++i)
+				ret.Add(list[i].Str);
 			return ret;
 		}
 		public static List<ButtonPrimitive> SplitButton(string printBuffer)

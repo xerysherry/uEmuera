@@ -93,8 +93,9 @@ public abstract class EmueraBehaviour : MonoBehaviour
         public override string ToString()
         {
             StringBuilder str = new StringBuilder();
-            foreach(var u in units)
-                str.Append(u.content);
+            var count = units.Count;
+            for(var i=0; i<count; ++i)
+                str.Append(units[i].content);
             return str.ToString();
         }
         public void Update()
