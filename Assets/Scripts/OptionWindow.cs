@@ -29,6 +29,7 @@ public class OptionWindow : MonoBehaviour
         GenericUtils.SetListenerOnClick(menu_2_restart, OnMenu2Restart);
         GenericUtils.SetListenerOnClick(menu_2_gototitle, OnMenuGotoTitle);
         GenericUtils.SetListenerOnClick(menu_2_savelog, OnMenuSaveLog);
+        GenericUtils.SetListenerOnClick(menu_2_intent, OnIntentBoxShow);
         GenericUtils.SetListenerOnClick(menu_2_exit, OnMenuExit);
 
         GenericUtils.SetListenerOnClick(resolution_pad, OnResolutionOut);
@@ -40,6 +41,13 @@ public class OptionWindow : MonoBehaviour
         GenericUtils.SetListenerOnClick(language_zhcn, OnSelectLanguage);
         GenericUtils.SetListenerOnClick(language_jp, OnSelectLanguage);
         GenericUtils.SetListenerOnClick(language_enus, OnSelectLanguage);
+
+        GenericUtils.SetListenerOnClick(intentbox_L_left, OnIntentLLeft);
+        GenericUtils.SetListenerOnClick(intentbox_L_right, OnIntentLRight);
+        GenericUtils.SetListenerOnClick(intentbox_R_left, OnIntentRLeft);
+        GenericUtils.SetListenerOnClick(intentbox_R_right, OnIntentRRight);
+        GenericUtils.SetListenerOnClick(intentbox_close, OnIntentClose);
+        GenericUtils.SetListenerOnClick(intentbox_reset, OnIntentReset);
 
         HideResolutionIcon();
         switch(ResolutionHelper.resolution_index)
@@ -394,6 +402,72 @@ public class OptionWindow : MonoBehaviour
         Application.OpenURL("https://github.com/xerysherry/uEmuera/releases");
     }
 
+    void OnIntentBoxShow()
+    {
+        intentbox.SetActive(true);
+        HideMenu();
+    }
+    void OnIntentLLeft()
+    {
+        int value = PlayerPrefs.GetInt("IntentBox_L", 0);
+        value -= 1;
+        if(value < 0)
+            value = 0;
+        PlayerPrefs.SetInt("IntentBox_L", value);
+        intentbox_L_text.text = value.ToString();
+
+        EmueraContent.instance.SetIntentBox(PlayerPrefs.GetInt("IntentBox_L", 0),
+                                            PlayerPrefs.GetInt("IntentBox_R", 0));
+    }
+    void OnIntentLRight()
+    {
+        int value = PlayerPrefs.GetInt("IntentBox_L", 0);
+        value += 1;
+        if(value > 99)
+            value = 99;
+        PlayerPrefs.SetInt("IntentBox_L", value);
+        intentbox_L_text.text = value.ToString();
+
+        EmueraContent.instance.SetIntentBox(PlayerPrefs.GetInt("IntentBox_L", 0),
+                                            PlayerPrefs.GetInt("IntentBox_R", 0));
+    }
+    void OnIntentRLeft()
+    {
+        int value = PlayerPrefs.GetInt("IntentBox_R", 0);
+        value += 1;
+        if(value > 99)
+            value = 99;
+        PlayerPrefs.SetInt("IntentBox_R", value);
+        intentbox_R_text.text = value.ToString();
+
+        EmueraContent.instance.SetIntentBox(PlayerPrefs.GetInt("IntentBox_L", 0),
+                                            PlayerPrefs.GetInt("IntentBox_R", 0));
+    }
+    void OnIntentRRight()
+    {
+        int value = PlayerPrefs.GetInt("IntentBox_R", 0);
+        value -= 1;
+        if(value < 0)
+            value = 0;
+        PlayerPrefs.SetInt("IntentBox_R", value);
+        intentbox_R_text.text = value.ToString();
+
+        EmueraContent.instance.SetIntentBox(PlayerPrefs.GetInt("IntentBox_L", 0),
+                                            PlayerPrefs.GetInt("IntentBox_R", 0));
+    }
+    void OnIntentClose()
+    {
+        intentbox.SetActive(false);
+    }
+    void OnIntentReset()
+    {
+        PlayerPrefs.SetInt("IntentBox_L", 0);
+        PlayerPrefs.SetInt("IntentBox_R", 0);
+        intentbox_L_text.text = "0";
+        intentbox_R_text.text = "0";
+        EmueraContent.instance.SetIntentBox(0, 0);
+    }
+
     public GameObject game_button;
     public Button quick_button;
     public Button input_button;
@@ -432,6 +506,7 @@ public class OptionWindow : MonoBehaviour
     public GameObject menu_2_restart;
     public GameObject menu_2_gototitle;
     public GameObject menu_2_savelog;
+    public GameObject menu_2_intent;
     public GameObject menu_2_exit;
 
     public GameObject resolution_pad;
@@ -448,6 +523,16 @@ public class OptionWindow : MonoBehaviour
     public GameObject language_zhcn;
     public GameObject language_jp;
     public GameObject language_enus;
+
+    public GameObject intentbox;
+    public GameObject intentbox_L_left;
+    public GameObject intentbox_L_right;
+    public GameObject intentbox_R_left;
+    public GameObject intentbox_R_right;
+    public GameObject intentbox_close;
+    public GameObject intentbox_reset;
+    public Text intentbox_L_text;
+    public Text intentbox_R_text;
 
     bool auto_rotation
     {

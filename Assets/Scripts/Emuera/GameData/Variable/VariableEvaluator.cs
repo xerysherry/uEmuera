@@ -291,63 +291,63 @@ namespace MinorShift.Emuera.GameData.Variable
             return sum;
 		}
 
-        public string GetJoinedStr(FixedVariableTerm p, string delimiter, Int64 index1, Int64 index2)
+        public string GetJoinedStr(FixedVariableTerm p, string delimiter, Int64 index1, Int64 length)
         {
             string sum = "";
-            var identifier = p.Identifier;
+            var pIdentifier = p.Identifier;
 
             if (p.IsString)
             {
-                if (identifier.IsArray1D)
+                if (pIdentifier.IsArray1D)
                 {
-                    return string.Join(delimiter, (string[])identifier.GetArray(), (int)index1, (int)index2);
+                    return string.Join(delimiter, (string[])pIdentifier.GetArray(), (int)index1, (int)length);
                 }
-                else if (identifier.IsArray2D)
+                else if (pIdentifier.IsArray2D)
                 {
-					long[] arguments = new long[2] { p.Index1, -1 };
-                    for(int i = (int)index1; i < (int)index2; ++i)
+                    var arguments = new long[] { p.Index1, 0 };
+                    for(int i = 0; i < (int)length; i++)
                     {
-                        arguments[1] = i;
-                        sum += identifier.GetStrValue(GlobalStatic.EMediator, arguments) + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[1] = index1 + i;
+                        sum += pIdentifier.GetStrValue(GlobalStatic.EMediator, arguments) + ((i < ((int)length - 1)) ? delimiter : "");
                     }
                 }
                 else
                 {
-					long[] arguments = new long[3] { p.Index1, p.Index2, -1 };
-                    for(int i = (int)index1; i < (int)index2; ++i)
+                    var arguments = new long[] { p.Index1, p.Index2, 0 };
+                    for(int i = 0; i < (int)length; i++)
                     {
-                        arguments[2] = i;
-                        sum += identifier.GetStrValue(GlobalStatic.EMediator, arguments) + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[2] = index1 + i;
+                        sum += pIdentifier.GetStrValue(GlobalStatic.EMediator, arguments) + ((i < ((int)length - 1)) ? delimiter : "");
                     }
                 }
             }
             else
             {
-                if (identifier.IsArray1D)
+                if (pIdentifier.IsArray1D)
                 {
-					long[] arguments = new long[1] {-1};
-                    for(int i = (int)index1; i < (int)index2; ++i)
+                    var arguments = new long[] { 0 };
+                    for(int i = 0; i < (int)length; i++)
                     {
-                        arguments[0] = i;
-                        sum += (identifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[0] = index1 + i;
+                        sum += (pIdentifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i < ((int)length - 1)) ? delimiter : "");
                     }
                 }
-                else if (identifier.IsArray2D)
+                else if (pIdentifier.IsArray2D)
                 {
-					long[] arguments = new long[2] { p.Index1, -1 };
-                    for(int i = (int)index1; i < (int)index2; ++i)
+                    var arguments = new long[] { p.Index1, 0 };
+                    for(int i = 0; i < (int)length; i++)
                     {
-                        arguments[1] = i;
-                        sum += (identifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[1] = index1 + i;
+                        sum += (pIdentifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i < ((int)length - 1)) ? delimiter : "");
                     }
                 }
                 else
                 {
-					long[] arguments = new long[3] { p.Index1, p.Index2, -1 };
-                    for(int i = (int)index1; i < (int)index2; ++i)
+                    var arguments = new long[] { p.Index1, p.Index2, 0 };
+                    for(int i = 0; i < (int)length; i++)
                     {
-                        arguments[2] = i;
-                        sum += (identifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i + 1 < (int)index2) ? delimiter : "");
+                        arguments[2] = index1 + i;
+                        sum += (pIdentifier.GetIntValue(GlobalStatic.EMediator, arguments)).ToString() + ((i < ((int)length - 1)) ? delimiter : "");
                     }
                 }
             }

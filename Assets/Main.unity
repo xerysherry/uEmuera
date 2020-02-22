@@ -424,6 +424,15 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 224639410414332100, guid: b5e75604fdc68dd4cb884936202f2f48,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.00009155254
+      objectReference: {fileID: 0}
+    - target: {fileID: 1603676538021120, guid: b5e75604fdc68dd4cb884936202f2f48, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b5e75604fdc68dd4cb884936202f2f48, type: 2}
   m_IsPrefabParent: 0
@@ -459,7 +468,7 @@ Camera:
   m_GameObject: {fileID: 1088325701}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2

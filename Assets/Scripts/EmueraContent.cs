@@ -19,25 +19,42 @@ public class EmueraContent : MonoBehaviour
     public RectTransform cache_images;
     public OptionWindow option_window;
 
+    Camera main_camere;
     Image background;
     uEmuera.Drawing.Color background_color;
 
     public RectTransform rect_transform { get { return (RectTransform)transform; } }
+    RectMask2D mask2d;
 
     void Awake()
     {
         FontUtils.SetDefaultFont(default_fontname);
+        main_camere = GameObject.FindObjectOfType<Camera>();
     }
 
     void Start()
     {
         instance_ = this;
         background = GetComponent<Image>();
+        mask2d = GetComponent<RectMask2D>();
 
         GenericUtils.SetListenerOnBeginDrag(gameObject, OnBeginDrag);
         GenericUtils.SetListenerOnDrag(gameObject, OnDrag);
         GenericUtils.SetListenerOnEndDrag(gameObject, OnEndDrag);
         GenericUtils.SetListenerOnClick(gameObject, OnClick);
+
+        SetIntentBox(PlayerPrefs.GetInt("IntentBox_L", 0),
+                    PlayerPrefs.GetInt("IntentBox_R", 0));
+    }
+
+    public void SetIntentBox(int left, int right)
+    {
+        if(left == 0 && right == 0)
+            mask2d.enabled = false;
+        else
+            mask2d.enabled = true;
+        rect_transform.anchoredPosition = new Vector2((left - right) / 2.0f, 0);
+        rect_transform.sizeDelta = new Vector2(-right - left, 0);
     }
 
     int GetLineNoIndex(int lineno)
@@ -354,6 +371,7 @@ public class EmueraContent : MonoBehaviour
             return;
         background.color = GenericUtils.ToUnityColor(color);
         background_color = color;
+        main_camere.backgroundColor = background.color;
     }
     public void Ready()
     {

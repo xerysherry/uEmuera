@@ -98,27 +98,37 @@ internal static class SpriteManager
 #if UNITY_EDITOR
         kPastTime = 300.0f;
         GenericUtils.StartCoroutine(Update());
+        GenericUtils.StartCoroutine(UpdateRenderOP());
 #else
         var memorysize = SystemInfo.systemMemorySize;
         if(memorysize <= 4096)
         {
             kPastTime = 300.0f;
             GenericUtils.StartCoroutine(Update());
+            GenericUtils.StartCoroutine(UpdateRenderOP());
         }
         else if(memorysize <= 8192)
         {
             kPastTime = 600.0f;
             GenericUtils.StartCoroutine(Update());
+            GenericUtils.StartCoroutine(UpdateRenderOP());
         }
-        else
-        {
+        //else
+        //{
             //
-        }
+        //}
 #endif
     }
     public static void GetSprite(ASprite src, 
                                 object obj, Action<object, SpriteInfo> callback)
     {
+        if(src == null || src.Bitmap == null)
+        {
+            if(callback != null)
+                callback(null, null);
+            return;
+        }
+
         var basename = src.Bitmap.filename;
         TextureInfo ti = null;
         texture_dict.TryGetValue(basename, out ti);
@@ -167,6 +177,68 @@ internal static class SpriteManager
             texture_dict.Add(name, ti);
         }
         return ti;
+    }
+
+    public static TextureInfoOtherThread GetTextureInfoOtherThread(
+        string name, string path, Action<TextureInfo> callback)
+    {
+        var ti = new TextureInfoOtherThread
+        {
+            name = name,
+            path = path,
+            callback = callback,
+            mutex = null,
+        };
+        texture_other_threads.Add(ti);
+        return ti;
+    }
+    public class TextureInfoOtherThread
+    {
+        public string name;
+        public string path;
+        public Action<TextureInfo> callback;
+        public System.Threading.Mutex mutex;
+    }
+    static List<TextureInfoOtherThread> texture_other_threads = new List<TextureInfoOtherThread>();
+
+    public static RenderTextureOtherThread GetRenderTextureOtherThread(int x, int y, Action<RenderTexture> callback)
+    {
+        var ti = new RenderTextureOtherThread
+        {
+            x = x,
+            y = y,
+            callback = callback,
+            mutex = null,
+        };
+        render_texture_other_threads.Add(ti);
+        return ti;
+    }
+    public class RenderTextureOtherThread
+    {
+        public int x;
+        public int y;
+        public Action<RenderTexture> callback;
+        public System.Threading.Mutex mutex;
+    }
+    static List<RenderTextureOtherThread> render_texture_other_threads = new List<RenderTextureOtherThread>();
+
+    ///public static RenderTextureDoSomething RenderTexture
+    ///
+
+    public class RenderTextureDoSomething
+    {
+        public enum Code
+        {
+            kClear,
+            kDrawRectangle,
+            kFillRectangle,
+            kDrawCImg,
+            kDrawG,
+            kDrawGWithMask,
+            kSetColor,
+            kGetColor,
+        }
+        //Todo: 实现对于方法
     }
 
     static IEnumerator Loading(Bitmap baseimage)
@@ -254,6 +326,49 @@ internal static class SpriteManager
                 tinfo = null;
 
                 GC.Collect();
+            }
+        }
+    }
+    static IEnumerator UpdateRenderOP()
+    {
+        while(true)
+        {
+            do
+            {
+                yield return new WaitForSeconds(15);
+            } while(texture_other_threads.Count == 0
+                && render_texture_other_threads.Count == 0);
+
+            TextureInfo ti = null;
+            if(texture_other_threads.Count > 0)
+            {
+                TextureInfoOtherThread tiot = null;
+                var tiotiter = texture_other_threads.GetEnumerator();
+                while(tiotiter.MoveNext())
+                {
+                    tiot = tiotiter.Current;
+                    tiot.mutex = new System.Threading.Mutex(true);
+                    //tiot.mutex.WaitOne();
+                    ti = GetTextureInfo(tiot.name, tiot.path);
+                    tiot.callback(ti);
+                    tiot.mutex.ReleaseMutex();
+                }
+                texture_other_threads.Clear();
+            }
+            if(render_texture_other_threads.Count > 0)
+            {
+                RenderTextureOtherThread rtot = null;
+                var rtotiter = render_texture_other_threads.GetEnumerator();
+                while(rtotiter.MoveNext())
+                {
+                    rtot = rtotiter.Current;
+                    rtot.mutex = new System.Threading.Mutex(true);
+                    //tiot.mutex.WaitOne();
+                    var rt = new RenderTexture(rtot.x, rtot.y, 24, RenderTextureFormat.ARGB32);
+                    rtot.callback(rt);
+                    rtot.mutex.ReleaseMutex();
+                }
+                render_texture_other_threads.Clear();
             }
         }
     }

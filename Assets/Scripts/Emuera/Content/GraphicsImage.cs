@@ -63,12 +63,10 @@ namespace MinorShift.Emuera.Content
         /// </summary>
         public void GCreate(int x, int y, bool useGDI)
         {
-            //	if (useGDI)
-            //		throw new NotImplementedException();
-            //	this.GDispose();
-            //	Bitmap = new Bitmap(x, y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            //	size = new Size(x, y);
-            //	g = Graphics.FromImage(Bitmap);
+            this.GDispose();
+            is_created = true;
+            width = x;
+            height = y;
         }
 
         internal void GCreateFromF(Bitmap bmp, bool useGDI)
@@ -80,6 +78,11 @@ namespace MinorShift.Emuera.Content
             //size = new Size(bmp.Width, bmp.Height);
             //g = Graphics.FromImage(Bitmap);
             //g.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+
+            this.GDispose();
+            is_created = true;
+            width = bmp.Width;
+            height = bmp.Height;
 
         }
 
@@ -313,10 +316,6 @@ namespace MinorShift.Emuera.Content
         //		pen.Dispose();
         //	pen = r;
         }
-
-
-
-
         //private static byte[] BytesFromBitmap(Bitmap bmp)
         //{
         //	BitmapData bmpData = bmp.LockBits(
@@ -431,8 +430,8 @@ namespace MinorShift.Emuera.Content
         {
         	if (Bitmap == null)
         		throw new NullReferenceException();
-        //	//UnlockGraphics();
-        //	Bitmap.SetPixel(x, y, c);
+            //	//UnlockGraphics();
+            //	Bitmap.SetPixel(x, y, c);
         }
 
         /// <summary>
@@ -453,30 +452,35 @@ namespace MinorShift.Emuera.Content
         /// </summary>
         public void GDispose()
         {
-        //	size = new Size(0, 0);
-        //	if (Bitmap == null)
-        //		return;
-        //	if (gdi)
-        //	{
-        //		GDI.SelectObject(GDIhDC, hDefaultImg);
-        //		GDI.DeleteObject(hBitmap);
-        //		g.ReleaseHdc(GDIhDC);
-        //	}
-        //	if (g != null)
-        //		g.Dispose();
-        //	if (Bitmap != null)
-        //		Bitmap.Dispose();
-        //	if (brush != null)
-        //		brush.Dispose();
-        //	if (pen != null)
-        //		pen.Dispose();
-        //	if (font != null)
-        //		font.Dispose();
-        //	g = null;
-        //	Bitmap = null;
-        //	brush = null;
-        //	pen = null;
-        //	font = null;
+            //	size = new Size(0, 0);
+            //	if (Bitmap == null)
+            //		return;
+            //	if (gdi)
+            //	{
+            //		GDI.SelectObject(GDIhDC, hDefaultImg);
+            //		GDI.DeleteObject(hBitmap);
+            //		g.ReleaseHdc(GDIhDC);
+            //	}
+            //	if (g != null)
+            //		g.Dispose();
+            //	if (Bitmap != null)
+            //		Bitmap.Dispose();
+            //	if (brush != null)
+            //		brush.Dispose();
+            //	if (pen != null)
+            //		pen.Dispose();
+            //	if (font != null)
+            //		font.Dispose();
+            //	g = null;
+            //	Bitmap = null;
+            //	brush = null;
+            //	pen = null;
+            //	font = null;
+
+
+            is_created = false;
+            width = 0;
+            height = 0;
         }
 
         public override void Dispose()
@@ -486,6 +490,7 @@ namespace MinorShift.Emuera.Content
             //{
             //    UnityEngine.Object.Destroy(render_texture);
             //}
+            this.GDispose();
         }
 
         ~GraphicsImage()
@@ -496,15 +501,19 @@ namespace MinorShift.Emuera.Content
 
 //#region 状態判定（Bitmap読み書きを伴わない）
         //public override bool IsCreated { get { return g != null; } }
-        public override bool IsCreated { get { return true; } }
+        public override bool IsCreated { get { return is_created; } }
+        bool is_created = false;
+
         /// <summary>
         /// int GWIDTH(int ID)
         /// </summary>
-        public int Width { get { return 0; } }
+        public int Width { get { return width; } }
+        int width = 0;
 		/// <summary>
 		/// int GHEIGHT(int ID)
 		/// </summary>
-		public int Height { get { return 0; } }
+		public int Height { get { return height; } }
+        int height = 0;
         //#endregion
 	}
 }

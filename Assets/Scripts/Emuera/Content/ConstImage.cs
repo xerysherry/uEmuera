@@ -25,7 +25,6 @@ namespace MinorShift.Emuera.Content
 		public ConstImage(string name)
 		{ Name = name; }
 
-
 		public readonly string Name;
 		
 		internal void CreateFrom(Bitmap bmp, bool useGDI)

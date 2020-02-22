@@ -58,6 +58,67 @@ namespace MinorShift.Emuera.GameView
 		Normal = 1,
 	}
 
+	internal class ChangedEventArgs : EventArgs
+	{
+		public ConsoleDisplayLine ConsoleDisplayLine;
+
+        public ChangedEventArgs(ConsoleDisplayLine cdl)
+            : base()
+        { ConsoleDisplayLine = cdl; }
+	}
+
+	internal class DisplayLineList : IList<ConsoleDisplayLine>
+	{
+        public DisplayLineList()
+        {
+            list = new List<ConsoleDisplayLine>();
+        }
+
+		private readonly List<ConsoleDisplayLine> list;
+
+		public event EventHandler<ChangedEventArgs> Changed = null;
+
+        protected virtual void OnChanged(ChangedEventArgs e)
+        {
+            if(Changed != null)
+                Changed.Invoke(this, e);
+        }
+
+		public ConsoleDisplayLine this[int index]
+		{
+			get { return list[index]; }
+			set { list[index] = value; }
+		}
+
+		public int Count { get { return list.Count; } }
+
+		public bool IsReadOnly { get { return false; } }
+
+		public void Add(ConsoleDisplayLine item)
+		{
+			list.Add(item);
+			OnChanged(new ChangedEventArgs(item));
+		}
+
+        public void Clear() { list.Clear(); }
+
+        public bool Contains(ConsoleDisplayLine item) { return list.Contains(item); }
+
+        public void CopyTo(ConsoleDisplayLine[] array, int arrayIndex) { list.CopyTo(array, arrayIndex); }
+
+        public IEnumerator<ConsoleDisplayLine> GetEnumerator() { return list.GetEnumerator(); }
+
+        public int IndexOf(ConsoleDisplayLine item) { return list.IndexOf(item); }
+
+        public void Insert(int index, ConsoleDisplayLine item) { list.Insert(index, item); }
+
+        public bool Remove(ConsoleDisplayLine item) { return list.Remove(item); }
+
+        public void RemoveAt(int index) { list.RemoveAt(index); }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return list.GetEnumerator(); }
+    }
+
 	internal sealed partial class EmueraConsole :IDisposable
 	{
 		public EmueraConsole(MainWindow parent)
@@ -69,7 +130,23 @@ namespace MinorShift.Emuera.GameView
 			state = ConsoleState.Initializing;
 			if (Config.FPS > 0)
 				msPerFrame = 1000 / (uint)Config.FPS;
-			displayLineList = new List<ConsoleDisplayLine>();
+			//displayLineList = new List<ConsoleDisplayLine>();
+            displayLineList = new DisplayLineList();
+            //if (Program.DebugMode)
+            //{
+            //    debuglog = new StreamWriter(Program.DebugDir + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".log", true, Encoding.UTF8)
+            //    {
+            //        AutoFlush = true,
+            //    };
+
+            //    void logging(object sender, ChangedEventArgs e)
+            //    {
+            //        var s = e.ConsoleDisplayLine.ToString();
+            //        debuglog.WriteLine(s);
+            //    }
+            //    displayLineList.Changed += logging;
+            //}
+
 			printBuffer = new PrintStringBuffer(this);
 
 			timer = new Timer();

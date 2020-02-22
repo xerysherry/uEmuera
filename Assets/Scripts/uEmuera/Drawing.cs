@@ -45,6 +45,56 @@ namespace uEmuera.Drawing
         }
     }
 
+    public class BitmapTexture : Bitmap
+    {
+        public BitmapTexture(string path)
+            :base(path)
+        {
+            var name = string.Concat(":FILE:", filename);
+            var tiot = SpriteManager.GetTextureInfoOtherThread(name, path,
+                ret =>
+                {
+                    textureinfo = ret;
+                    if(textureinfo == null)
+                        return;
+                    size.Width = ret.texture.width;
+                    size.Height = ret.texture.height;
+                });
+            while(tiot.mutex == null)
+                System.Threading.Thread.Sleep(10);
+            tiot.mutex.WaitOne();
+
+            if(textureinfo == null)
+                return;
+            tiot.mutex.ReleaseMutex();
+            tiot.mutex.Close();
+        }
+        public UnityEngine.Texture2D texture
+        {
+            get { return textureinfo.texture; }
+        }
+        SpriteManager.TextureInfo textureinfo = null;
+    }
+
+    public class BitmapRenderTexture : Bitmap
+    {
+        public BitmapRenderTexture(int x, int y)
+            :base(null)
+        {
+            //var rtot = SpriteManager.GetRenderTextureOtherThread(x, y,
+            //    ret =>
+            //    {
+            //        rt = ret;
+            //        size.Width = ret.width;
+            //        size.Height = ret.height;
+            //    });
+
+            size.Width = x;
+            size.Height = y;
+        }
+        //UnityEngine.RenderTexture rt = null;
+    }
+
     public enum GraphicsUnit
     {
         World = 0,

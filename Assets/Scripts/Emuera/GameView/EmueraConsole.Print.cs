@@ -15,7 +15,7 @@ namespace MinorShift.Emuera.GameView
 	//いつかEmueraConsoleから分離したい
 	internal sealed partial class EmueraConsole : IDisposable
 	{
-		private readonly List<ConsoleDisplayLine> displayLineList;
+        private readonly DisplayLineList displayLineList;
 		public bool noOutputLog = false;
 		public Color bgColor = Config.BackColor;
 

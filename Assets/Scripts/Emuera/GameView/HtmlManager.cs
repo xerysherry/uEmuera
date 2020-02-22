@@ -60,7 +60,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			public bool IsButton = true;
 			public bool IsButtonTag = true;
-			public int ButtonValueInt = 0;
+			public Int64 ButtonValueInt = 0;
 			public string ButtonValueStr = null;
 			public string ButtonTitle = null;
 			public bool ButtonIsInteger = false;
@@ -878,7 +878,7 @@ namespace MinorShift.Emuera.GameView
 								if (!isButton)
 									throw new CodeEE("<" + tag + ">タグにvalue属性が設定されています");
 								if (value != null)
-										throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
+                                    throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
 								value = attrValue;
 							}
 							else if (word.Code.Equals("title", StringComparison.OrdinalIgnoreCase))
@@ -905,8 +905,8 @@ namespace MinorShift.Emuera.GameView
 						{
 							//if (value == null)
 							//	throw new CodeEE("<" + tag + ">タグにvalue属性が設定されていません");
-							int intValue = 0;
-							buttonTag.ButtonIsInteger = (int.TryParse(value, out intValue));
+							Int64 intValue = 0;
+							buttonTag.ButtonIsInteger = (Int64.TryParse(value, out intValue));
 							buttonTag.ButtonValueInt = intValue;
 							buttonTag.ButtonValueStr = value;
 						}
