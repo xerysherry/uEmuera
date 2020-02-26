@@ -1818,6 +1818,7 @@ namespace MinorShift.Emuera.GameView
             redraw = ConsoleRedraw.Normal;
             UseUserStyle = false;
             userStyle = new StringStyle(Config.ForeColor, FontStyle.Regular, null);
+            uEmuera.Utils.ResourcePrepareSimple();
             emuera.BeginTitle();
 			ReadAnyKey(false, false);
 			callEmueraProgram("");

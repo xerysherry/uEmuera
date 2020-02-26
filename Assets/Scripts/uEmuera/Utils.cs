@@ -317,6 +317,32 @@ namespace uEmuera
                     SpriteManager.SetResourceCSVLine(filename, lines);
             }
         }
+        public static void ResourcePrepareSimple()
+        {
+            var content_files = GetContentFiles();
+            if(content_files.Count == 0)
+                return;
+
+            var contentdir = MinorShift._Library.Sys.ExeDir + "resources/";
+            List<string> csvFiles = new List<string>(Directory.GetFiles(
+                contentdir, "*.csv", SearchOption.TopDirectoryOnly));
+#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            csvFiles.AddRange(Directory.GetFiles(
+                contentdir, "*.CSV", SearchOption.TopDirectoryOnly));
+#endif
+            resource_csv_lines_ = new Dictionary<string, string[]>();
+
+            var encoder = MinorShift.Emuera.Config.Encode;
+            var filecount = csvFiles.Count;
+            for(int index = 0; index < filecount; ++index)
+            {
+                var filename = csvFiles[index];
+                //SpriteManager.ClearResourceCSVLines(filename);
+                string[] lines = SpriteManager.GetResourceCSVLines(filename);
+                if(lines != null)
+                    resource_csv_lines_.Add(filename, lines);
+            }
+        }
         public static void ResourceClear()
         {
             if(content_files != null)
