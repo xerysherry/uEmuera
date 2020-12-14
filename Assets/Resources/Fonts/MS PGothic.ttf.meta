@@ -9,17 +9,13 @@ TrueTypeFontImporter:
   forceTextureCase: -2
   characterSpacing: 0
   characterPadding: 1
-  includeFontData: 0
-  fontName: Droid Sans Mono
+  includeFontData: 1
+  fontName: MS PGothic
   fontNames:
   - MS PGothic
-  - Droid Sans Japanese
-  - Droid Sans Mono
-  fallbackFontReferences:
-  - {fileID: 12800000, guid: b832731753c4ce341982c38815b06f82, type: 3}
-  - {fileID: 12800000, guid: 51d188e99915d824d9aabb6bd5676cc2, type: 3}
+  fallbackFontReferences: []
   customCharacters: 
-  fontRenderingMode: 3
+  fontRenderingMode: 0
   ascentCalculationMode: 1
   useLegacyBoundsCalculation: 0
   userData: 

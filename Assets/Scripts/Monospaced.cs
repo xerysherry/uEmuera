@@ -8,20 +8,20 @@ namespace UnityEngine.UI
 
         int GetNextValidIndex(string content, int i)
         {
-            if(i >= content.Length)
+            if (i >= content.Length)
                 return i;
 
             var c = content[i];
-            while(c == '<')
+            while (c == '<')
             {
                 var t1 = content.IndexOf('>', i + 1);
                 var t2 = content.IndexOfAny(_index_any, i + 1);
-                if(t2 == -1)
+                if (t2 == -1)
                     t2 = int.MaxValue;
-                if(t1 < t2 && t1 - i > 1)
+                if (t1 < t2 && t1 - i > 1)
                 {
                     var sub = content.Substring(i + 1, t1 - i - 1).ToLower();
-                    if(sub == "b" ||
+                    if (sub == "b" ||
                         sub == "i" ||
                         sub == "/b" ||
                         sub == "/i" ||
@@ -31,7 +31,7 @@ namespace UnityEngine.UI
                         sub.IndexOf("color") == 0)
                     {
                         i = t1 + 1;
-                        if(i >= content.Length)
+                        if (i >= content.Length)
                             return i;
                         c = content[i];
                     }
@@ -46,20 +46,21 @@ namespace UnityEngine.UI
 
         public override void ModifyMesh(VertexHelper vh)
         {
-            if(!enabled)
+            if (!enabled)
                 return;
 
             var size = widthsize;
-            if(size < text.fontSize)
+            if (size < text.fontSize)
                 size = text.fontSize;
             var count = vh.currentVertCount / 4;
             var content = text.text;
+            var length = content.Length;
             var richtext = text.supportRichText;
-            if(string.IsNullOrEmpty(content))
+            if (string.IsNullOrWhiteSpace(content))
                 return;
 
             int i = 0;
-            if(richtext)
+            if (richtext)
                 i = GetNextValidIndex(content, i);
             float a = size / 2.0f * 1.30f;
             float b = size * 1.30f;
@@ -69,46 +70,53 @@ namespace UnityEngine.UI
 
             UIVertex v1 = new UIVertex();
             UIVertex v2 = new UIVertex();
+            float linestart = -rectTransform.sizeDelta.x * rectTransform.pivot.x;
 
-            vh.PopulateUIVertex(ref v1, i * 4);
-            float x = 0;
-            if(text.alignment != 0)
-                x = v1.position.x;
-
-            //float y = v1.position.y;
+            //顶点索引记录
+            int vi = 0;
             char c = '\x0';
-
-            for(; i < count; ++i)
+            for (; i < length && vi < count; ++i)
             {
                 c = content[i];
-                if(c == '\n')
+                if (c == '\n')
                 {
-                    if(richtext)
+                    if (richtext)
                     {
-                        i = GetNextValidIndex(content, i + 1);
-                        if(i >= count)
+                        var ni = i + 1;
+                        i = GetNextValidIndex(content, ni);
+                        if (i >= length)
                             break;
+                        else if (i == ni)
+                            //非特殊
+                            i -= 1;
                     }
                     s = 0;
                     continue;
                 }
-                else if(richtext && c == '<')
+                else if (c == ' ')
+                {
+                    s += size / 2.0f;
+                    continue;
+                }
+                else if (richtext && c == '<')
                 {
                     i = GetNextValidIndex(content, i);
-                    if(i >= count)
+                    if (i >= length)
                         break;
                     c = content[i];
                 }
 
-                vh.PopulateUIVertex(ref v1, i * 4 + 0);
-                vh.PopulateUIVertex(ref v2, i * 4 + 2);
- 
+                vh.PopulateUIVertex(ref v1, vi * 4 + 0);
+                vh.PopulateUIVertex(ref v2, vi * 4 + 2);
+
                 d = v2.position.x - v1.position.x;
-                if(d > b)
+                if (d > b)
                     //字形大小超过文本尺寸时
                     //可能使用<size>富文本标记
                     si = d;
-                else if(uEmuera.Utils.CheckHalfSize(c))
+                else if (uEmuera.Utils.CheckHalfSize(c))
+                    si = size / 2.0f;
+                else if (c == ' ')
                     si = size / 2.0f;
                 //else if(c == '　')
                 //    si = size;
@@ -117,32 +125,35 @@ namespace UnityEngine.UI
                 else
                     si = size;
 
-                var o = s + (si - d) / 2;
-                v1.position.x = x + o;
+                var o = s + (si - d) / 2.0f;
+                v1.position.x = linestart + o;
                 v2.position.x = v1.position.x + d;
 
-                vh.SetUIVertex(v1, i * 4 + 0);
-                vh.SetUIVertex(v2, i * 4 + 2);
+                vh.SetUIVertex(v1, vi * 4 + 0);
+                vh.SetUIVertex(v2, vi * 4 + 2);
 
-                vh.PopulateUIVertex(ref v1, i * 4 + 3);
-                vh.PopulateUIVertex(ref v2, i * 4 + 1);
+                vh.PopulateUIVertex(ref v1, vi * 4 + 3);
+                vh.PopulateUIVertex(ref v2, vi * 4 + 1);
 
-                v1.position.x = x + o;
+                v1.position.x = linestart + o;
                 v2.position.x = v1.position.x + d;
 
-                vh.SetUIVertex(v1, i * 4 + 3);
-                vh.SetUIVertex(v2, i * 4 + 1);
+                vh.SetUIVertex(v1, vi * 4 + 3);
+                vh.SetUIVertex(v2, vi * 4 + 1);
+                vi += 1;
 
                 s += si;
             }
         }
 
         public float widthsize = 0;
+
+        RectTransform rectTransform => transform as RectTransform;
         Text text
         {
             get
             {
-                if(text_ == null)
+                if (text_ == null)
                     text_ = GetComponent<Text>();
                 return text_;
             }

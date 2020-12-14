@@ -3,10 +3,12 @@
 --- !u!687078895 &4343727234628468602
 SpriteAtlas:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: icons
   m_EditorData:
+    serializedVersion: 2
     textureSettings:
       serializedVersion: 2
       anisoLevel: 1
@@ -19,7 +21,20 @@ SpriteAtlas:
       crunchedCompression: 0
       sRGB: 1
     platformSettings:
-    - m_BuildTarget: Android
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    - serializedVersion: 3
+      m_BuildTarget: Android
       m_MaxTextureSize: 256
       m_ResizeAlgorithm: 0
       m_TextureFormat: 47
@@ -29,7 +44,8 @@ SpriteAtlas:
       m_AllowsAlphaSplitting: 0
       m_Overridden: 1
       m_AndroidETC2FallbackOverride: 0
-    packingParameters:
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 1
+    packingSettings:
       serializedVersion: 2
       padding: 4
       blockOffset: 1
@@ -57,47 +73,48 @@ SpriteAtlas:
     - {fileID: 2800000, guid: 0cef0b3c2f1c85c4a81fc3fab71a3454, type: 3}
     - {fileID: 2800000, guid: f0efdd6d67a0e2d40ad7bf6051cef054, type: 3}
     - {fileID: 2800000, guid: 47dee65250e0d36438620f35e1766ed5, type: 3}
+    totalSpriteSurfaceArea: 77824
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 5bdb096d003f17a4f81409acdab75211, type: 3}
-  - {fileID: 21300000, guid: 1f6c3a15d54243546a45ac2048ef0154, type: 3}
-  - {fileID: 21300000, guid: 88bdc44f356631f478867ec3b17bce6b, type: 3}
-  - {fileID: 21300000, guid: cddbfb1645f329d4bb78d002c5d4eae3, type: 3}
-  - {fileID: 21300000, guid: c751497f6ded10849880906cfca3c780, type: 3}
-  - {fileID: 21300000, guid: 14402b5e17e774a4caac2263245ce3ce, type: 3}
-  - {fileID: 21300000, guid: 98c8661bd87ebc4458ff8e3199c9e027, type: 3}
-  - {fileID: 21300000, guid: efa95ea3435c921428017b7a3e305cf7, type: 3}
-  - {fileID: 21300000, guid: bb02f0e198d7e8b4ba6fa460d62f4374, type: 3}
-  - {fileID: 21300000, guid: f0efdd6d67a0e2d40ad7bf6051cef054, type: 3}
-  - {fileID: 21300000, guid: 0cef0b3c2f1c85c4a81fc3fab71a3454, type: 3}
-  - {fileID: 21300000, guid: 4096983a1c715374e9ce8bd9c1e3f03b, type: 3}
-  - {fileID: 21300000, guid: 58e3643f0b048aa4495d2cbc7cf13c6d, type: 3}
-  - {fileID: 21300000, guid: a7484effcbd1b5f43a87a4bdeb3e8858, type: 3}
   - {fileID: 21300000, guid: 0555d830ec8dac444a83cd53c31fd331, type: 3}
   - {fileID: 21300000, guid: 2749e5b06dd1db647868c7040fcf8ee0, type: 3}
   - {fileID: 21300000, guid: c9dda331f903f474faa45d342e126e2a, type: 3}
-  - {fileID: 21300000, guid: fff4c75909648384292662d5ff6d9588, type: 3}
+  - {fileID: 21300000, guid: bb02f0e198d7e8b4ba6fa460d62f4374, type: 3}
   - {fileID: 21300000, guid: 47dee65250e0d36438620f35e1766ed5, type: 3}
+  - {fileID: 21300000, guid: efa95ea3435c921428017b7a3e305cf7, type: 3}
+  - {fileID: 21300000, guid: 1f6c3a15d54243546a45ac2048ef0154, type: 3}
+  - {fileID: 21300000, guid: cddbfb1645f329d4bb78d002c5d4eae3, type: 3}
+  - {fileID: 21300000, guid: fff4c75909648384292662d5ff6d9588, type: 3}
+  - {fileID: 21300000, guid: 4096983a1c715374e9ce8bd9c1e3f03b, type: 3}
+  - {fileID: 21300000, guid: 98c8661bd87ebc4458ff8e3199c9e027, type: 3}
+  - {fileID: 21300000, guid: 0cef0b3c2f1c85c4a81fc3fab71a3454, type: 3}
+  - {fileID: 21300000, guid: 5bdb096d003f17a4f81409acdab75211, type: 3}
+  - {fileID: 21300000, guid: f0efdd6d67a0e2d40ad7bf6051cef054, type: 3}
+  - {fileID: 21300000, guid: 14402b5e17e774a4caac2263245ce3ce, type: 3}
+  - {fileID: 21300000, guid: 58e3643f0b048aa4495d2cbc7cf13c6d, type: 3}
+  - {fileID: 21300000, guid: 88bdc44f356631f478867ec3b17bce6b, type: 3}
+  - {fileID: 21300000, guid: c751497f6ded10849880906cfca3c780, type: 3}
+  - {fileID: 21300000, guid: a7484effcbd1b5f43a87a4bdeb3e8858, type: 3}
   m_PackedSpriteNamesToIndex:
-  - icon_9
-  - icon_4
-  - icon_5
-  - icon_3
-  - icon_2
-  - icon_1
-  - icon_15
-  - icon_12
-  - icon_11
-  - icon_18
-  - icon_17
-  - icon_10
-  - icon_6
-  - icon_16
   - icon_8
   - icon_7
   - icon_13
-  - icon_14
+  - icon_11
   - icon_19
+  - icon_12
+  - icon_4
+  - icon_3
+  - icon_14
+  - icon_10
+  - icon_15
+  - icon_17
+  - icon_9
+  - icon_18
+  - icon_1
+  - icon_6
+  - icon_5
+  - icon_2
+  - icon_16
   m_Tag: icons
   m_IsVariant: 0

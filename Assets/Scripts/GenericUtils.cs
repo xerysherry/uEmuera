@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -475,6 +477,114 @@ public static class GenericUtils
         l.callbacks.Clear();
     }
 
+    static string CalcMd5(byte[] data, int offset, int count)
+    {
+        using (var md5 = new MD5CryptoServiceProvider())
+        {
+            md5.Initialize();
+            var md5data = md5.ComputeHash(data, offset, count);
+            return ToMd5String(md5data);
+        }
+    }
+
+    static string ToMd5String(byte[] data)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.Length; ++i)
+        {
+            sb.AppendFormat("{0:X2}", data[i]);
+        }
+        return sb.ToString();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public static List<string> CalcMd5List(byte[] data)
+    {
+        var md5s = new List<string>();
+
+        int start = 0;
+        int count = 0;
+
+        do
+        {
+            while (data[start + count] != '\xd' &&
+                    data[start + count] != '\xa')
+            {
+                count += 1;
+                if (start + count >= data.Length)
+                    break;
+            }
+            md5s.Add(CalcMd5(data, start, count));
+
+            if (start + count >= data.Length)
+                break;
+
+            start += count;
+            count = 0;
+            while (data[start] == '\xd' ||
+                    data[start] == '\xa')
+            {
+                start += 1;
+            }
+
+        } while (data[start] != 0);
+
+        return md5s;
+    }
+    /// <summary>
+    /// 处理中间的‘：’
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public static List<string> CalcMd5ListForConfig(byte[] data)
+    {
+        var md5s = new List<string>();
+
+        int start = 0;
+        int count = 0;
+
+        do
+        {
+            while (data[start + count] != ':')
+            {
+                count += 1;
+            }
+            md5s.Add(CalcMd5(data, start, count));
+
+            start += count;
+            count = 0;
+
+            while (data[start] != '\xd' &&
+                    data[start] != '\xa')
+            {
+                start += 1;
+                if (start >= data.Length)
+                    break;
+            }
+            if (start >= data.Length)
+                break;
+
+            while (data[start] == '\xd' ||
+                    data[start] == '\xa')
+            {
+                start += 1;
+
+                if (start >= data.Length)
+                    break;
+            }
+
+            if (start >= data.Length)
+                break;
+
+        } while (data[start] != 0);
+
+        return md5s;
+    }
+
+    //==========================================================================
     class CoroutineHelper : MonoBehaviour
     {
         public static CoroutineHelper instance

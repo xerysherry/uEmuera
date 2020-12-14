@@ -9,17 +9,13 @@ TrueTypeFontImporter:
   forceTextureCase: -2
   characterSpacing: 0
   characterPadding: 1
-  includeFontData: 0
-  fontName: Droid Sans Mono
+  includeFontData: 1
+  fontName: MS Gothic
   fontNames:
   - MS Gothic
-  - Droid Sans Japanese
-  - Droid Sans Mono
-  fallbackFontReferences:
-  - {fileID: 12800000, guid: d5c49be4fb884754093efb266e6440fe, type: 3}
-  - {instanceID: 0}
+  fallbackFontReferences: []
   customCharacters: 
-  fontRenderingMode: 3
+  fontRenderingMode: 0
   ascentCalculationMode: 1
   useLegacyBoundsCalculation: 0
   userData: 

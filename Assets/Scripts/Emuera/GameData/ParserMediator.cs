@@ -50,7 +50,7 @@ namespace MinorShift.Emuera
 			}
 			string line = null;
 			ScriptPosition pos = null;
-			Regex reg = new Regex(@"\\,", RegexOptions.None);
+			Regex reg = new Regex(@"\\,", RegexOptions.Compiled);
 			try
 			{
                 string[] tokens = new string[2];

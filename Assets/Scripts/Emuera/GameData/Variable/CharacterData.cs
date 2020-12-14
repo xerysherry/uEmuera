@@ -362,44 +362,38 @@ namespace MinorShift.Emuera.GameData.Variable
 			Dictionary<string, List<Int64[]>> int2DListDic = reader.ReadInt64Array2DExtended();
 
 			List<VariableCode> codeList = null;
-            string sfound = null;
-            long lfound = 0;
-            List<string> listfound = null;
-            List<long> listlongfound = null;
-            List<string[]> liststrarrfound = null;
-            List<long[]> listlongarrfound = null;
 
             codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (strDic.TryGetValue(code.ToString(), out sfound))
+				if (strDic.TryGetValue(code.ToString(), out var sfound))
 					dataString[(int)VariableCode.__LOWERCASE__ & (int)code] = sfound;
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (intDic.TryGetValue(code.ToString(), out lfound))
+				if (intDic.TryGetValue(code.ToString(), out var lfound))
 					dataInteger[(int)VariableCode.__LOWERCASE__ & (int)code] = lfound;
 
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__ARRAY_1D__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (strListDic.TryGetValue(code.ToString(), out listfound))
+				if (strListDic.TryGetValue(code.ToString(), out var listfound))
 					copyListToArray(listfound, dataStringArray[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__ARRAY_1D__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (intListDic.TryGetValue(code.ToString(), out listlongfound))
+				if (intListDic.TryGetValue(code.ToString(), out var listlongfound))
 					copyListToArray(listlongfound, dataIntegerArray[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			//dataStringArray2D
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__ARRAY_2D__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (str2DListDic.TryGetValue(code.ToString(), out liststrarrfound))
+				if (str2DListDic.TryGetValue(code.ToString(), out var liststrarrfound))
 					copyListToArray2D(liststrarrfound, dataStringArray2D[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			//dataIntegerArray2D
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__ARRAY_2D__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (int2DListDic.TryGetValue(code.ToString(), out listlongarrfound))
+				if (int2DListDic.TryGetValue(code.ToString(), out var listlongarrfound))
 					copyListToArray2D(listlongarrfound, dataIntegerArray2D[(int)VariableCode.__LOWERCASE__ & (int)code]);
 		}
 
@@ -411,30 +405,26 @@ namespace MinorShift.Emuera.GameData.Variable
 			Dictionary<string, List<Int64>> intListDic = reader.ReadInt64ArrayExtended();
 
 			List<VariableCode> codeList = null;
-            string sfound = null;
-            long lfound = 0;
-            List<string> listfound = null;
-            List<long> listlongfound = null;
 
             codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (strDic.TryGetValue(code.ToString(), out sfound))
+				if (strDic.TryGetValue(code.ToString(), out var sfound))
 					dataString[(int)VariableCode.__LOWERCASE__ & (int)code] = sfound;
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (intDic.TryGetValue(code.ToString(), out lfound))
+				if (intDic.TryGetValue(code.ToString(), out var lfound))
 					dataInteger[(int)VariableCode.__LOWERCASE__ & (int)code] = lfound;
 
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__ARRAY_1D__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (strListDic.TryGetValue(code.ToString(), out listfound))
+				if (strListDic.TryGetValue(code.ToString(), out var listfound))
 					copyListToArray(listfound, dataStringArray[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__CHARACTER_DATA__ | VariableCode.__ARRAY_1D__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (intListDic.TryGetValue(code.ToString(), out listlongfound))
+				if (intListDic.TryGetValue(code.ToString(), out var listlongfound))
 					copyListToArray(listlongfound, dataIntegerArray[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 		}

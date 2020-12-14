@@ -165,6 +165,17 @@ namespace MinorShift.Emuera.Content
 				iter.Current.Dispose();
 			resourceDic.Clear();
 			imageDictionary.Clear();
+			foreach (var graph in gList.Values)
+				graph.GDispose();
+			gList.Clear();
+		}
+
+		//タイトルに戻る時用（コードの変更はないので、動的に作られた分だけ削除）
+		static public void UnloadGraphicList()
+		{
+			foreach (var graph in gList.Values)
+				graph.GDispose();
+			gList.Clear();
 		}
 
 		/// <summary>

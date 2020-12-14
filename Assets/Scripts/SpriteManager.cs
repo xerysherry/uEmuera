@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MinorShift.Emuera.Content;
 using uEmuera.Drawing;
+using WebP;
 
 internal static class SpriteManager
 {
@@ -167,14 +168,31 @@ internal static class SpriteManager
         fs.Read(content, 0, (int)filesize);
 
         TextureFormat format = TextureFormat.DXT1;
-        if(uEmuera.Utils.GetSuffix(filename).ToLower() == "png")
+
+        var extname = uEmuera.Utils.GetSuffix(filename).ToLower();
+        if (extname == "png")
             format = TextureFormat.DXT5;
 
-        var tex = new Texture2D(4, 4, format, false);
-        if(tex.LoadImage(content))
+        if (extname == "webp")
         {
+            var tex = Texture2DExt.CreateTexture2DFromWebP(content, false, false,
+                out Error err);
+            if (err != Error.Success)
+            {
+                Debug.LogWarning($"{filename} {err.ToString()}");
+                return null;
+            }
             ti = new TextureInfo(name, tex);
             texture_dict.Add(name, ti);
+        }
+        else
+        {
+            var tex = new Texture2D(4, 4, format, false);
+            if (tex.LoadImage(content))
+            {
+                ti = new TextureInfo(name, tex);
+                texture_dict.Add(name, ti);
+            }
         }
         return ti;
     }
@@ -255,20 +273,38 @@ internal static class SpriteManager
             while(!async.IsCompleted)
                 yield return null;
 
-            //TextureFormat format = TextureFormat.RGB24;
             TextureFormat format = TextureFormat.DXT1;
-            if(uEmuera.Utils.GetSuffix(baseimage.path).ToLower() == "png")
-                format = TextureFormat.DXT5;
-                //format = TextureFormat.ARGB32;
 
-            var tex = new Texture2D(4, 4, format, false);
-            if(tex.LoadImage(content))
+            var extname = uEmuera.Utils.GetSuffix(baseimage.path).ToLower();
+            if (extname == "png")
+                format = TextureFormat.DXT5;
+
+            if (extname == "webp")
             {
+                var tex = Texture2DExt.CreateTexture2DFromWebP(content, false, false,
+                out Error err);
+                if (err != Error.Success)
+                {
+                    Debug.LogWarning($"{baseimage.path} {err.ToString()}");
+                    yield break;
+                }
                 ti = new TextureInfo(baseimage.filename, tex);
                 texture_dict.Add(baseimage.filename, ti);
 
                 baseimage.size.Width = tex.width;
                 baseimage.size.Height = tex.height;
+            }
+            else
+            {
+                var tex = new Texture2D(4, 4, format, false);
+                if (tex.LoadImage(content))
+                {
+                    ti = new TextureInfo(baseimage.filename, tex);
+                    texture_dict.Add(baseimage.filename, ti);
+
+                    baseimage.size.Width = tex.width;
+                    baseimage.size.Height = tex.height;
+                }
             }
         }
         List<CallbackInfo> list = null;

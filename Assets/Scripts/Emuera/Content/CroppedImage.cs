@@ -246,13 +246,8 @@ namespace MinorShift.Emuera.Content
 			//winmmtimerは一周して0になることがあり得るのでその場合の対策。C#の剰余の結果の符号は左辺値の符号に等しい。
 			if (time < 0)
 				time += totaltime;
-
-            var frames = FrameList.Count;
-            AnimeFrame frame = null;
-
-            for(var i=0;i<frames; ++i)
+			foreach(AnimeFrame frame in FrameList)
 			{
-                frame = FrameList[i];
 				time -=frame.DelayTimeMs;
 				if (time <= 0)
 				{
@@ -279,8 +274,8 @@ namespace MinorShift.Emuera.Content
 
         public override void Dispose()
 		{
-			for(int i=0; i<FrameList.Count; ++i)
-                FrameList[i].Dispose();
+			foreach (var frame in FrameList)
+				frame.Dispose();
 			FrameList.Clear();
 			totaltime = 0;
 			lastFrameTime = 0;

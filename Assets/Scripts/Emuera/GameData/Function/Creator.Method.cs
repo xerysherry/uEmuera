@@ -1652,8 +1652,7 @@ namespace MinorShift.Emuera.GameData.Function
                 VariableTerm vToken = (VariableTerm)arguments[0];
                 VariableCode varCode = vToken.Identifier.Code;
                 string key = arguments[1].GetStrValue(exm);
-                int ret = 0;
-                if (exm.VEvaluator.Constant.TryKeywordToInteger(out ret, varCode, key, -1))
+                if (exm.VEvaluator.Constant.TryKeywordToInteger(out int ret, varCode, key, -1))
                     return ret;
                 else
                     return -1;
@@ -1694,8 +1693,7 @@ namespace MinorShift.Emuera.GameData.Function
 				if (var == null)
 					throw new CodeEE("GETNUMBの1番目の引数(\"" + arguments[0].GetStrValue(exm) + "\")が変数名ではありません");
 				string key = arguments[1].GetStrValue(exm);
-                int ret = 0;
-                if (exm.VEvaluator.Constant.TryKeywordToInteger(out ret, var.Code, key, -1))
+                if (exm.VEvaluator.Constant.TryKeywordToInteger(out int ret, var.Code, key, -1))
                     return ret;
                 else
                     return -1;
@@ -1776,8 +1774,7 @@ namespace MinorShift.Emuera.GameData.Function
                     return name + "関数の引数が多すぎます";
                 if (arguments[0] == null)
                     return name + "関数の1番目の引数は省略できません";
-                VariableTerm varToken = arguments[0] as VariableTerm;
-                if (varToken == null)
+                if (!(arguments[0] is VariableTerm varToken))
                     return name + "関数の1番目の引数が変数ではありません";
                 if (varToken.Identifier.IsArray2D || varToken.Identifier.IsArray3D)
                     return name + "関数は二重配列・三重配列には対応していません";
@@ -1957,10 +1954,9 @@ namespace MinorShift.Emuera.GameData.Function
 				{
 					if (arguments[i] == null)
 						return string.Format("{0}関数:{1}番目の引数は省略できません", name, i + 1);
-                    VariableTerm varTerm = arguments[i] as VariableTerm;
-					if (varTerm == null || varTerm.Identifier.IsCalc || varTerm.Identifier.IsConst)
-						return string.Format("{0}関数:{1}番目の引数が変数ではありません", name, i + 1);
-					if (varTerm.Identifier.IsCharacterData)
+                    if (!(arguments[i] is VariableTerm varTerm) || varTerm.Identifier.IsCalc || varTerm.Identifier.IsConst)
+                        return string.Format("{0}関数:{1}番目の引数が変数ではありません", name, i + 1);
+                    if (varTerm.Identifier.IsCharacterData)
 						return string.Format("{0}関数:{1}番目の引数がキャラクタ変数です", name, i + 1);
 					if (i == 0 && !varTerm.Identifier.IsArray1D)
 						return string.Format("{0}関数:{1}番目の引数が一次元配列ではありません", name, i + 1);
@@ -1981,11 +1977,12 @@ namespace MinorShift.Emuera.GameData.Function
 					{
 						if (array[i] == 0)
 							break;
-						if (array[i] < int.MinValue || array[i] > int.MaxValue)
+						if (array[i] < Int64.MinValue || array[i] > Int64.MaxValue)
 							return 0;
 						sortList.Add(new KeyValuePair<long, int>(array[i], i));
 					}
-					sortList.Sort((a, b) => { return (int)(a.Key - b.Key); });
+                    //素ではintの範囲しか扱えないので一工夫
+                    sortList.Sort((a, b) => { return Math.Sign(a.Key - b.Key); });
 					sortedArray = new int[sortList.Count];
 					for (int i = 0; i < sortedArray.Length; i++)
 						sortedArray[i] = sortList[i].Value;
@@ -2559,7 +2556,7 @@ namespace MinorShift.Emuera.GameData.Function
                     return (0);
                 else if ((st.Current == '+' || st.Current == '-') && !char.IsDigit(st.Next))
                     return (0);
-                Int64 _ = LexicalAnalyzer.ReadInt64(st, true);
+                _ = LexicalAnalyzer.ReadInt64(st, true);
                 if (!st.EOS)
                 {
                     if (st.Current == '.')
@@ -3563,11 +3560,10 @@ namespace MinorShift.Emuera.GameData.Function
 				}
 				if (arguments.Length == 10)
 					return null;
-                VariableTerm varToken = arguments[10] as VariableTerm;
-                if(varToken == null || !varToken.IsInteger || (!varToken.Identifier.IsArray2D && !varToken.Identifier.IsArray3D))
+                if (!(arguments[10] is VariableTerm varToken) || !varToken.IsInteger || (!varToken.Identifier.IsArray2D && !varToken.Identifier.IsArray3D))
                     return string.Format(Properties.Resources.SyntaxErrMesMethodGraphicsColorMatrix0, name);
                 return null;
-            }
+			}
 			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
 			{
 				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)
@@ -3679,11 +3675,10 @@ namespace MinorShift.Emuera.GameData.Function
 				}
 				if (arguments.Length <= 6)
 					return null;
-                VariableTerm varToken = arguments[6] as VariableTerm;
-                if(varToken == null || !varToken.IsInteger || (!varToken.Identifier.IsArray2D && !varToken.Identifier.IsArray3D))
+                if (!(arguments[6] is VariableTerm varToken) || !varToken.IsInteger || (!varToken.Identifier.IsArray2D && !varToken.Identifier.IsArray3D))
                     return string.Format(Properties.Resources.SyntaxErrMesMethodGraphicsColorMatrix0, name);
                 return null;
-            }
+			}
 			public override Int64 GetIntValue(ExpressionMediator exm, IOperandTerm[] arguments)
 			{
 				if (Config.TextDrawingMode == TextDrawingMode.WINAPI)

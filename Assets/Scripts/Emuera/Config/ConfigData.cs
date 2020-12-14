@@ -456,13 +456,20 @@ static ConfigData() { }
 			EraStreamReader eReader = new EraStreamReader(false);
 			if (!eReader.Open(confPath))
 				return false;
+
+			//加载二进制数据
+			var bytes = File.ReadAllBytes(confPath);
+			var md5s = GenericUtils.CalcMd5ListForConfig(bytes);
+
 			ScriptPosition pos = null;
+			int md5i = 0;
 			try
 			{
 				string line = null;
 				//bool defineIgnoreWarningFiles = false;
 				while ((line = eReader.ReadLine()) != null)
 				{
+					var md5 = md5s[md5i++];
 					if ((line.Length == 0) || (line[0] == ';'))
 						continue;
 					pos = new ScriptPosition(eReader.Filename, eReader.LineNo, line);
@@ -473,7 +480,7 @@ static ConfigData() { }
                     AConfigItem item = GetConfigItem(token_0);
                     if(item == null)
                     {
-                        token_0 = uEmuera.Utils.SHIFTJIS_to_UTF8(token_0);
+                        token_0 = uEmuera.Utils.SHIFTJIS_to_UTF8(token_0, md5);
                         if(!string.IsNullOrEmpty(token_0))
                             item = GetConfigItem(token_0);
                     }

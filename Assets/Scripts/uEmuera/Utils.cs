@@ -39,12 +39,12 @@ namespace uEmuera
         {
             utf8zhcn_to_utf8 = dict;
         }
-        public static string SHIFTJIS_to_UTF8(string text)
+        public static string SHIFTJIS_to_UTF8(string text, string md5)
         {
             if(shiftjis_to_utf8 == null)
                 return null;
             string result = null;
-            shiftjis_to_utf8.TryGetValue(text, out result);
+            shiftjis_to_utf8.TryGetValue(md5, out result);
             if(string.IsNullOrEmpty(result))
                 utf8zhcn_to_utf8.TryGetValue(text, out result);
             return result;
@@ -210,11 +210,14 @@ namespace uEmuera
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.bmp", SearchOption.TopDirectoryOnly));
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.jpg", SearchOption.TopDirectoryOnly));
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.gif", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.webp", SearchOption.TopDirectoryOnly));
 #if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.PNG", SearchOption.TopDirectoryOnly));
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.BMP", SearchOption.TopDirectoryOnly));
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.JPG", SearchOption.TopDirectoryOnly));
             bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.GIF", SearchOption.TopDirectoryOnly));
+            bmpfilelist.AddRange(Directory.GetFiles(contentdir, "*.WEBP", SearchOption.TopDirectoryOnly));
+
 #endif
             var filecount = bmpfilelist.Count;
             for(int i=0; i<filecount; ++i)

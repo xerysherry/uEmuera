@@ -256,7 +256,7 @@ namespace MinorShift.Emuera.GameData.Variable
 		LASTLOAD_NO = 0x06 | __INTEGER__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//数値型。
 		__LINE__ = 0x07 | __INTEGER__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//現在実行中の行番号
 		LINECOUNT = 0x08 | __INTEGER__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//描画した行の総数。CLEARで減少
-        ISTIMEOUT = 0x0B | __INT_MAX__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//TINPUT系等がTIMEOUTしたか？
+        ISTIMEOUT = 0x0B | __INTEGER__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//TINPUT系等がTIMEOUTしたか？
 
         __INT_MAX__ = 0x09 | __INTEGER__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//Int64最大値
         __INT_MIN__ = 0x0A | __INTEGER__ | __CALC__ | __UNCHANGEABLE__ | __EXTENDED__,//Int64最小値

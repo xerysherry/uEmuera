@@ -772,54 +772,45 @@ namespace MinorShift.Emuera.GameData.Variable
 			Dictionary<string, List<List<Int64[]>>> int3DListDic = reader.ReadInt64Array3DExtended();
 			List<VariableCode> codeList = null;
 
-            string sfound = null;
-            long lfound = 0;
-            List<string> listfound = null;
-            List<long> listlongfound = null;
-            List<string[]> liststrarrfound = null;
-            List<long[]> listlongarrfound = null;
-            List<List<string[]>> listliststrarrfound = null;
-            List<List<long[]>> listlistlongarrfound = null;
-
             codeList = VariableIdentifier.GetExtSaveList(VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (strDic.TryGetValue(code.ToString(), out sfound))
+				if (strDic.TryGetValue(code.ToString(), out var sfound))
 					dataString[(int)VariableCode.__LOWERCASE__ & (int)code] = sfound;
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (intDic.TryGetValue(code.ToString(), out lfound))
+				if (intDic.TryGetValue(code.ToString(), out var lfound))
 					dataInteger[(int)VariableCode.__LOWERCASE__ & (int)code] = lfound;
 
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__ARRAY_1D__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (strListDic.TryGetValue(code.ToString(), out listfound))
+				if (strListDic.TryGetValue(code.ToString(), out var listfound))
 					copyListToArray(listfound, dataStringArray[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__ARRAY_1D__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (intListDic.TryGetValue(code.ToString(), out listlongfound))
+				if (intListDic.TryGetValue(code.ToString(), out var listlongfound))
 					copyListToArray(listlongfound, dataIntegerArray[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__ARRAY_2D__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (str2DListDic.TryGetValue(code.ToString(), out liststrarrfound))
+				if (str2DListDic.TryGetValue(code.ToString(), out var liststrarrfound))
 					copyListToArray2D(liststrarrfound, dataStringArray2D[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__ARRAY_2D__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (int2DListDic.TryGetValue(code.ToString(), out listlongarrfound))
+				if (int2DListDic.TryGetValue(code.ToString(), out var listlongarrfound))
 					copyListToArray2D(listlongarrfound, dataIntegerArray2D[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__ARRAY_3D__ | VariableCode.__STRING__);
 			foreach (VariableCode code in codeList)
-				if (str3DListDic.TryGetValue(code.ToString(), out listliststrarrfound))
+				if (str3DListDic.TryGetValue(code.ToString(), out var listliststrarrfound))
 					copyListToArray3D(listliststrarrfound, dataStringArray3D[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			codeList = VariableIdentifier.GetExtSaveList(VariableCode.__ARRAY_3D__ | VariableCode.__INTEGER__);
 			foreach (VariableCode code in codeList)
-				if (int3DListDic.TryGetValue(code.ToString(), out listlistlongarrfound))
+				if (int3DListDic.TryGetValue(code.ToString(), out var listlistlongarrfound))
 					copyListToArray3D(listlistlongarrfound, dataIntegerArray3D[(int)VariableCode.__LOWERCASE__ & (int)code]);
 
 			if (version < 1808)//ユーザー定義変数の保存の実装前
@@ -836,32 +827,32 @@ namespace MinorShift.Emuera.GameData.Variable
 			int i = 0;
 			varList = userDefinedSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (strListDic.TryGetValue(var.Name, out listfound))
+				if (strListDic.TryGetValue(var.Name, out var listfound))
 					copyListToArray(listfound, (string[])var.GetArray());
 
 			varList = userDefinedSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (intListDic.TryGetValue(var.Name, out listlongfound))
+				if (intListDic.TryGetValue(var.Name, out var listlongfound))
 					copyListToArray(listlongfound, (Int64[])var.GetArray());
 
 			varList = userDefinedSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (str2DListDic.TryGetValue(var.Name, out liststrarrfound))
+				if (str2DListDic.TryGetValue(var.Name, out var liststrarrfound))
 					copyListToArray2D(liststrarrfound, (string[,])var.GetArray());
 
 			varList = userDefinedSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (int2DListDic.TryGetValue(var.Name, out listlongarrfound))
+				if (int2DListDic.TryGetValue(var.Name, out var listlongarrfound))
 					copyListToArray2D(listlongarrfound, (Int64[,])var.GetArray());
 
 			varList = userDefinedSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (str3DListDic.TryGetValue(var.Name, out listliststrarrfound))
+				if (str3DListDic.TryGetValue(var.Name, out var listliststrarrfound))
 					copyListToArray3D(listliststrarrfound, (string[, ,])var.GetArray());
 
 			varList = userDefinedSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (int3DListDic.TryGetValue(var.Name, out listlistlongarrfound))
+				if (int3DListDic.TryGetValue(var.Name, out var listlistlongarrfound))
 					copyListToArray3D(listlistlongarrfound, (Int64[, ,])var.GetArray());
 		}
 
@@ -958,43 +949,36 @@ namespace MinorShift.Emuera.GameData.Variable
 			str3DListDic = reader.ReadStringArray3DExtended();
 			int3DListDic = reader.ReadInt64Array3DExtended();
 			List<UserDefinedVariableToken> varList = null;
-
-            List<string> listfound = null;
-            List<long> listlongfound = null;
-            List<string[]> liststrarrfound = null;
-            List<long[]> listlongarrfound = null;
-            List<List<string[]>> listliststrarrfound = null;
-            List<List<long[]>> listlistlongarrfound = null;
-
+			
             int i = 0;
 			varList = userDefinedGlobalSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (strListDic.TryGetValue(var.Name, out listfound))
+				if (strListDic.TryGetValue(var.Name, out var listfound))
 					copyListToArray(listfound, (string[])var.GetArray());
 
 			varList = userDefinedGlobalSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (intListDic.TryGetValue(var.Name, out listlongfound))
+				if (intListDic.TryGetValue(var.Name, out var listlongfound))
 					copyListToArray(listlongfound, (Int64[])var.GetArray());
 
 			varList = userDefinedGlobalSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (str2DListDic.TryGetValue(var.Name, out liststrarrfound))
+				if (str2DListDic.TryGetValue(var.Name, out var liststrarrfound))
 					copyListToArray2D(liststrarrfound, (string[,])var.GetArray());
 
 			varList = userDefinedGlobalSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (int2DListDic.TryGetValue(var.Name, out listlongarrfound))
+				if (int2DListDic.TryGetValue(var.Name, out var listlongarrfound))
 					copyListToArray2D(listlongarrfound, (Int64[,])var.GetArray());
 
 			varList = userDefinedGlobalSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (str3DListDic.TryGetValue(var.Name, out listliststrarrfound))
+				if (str3DListDic.TryGetValue(var.Name, out var listliststrarrfound))
 					copyListToArray3D(listliststrarrfound, (string[, ,])var.GetArray());
 
 			varList = userDefinedGlobalSaveVarList[i]; i++;
 			foreach (UserDefinedVariableToken var in varList)
-				if (int3DListDic.TryGetValue(var.Name, out listlistlongarrfound))
+				if (int3DListDic.TryGetValue(var.Name, out var listlistlongarrfound))
 					copyListToArray3D(listlistlongarrfound, (Int64[, ,])var.GetArray());
 		}
 
