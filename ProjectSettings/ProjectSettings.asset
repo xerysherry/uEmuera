@@ -130,7 +130,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.2.9a
+  bundleVersion: 0.2.9b
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -176,7 +176,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: xerysherry.uEmuera
   buildNumber: {}
-  AndroidBundleVersionCode: 14
+  AndroidBundleVersionCode: 15
   AndroidMinSdkVersion: 19
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1

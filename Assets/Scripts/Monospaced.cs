@@ -100,11 +100,15 @@ namespace UnityEngine.UI
                 }
                 else if (richtext && c == '<')
                 {
-                    i = GetNextValidIndex(content, i);
-                    if (i >= length)
-                        break;
-                    i -= 1;
-                    continue;
+                    var nexti = GetNextValidIndex(content, i);
+                    if (nexti > i)
+                    {
+                        i = nexti;
+                        if (i >= length)
+                            break;
+                        i -= 1;
+                        continue;
+                    }
                 }
 
                 vh.PopulateUIVertex(ref v1, vi * 4 + 0);
