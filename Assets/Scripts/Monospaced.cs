@@ -103,7 +103,8 @@ namespace UnityEngine.UI
                     i = GetNextValidIndex(content, i);
                     if (i >= length)
                         break;
-                    c = content[i];
+                    i -= 1;
+                    continue;
                 }
 
                 vh.PopulateUIVertex(ref v1, vi * 4 + 0);
