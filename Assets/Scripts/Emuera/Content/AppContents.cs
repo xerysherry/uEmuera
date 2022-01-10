@@ -108,11 +108,11 @@ namespace MinorShift.Emuera.Content
                 //    resourceDic.Add(kv.Key, new BaseImage(kv.Key, kv.Value));
                 //}
 
-				List<string> csvFiles = new List<string>(Directory.GetFiles(Program.ContentDir, "*.csv", SearchOption.TopDirectoryOnly));
-#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-                csvFiles.AddRange(Directory.GetFiles(Program.ContentDir, "*.CSV", SearchOption.TopDirectoryOnly));
+				List<string> csvFiles = new List<string>(Directory.GetFiles(Program.ContentDir, "*.csv", SearchOption.AllDirectories));
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+                csvFiles.AddRange(Directory.GetFiles(Program.ContentDir, "*.CSV", SearchOption.AllDirectories));
 #endif
-                var count = csvFiles.Count;
+        var count = csvFiles.Count;
                 for(var i=0; i<count; ++i)
 				{
                     var filepath = csvFiles[i];
