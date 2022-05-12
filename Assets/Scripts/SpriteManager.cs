@@ -13,10 +13,11 @@ internal static class SpriteManager
 
     internal class SpriteInfo : IDisposable
     {
-        internal SpriteInfo(TextureInfo p, Sprite s)
+        internal SpriteInfo(TextureInfo p, Sprite s, ASpriteSingle asprite)
         {
             parent = p;
             sprite = s;
+            aSprite = asprite;
         }
         public void Dispose()
         {
@@ -25,6 +26,7 @@ internal static class SpriteManager
         }
         internal Sprite sprite;
         internal TextureInfo parent;
+        internal ASpriteSingle aSprite;
     }
     internal class TextureInfo : IDisposable
     {
@@ -37,13 +39,11 @@ internal static class SpriteManager
         internal SpriteInfo GetSprite(ASprite src)
         {
             SpriteInfo sprite = null;
-            if(!sprites.TryGetValue(src.Name, out sprite))
+            if (!sprites.TryGetValue(src.Name, out sprite) && src is ASpriteSingle spriteSingle)
             {
-                sprite = new SpriteInfo(this, 
-                    Sprite.Create(texture,
-                        GenericUtils.ToUnityRect(src.Rectangle, texture.width, texture.height),
-                        Vector2.zero)
-                    );
+                sprite = new SpriteInfo(this, Sprite.Create(texture,
+                        GenericUtils.ToUnityRect(spriteSingle.SrcRectangle, texture.width, texture.height),
+                        Vector2.zero), spriteSingle);
                 sprites[src.Name] = sprite;
             }
             if(sprite != null)

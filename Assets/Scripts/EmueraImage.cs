@@ -8,7 +8,14 @@ public class EmueraImage : EmueraBehaviour
 {
     class ImageInfo : MonoBehaviour
     {
-        static void OnLoadImageCallback(object obj, SpriteManager.SpriteInfo spriteinfo)
+        RectTransform rectTrans = null;
+
+        private void OnEnable()
+		{
+            rectTrans = transform as RectTransform;
+        }
+
+		static void OnLoadImageCallback(object obj, SpriteManager.SpriteInfo spriteinfo)
         {
             if(obj == null)
             {
@@ -29,7 +36,8 @@ public class EmueraImage : EmueraBehaviour
         }
         void SetSprite(SpriteManager.SpriteInfo spriteinfo)
         {
-            if(spriteinfo == null)
+            this.spriteinfo = spriteinfo;
+            if (spriteinfo == null)
             {
                 image.sprite = null;
                 image.color = kTransparent;
@@ -38,8 +46,24 @@ public class EmueraImage : EmueraBehaviour
             {
                 image.sprite = spriteinfo.sprite;
                 image.color = Color.white;
+
+                FixTextureOffset();
             }
-            this.spriteinfo = spriteinfo;
+        }
+
+        void FixTextureOffset()
+        {
+            if (!spriteinfo.aSprite.DestBasePosition.IsEmpty)
+            {
+                float offsetX = 0;
+                float offsetY = 0;
+                if (spriteinfo.aSprite.SrcRectangle.Width != 0)
+                    offsetX = spriteinfo.aSprite.DestBasePosition.X * rectTrans.rect.width / spriteinfo.aSprite.SrcRectangle.Width;
+                if (spriteinfo.aSprite.SrcRectangle.Height != 0)
+                    offsetY = spriteinfo.aSprite.DestBasePosition.Y * rectTrans.rect.height / spriteinfo.aSprite.SrcRectangle.Height;
+                if (offsetX != 0 || offsetY != 0)
+                    rectTrans.localPosition += new Vector3(offsetX, -offsetY, 0);
+            }
         }
         public void Clear()
         {
@@ -117,9 +141,6 @@ public class EmueraImage : EmueraBehaviour
 
             var str_index = image_indices[i];
             var image_part = cb.StrArray[str_index] as ConsoleImagePart;
-            image.name = image_part.Image.Name;
-            imageinfo.Load(image_part.Image);
-            image_infos_.Add(imageinfo);
 
             var image_rect = image_part.dest_rect;
             rt.anchoredPosition = new Vector2(image_part.PointX - ud.posx, miny - image_rect.Top);
@@ -128,6 +149,10 @@ public class EmueraImage : EmueraBehaviour
             logic_height = Mathf.Max(logic_height, image_rect.Height);
 
             width = Mathf.Max(image_part.PointX - ud.posx + image_rect.Width, width);
+
+            image.name = image_part.Image.Name;
+            imageinfo.Load(image_part.Image);
+            image_infos_.Add(imageinfo);
         }
 
         prt.sizeDelta = new Vector2(width, logic_height);
