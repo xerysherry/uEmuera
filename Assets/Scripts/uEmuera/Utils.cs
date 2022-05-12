@@ -236,6 +236,10 @@ namespace uEmuera
                 resource_csv_lines_.TryGetValue(csvpath, out lines))
                 return lines;
             lines = File.ReadAllLines(csvpath, encoding);
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            for (int i = 0; i < lines.Length; ++i)
+                lines[i] = lines[i].Replace('\\', '/');
+#endif
             return lines;
         }
         public static void ResourcePrepare()
@@ -262,12 +266,20 @@ namespace uEmuera
                 string[] lines = SpriteManager.GetResourceCSVLines(filename);
                 if(lines != null)
                 {
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+                    for (int i = 0; i < lines.Length; ++i)
+                        lines[i] = lines[i].Replace('\\', '/');
+#endif
                     resource_csv_lines_.Add(filename, lines);
                     continue;
                 }
 
                 List<string> newlines = new List<string>();
                 lines = File.ReadAllLines(filename, encoder);
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+                for (int i = 0; i < lines.Length; ++i)
+                    lines[i] = lines[i].Replace('\\', '/');
+#endif
                 int fixcount = 0;
                 for(int i = 0; i < lines.Length; ++i)
                 {
