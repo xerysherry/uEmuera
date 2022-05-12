@@ -110,7 +110,6 @@ namespace MinorShift.Emuera.GameView
 
         public ASprite Image { get { return cImage; } }
         public ASprite ImageBackground { get { return cImageB; } }
-        public Rectangle rect { get { return cImage.Rectangle; } }
         public Rectangle dest_rect { get { return destRect; } }
 
 		private readonly ASprite cImage;

@@ -276,7 +276,6 @@ namespace MinorShift.Emuera.Content
 				if (sccs)
 				{
 					rect = new Rectangle(rectValue[0], rectValue[1], rectValue[2], rectValue[3]);
-                    pos = new Point(rectValue[0], rectValue[1]);
 
                     if (rect.Width <= 0 || rect.Height <= 0)
 					{

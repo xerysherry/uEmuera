@@ -38,12 +38,6 @@ namespace MinorShift.Emuera.Content
 		/// </summary>
 		public Point DestBasePosition;
 
-        public Rectangle Rectangle
-        {
-            get { return new Rectangle(DestBasePosition, DestBaseSize); }
-        }
-
-
         public abstract void GraphicsDraw(Graphics g, Point offset);
 		public abstract void GraphicsDraw(Graphics g, Rectangle destRect);
 		public abstract void GraphicsDraw(Graphics g, Rectangle destRect, ImageAttributes attr);
