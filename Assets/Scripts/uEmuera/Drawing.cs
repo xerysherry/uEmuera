@@ -7,12 +7,9 @@ namespace uEmuera.Drawing
         public Bitmap(string path)
         {
             this.path = path;
-            this.filename = GenericUtils.GetFilename(path);
         }
 
         public readonly string path;
-        public readonly string filename;
-        public string name;
         public Size size;
 
         public void Dispose()
@@ -28,18 +25,18 @@ namespace uEmuera.Drawing
         public Size Size { get { return size; } }
         public Color GetPixel(int x, int y)
         {
-            var ti = SpriteManager.GetTextureInfo(name, path);
+            var ti = SpriteManager.GetTextureInfo(path);
             var uc = ti.texture.GetPixel(x, y);
             return new Color(uc.r, uc.g, uc.b, uc.a);
         }
         public void SetPixel(Color c, int x, int y)
         {
-            var ti = SpriteManager.GetTextureInfo(name, path);
+            var ti = SpriteManager.GetTextureInfo(path);
             ti.texture.SetPixel(x, y, new UnityEngine.Color(c.r, c.g, c.b, c.a));
         }
         public void Save(string path)
         {
-            var ti = SpriteManager.GetTextureInfo(name, path);
+            var ti = SpriteManager.GetTextureInfo(path);
             var data = UnityEngine.ImageConversion.EncodeToPNG(ti.texture);
             System.IO.File.WriteAllBytes(path, data);
         }
@@ -50,8 +47,7 @@ namespace uEmuera.Drawing
         public BitmapTexture(string path)
             :base(path)
         {
-            var name = string.Concat(":FILE:", filename);
-            var tiot = SpriteManager.GetTextureInfoOtherThread(name, path,
+            var tiot = SpriteManager.GetTextureInfoOtherThread(path,
                 ret =>
                 {
                     textureinfo = ret;
@@ -125,12 +121,12 @@ namespace uEmuera.Drawing
         public void DrawImage(Bitmap texture, Rectangle destrect,
                             Rectangle srcrect, GraphicsUnit unit)
         {
-            uEmuera.Logger.Info("Graphics.DrawImage " + texture.name);
+            uEmuera.Logger.Info("Graphics.DrawImage " + texture.path);
         }
         public void DrawImage(Bitmap texture, Rectangle destrect,
                             int x, int y, int w, int h, GraphicsUnit unit, ImageAttributes ia)
         {
-            uEmuera.Logger.Info("Graphics.DrawImage " + texture.name);
+            uEmuera.Logger.Info("Graphics.DrawImage " + texture.path);
         }
         public void DrawString(string s, Font font, Brush brush, Point point)
         {
