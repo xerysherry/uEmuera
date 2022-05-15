@@ -32,7 +32,7 @@ internal static class SpriteManager
     {
         internal TextureInfo(string b, Texture2D tex)
         {
-            imagename = b;
+            imagePath = b;
             texture = tex;
             pasttime = Time.unscaledTime + kPastTime;
         }
@@ -68,7 +68,7 @@ internal static class SpriteManager
             UnityEngine.Object.Destroy(texture);
             texture = null;
         }
-        internal string imagename = null;
+        internal string imagePath = null;
         internal int refcount = 0;
         internal float pasttime = 0;
         internal float width { get { return texture.width; } }
@@ -130,7 +130,7 @@ internal static class SpriteManager
             return;
         }
 
-        var basename = src.Bitmap.filename;
+        var basename = src.Bitmap.path;
         TextureInfo ti = null;
         texture_dict.TryGetValue(basename, out ti);
         if(ti == null)
@@ -150,10 +150,10 @@ internal static class SpriteManager
             callback(obj, GetSpriteInfo(ti, src));
     }
 
-    public static TextureInfo GetTextureInfo(string name, string filename)
+    public static TextureInfo GetTextureInfo(string filename)
     {
         TextureInfo ti = null;
-        if(texture_dict.TryGetValue(name, out ti))
+        if(texture_dict.TryGetValue(filename, out ti))
             return ti;
         if(string.IsNullOrEmpty(filename))
             return null;
@@ -182,27 +182,25 @@ internal static class SpriteManager
                 Debug.LogWarning($"{filename} {err.ToString()}");
                 return null;
             }
-            ti = new TextureInfo(name, tex);
-            texture_dict.Add(name, ti);
+            ti = new TextureInfo(filename, tex);
+            texture_dict.Add(filename, ti);
         }
         else
         {
             var tex = new Texture2D(4, 4, format, false);
             if (tex.LoadImage(content))
             {
-                ti = new TextureInfo(name, tex);
-                texture_dict.Add(name, ti);
+                ti = new TextureInfo(filename, tex);
+                texture_dict.Add(filename, ti);
             }
         }
         return ti;
     }
 
-    public static TextureInfoOtherThread GetTextureInfoOtherThread(
-        string name, string path, Action<TextureInfo> callback)
+    public static TextureInfoOtherThread GetTextureInfoOtherThread(string path, Action<TextureInfo> callback)
     {
         var ti = new TextureInfoOtherThread
         {
-            name = name,
             path = path,
             callback = callback,
             mutex = null,
@@ -212,7 +210,6 @@ internal static class SpriteManager
     }
     public class TextureInfoOtherThread
     {
-        public string name;
         public string path;
         public Action<TextureInfo> callback;
         public System.Threading.Mutex mutex;
@@ -288,8 +285,8 @@ internal static class SpriteManager
                     Debug.LogWarning($"{baseimage.path} {err.ToString()}");
                     yield break;
                 }
-                ti = new TextureInfo(baseimage.filename, tex);
-                texture_dict.Add(baseimage.filename, ti);
+                ti = new TextureInfo(baseimage.path, tex);
+                texture_dict.Add(baseimage.path, ti);
 
                 baseimage.size.Width = tex.width;
                 baseimage.size.Height = tex.height;
@@ -299,8 +296,8 @@ internal static class SpriteManager
                 var tex = new Texture2D(4, 4, format, false);
                 if (tex.LoadImage(content))
                 {
-                    ti = new TextureInfo(baseimage.filename, tex);
-                    texture_dict.Add(baseimage.filename, ti);
+                    ti = new TextureInfo(baseimage.path, tex);
+                    texture_dict.Add(baseimage.path, ti);
 
                     baseimage.size.Width = tex.width;
                     baseimage.size.Height = tex.height;
@@ -308,7 +305,7 @@ internal static class SpriteManager
             }
         }
         List<CallbackInfo> list = null;
-        if(loading_set.TryGetValue(baseimage.filename, out list))
+        if(loading_set.TryGetValue(baseimage.path, out list))
         {
             var count = list.Count;
             CallbackInfo item = null;
@@ -318,7 +315,7 @@ internal static class SpriteManager
                 item.DoCallback(GetSpriteInfo(ti, item.src));
             }
             list.Clear();
-            loading_set.Remove(baseimage.filename);
+            loading_set.Remove(baseimage.path);
         }
     }
     static SpriteInfo GetSpriteInfo(TextureInfo textinfo, ASprite src)
@@ -355,10 +352,10 @@ internal static class SpriteManager
             }
             if(tinfo != null)
             {
-                Debug.Log("Unload Texture " + tinfo.imagename);
+                Debug.Log("Unload Texture " + tinfo.imagePath);
 
                 tinfo.Dispose();
-                texture_dict.Remove(tinfo.imagename);
+                texture_dict.Remove(tinfo.imagePath);
                 tinfo = null;
 
                 GC.Collect();
@@ -385,7 +382,7 @@ internal static class SpriteManager
                     tiot = tiotiter.Current;
                     tiot.mutex = new System.Threading.Mutex(true);
                     //tiot.mutex.WaitOne();
-                    ti = GetTextureInfo(tiot.name, tiot.path);
+                    ti = GetTextureInfo(tiot.path);
                     tiot.callback(ti);
                     tiot.mutex.ReleaseMutex();
                 }
