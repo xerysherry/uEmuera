@@ -281,7 +281,10 @@ namespace uEmuera
                         continue;
 
                     string[] tokens = str.Split(',');
-                    if(tokens.Length >= 6)
+                    if (tokens.Length < 2)
+                        continue;
+
+                    if (tokens.Length >= 6)
                     {
                         try
                         {
