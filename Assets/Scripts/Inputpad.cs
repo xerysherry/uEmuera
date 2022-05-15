@@ -9,38 +9,40 @@ public class Inputpad : MonoBehaviour
     {
         GenericUtils.SetListenerOnClick(confirm_btn, OnConfirm);
         GenericUtils.SetListenerOnClick(repeat_btn, OnRepeat);
+
+        inputfield.contentType = InputField.ContentType.Standard;
+        inputfield.onValueChanged.AddListener(InputFieldValueChanged);
     }
-    void Update()
+
+	void InputFieldValueChanged(string str)
+	{
+        if (str == "")
+            return;
+
+        RefreshInputpad();
+
+        switch (console.InputType)
+        {
+            case MinorShift.Emuera.GameProc.InputType.IntValue:
+            case MinorShift.Emuera.GameProc.InputType.StrValue:
+                if (console.IsWaintingOnePhrase)
+                    OnConfirm();
+                break;
+            default:
+                break;
+		}
+    }
+
+    void RefreshInputpad()
     {
-        var console = MinorShift.Emuera.GlobalStatic.Console;
-        if(background != console.bgColor)
+        console = MinorShift.Emuera.GlobalStatic.Console;
+        if (background != console.bgColor)
         {
             background = console.bgColor;
             SetTextColor(GenericUtils.ToUnityColor(background));
         }
-
-        var now_type = console.InputType;
-        if(now_type == lastinputtype)
-            return;
-
-        lastinputtype = now_type;
-        switch(lastinputtype)
-        {
-        case MinorShift.Emuera.GameProc.InputType.IntValue:
-            inputfield.contentType = InputField.ContentType.IntegerNumber;
-            inputfield.gameObject.SetActive(true);
-            break;
-        case MinorShift.Emuera.GameProc.InputType.StrValue:
-            inputfield.contentType = InputField.ContentType.Standard;
-            inputfield.gameObject.SetActive(true);
-            break;
-        case MinorShift.Emuera.GameProc.InputType.Void:
-        case MinorShift.Emuera.GameProc.InputType.EnterKey:
-        case MinorShift.Emuera.GameProc.InputType.AnyKey:
-            inputfield.gameObject.SetActive(false);
-            break;
-        }
     }
+
     void OnConfirm()
     {
         if(inputfield.gameObject.activeSelf)
@@ -81,6 +83,7 @@ public class Inputpad : MonoBehaviour
     }
     public void Show()
     {
+        RefreshInputpad();
         gameObject.SetActive(true);
         inputfield.text = "";
         lastinput = null;
@@ -99,7 +102,7 @@ public class Inputpad : MonoBehaviour
 
     uEmuera.Drawing.Color background;
 
-    MinorShift.Emuera.GameProc.InputType lastinputtype 
-        = MinorShift.Emuera.GameProc.InputType.Void;
+    MinorShift.Emuera.GameView.EmueraConsole console;
+
     string lastinput = null;
 }
