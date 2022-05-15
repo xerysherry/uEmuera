@@ -217,9 +217,6 @@ namespace uEmuera
             content_files.AddRange(Directory.GetFiles(contentdir, "*.WEBP", SearchOption.AllDirectories));
 #endif
 
-			for (int i = 0; i < content_files.Count; i++)
-                content_files[i] = content_files[i].ToUpper();
-
             return content_files;
         }
         public static string[] GetResourceCSVLines(
@@ -229,10 +226,10 @@ namespace uEmuera
             if(resource_csv_lines_.TryGetValue(csvpath, out lines))
                 return lines;
             lines = File.ReadAllLines(csvpath, encoding);
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+
             for (int i = 0; i < lines.Length; ++i)
                 lines[i] = lines[i].Replace('\\', '/');
-#endif
+
             return lines;
         }
         public static void ResourcePrepare()
@@ -254,24 +251,25 @@ namespace uEmuera
             for(int index=0; index < filecount; ++index)
             {
                 var filename = csvFiles[index];
+                var fileParent = Path.GetDirectoryName(filename) + "/";
                 //SpriteManager.ClearResourceCSVLines(filename);
                 string[] lines = SpriteManager.GetResourceCSVLines(filename);
                 if(lines != null)
                 {
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+
                     for (int i = 0; i < lines.Length; ++i)
                         lines[i] = lines[i].Replace('\\', '/');
-#endif
+
                     resource_csv_lines_.Add(filename, lines);
                     continue;
                 }
 
                 List<string> newlines = new List<string>();
                 lines = File.ReadAllLines(filename, encoder);
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+
                 for (int i = 0; i < lines.Length; ++i)
                     lines[i] = lines[i].Replace('\\', '/');
-#endif
+
                 int fixcount = 0;
                 for(int i = 0; i < lines.Length; ++i)
                 {
@@ -304,15 +302,12 @@ namespace uEmuera
                         catch { }
                     }
 
-                    string name = tokens[0];
-                    string imagepath = (Path.GetDirectoryName(filename) + tokens[1]).ToUpper();
+                    string imagepath = fileParent + tokens[1].ToUpper();
 
-                    if(!content_files.Contains(imagepath))
-                        continue;
-
-                    var ti = SpriteManager.GetTextureInfo(name, imagepath);
+                    var ti = SpriteManager.GetTextureInfo(imagepath);
                     if(ti == null)
                         continue;
+
                     line = string.Format("{0},{1},0,0,{2},{3}",
                         tokens[0], tokens[1], ti.width, ti.height);
                     newlines.Add(line);
