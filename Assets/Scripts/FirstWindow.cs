@@ -54,6 +54,11 @@ public class FirstWindow : MonoBehaviour
         GenericUtils.FindChildByName<Text>(gameObject, "version")
             .text = Application.version + " ";
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+        //安卓11以上检测文件权限
+        RequestAndroidAllFilesAccess();
+#endif
+
         GetList(Application.persistentDataPath);
         setting_.SetActive(true);
 
@@ -133,9 +138,37 @@ public class FirstWindow : MonoBehaviour
                     AddItem(Path.GetFileName(path), workspace);
             }
         }
-        catch(DirectoryNotFoundException e)
-        { }
+        catch { }
     }
+
+    int GetAndroidSDKVersion()
+    {
+        AndroidJavaClass javaClass = new AndroidJavaClass("android.os.Build$VERSION");
+        return javaClass.GetStatic<int>("SDK_INT");
+    }
+
+    bool HasAndroidAllFilesAccess()
+    {
+        AndroidJavaClass javaClass = new AndroidJavaClass("android.os.Environment");
+        return javaClass.CallStatic<bool>("isExternalStorageManager");
+	}
+
+    void RequestAndroidAllFilesAccess()
+    {
+		try
+        {
+            if (GetAndroidSDKVersion() < 30 || HasAndroidAllFilesAccess())
+                return;
+            AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject activity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
+            AndroidJavaObject uri = uriClass.CallStatic<AndroidJavaObject>("parse", "package:com.xerysherry.uEmuera");
+            AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.settings.MANAGE_APP_ALL_FILES_ACCESS_PERMISSION");
+            intent.Call<AndroidJavaObject>("setData", uri);
+            activity.Call("startActivity", intent);
+        }
+		catch { }
+	}
 
     public Text titlebar = null;
     ScrollRect scroll_rect_ = null;
