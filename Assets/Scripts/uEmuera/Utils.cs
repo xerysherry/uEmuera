@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace uEmuera
 {
@@ -354,5 +355,33 @@ namespace uEmuera
         }
         static List<string> content_files = new List<string>();
         static Dictionary<string, string[]> resource_csv_lines_ = new Dictionary<string, string[]>();
-    }
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        public static int GetAndroidSDKVersion()
+        {
+            AndroidJavaClass javaClass = new AndroidJavaClass("android.os.Build$VERSION");
+            return javaClass.GetStatic<int>("SDK_INT");
+        }
+
+        public static bool HasAndroidAllFilesAccess()
+        {
+            AndroidJavaClass javaClass = new AndroidJavaClass("android.os.Environment");
+            return javaClass.CallStatic<bool>("isExternalStorageManager");
+	    }
+
+        public static void RequestAndroidAllFilesAccess()
+        {
+            if (GetAndroidSDKVersion() < 30 || HasAndroidAllFilesAccess())
+                return;
+            AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject activity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
+            AndroidJavaObject uri = uriClass.CallStatic<AndroidJavaObject>("parse", "package:com.xerysherry.uEmuera");
+            AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.settings.MANAGE_APP_ALL_FILES_ACCESS_PERMISSION");
+            intent.Call<AndroidJavaObject>("setData", uri);
+            activity.Call("startActivity", intent);
+	    }
+#endif
+
+	}
 }

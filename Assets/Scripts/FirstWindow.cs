@@ -56,18 +56,8 @@ public class FirstWindow : MonoBehaviour
 
 #if UNITY_ANDROID && !UNITY_EDITOR
         //安卓11以上检测文件权限
-        RequestAndroidAllFilesAccess();
-#endif
+        uEmuera.Utils.RequestAndroidAllFilesAccess();
 
-        GetList(Application.persistentDataPath);
-        setting_.SetActive(true);
-
-#if UNITY_EDITOR
-        var main_entry = GameObject.FindObjectOfType<MainEntry>();
-        if(!string.IsNullOrEmpty(main_entry.era_path))
-            GetList(main_entry.era_path);
-#endif
-#if UNITY_ANDROID && !UNITY_EDITOR
         GetList("storage/emulated/0/emuera");
         GetList("storage/emulated/1/emuera");
         GetList("storage/emulated/2/emuera");
@@ -76,6 +66,15 @@ public class FirstWindow : MonoBehaviour
         GetList("storage/sdcard1/emuera");
         GetList("storage/sdcard2/emuera");
 #endif
+
+#if UNITY_EDITOR
+        var main_entry = GameObject.FindObjectOfType<MainEntry>();
+        if(!string.IsNullOrEmpty(main_entry.era_path))
+            GetList(main_entry.era_path);
+#endif
+
+        GetList(Application.persistentDataPath);
+        setting_.SetActive(true);
     }
 
     void OnOptionClick()
@@ -140,35 +139,6 @@ public class FirstWindow : MonoBehaviour
         }
         catch { }
     }
-
-    int GetAndroidSDKVersion()
-    {
-        AndroidJavaClass javaClass = new AndroidJavaClass("android.os.Build$VERSION");
-        return javaClass.GetStatic<int>("SDK_INT");
-    }
-
-    bool HasAndroidAllFilesAccess()
-    {
-        AndroidJavaClass javaClass = new AndroidJavaClass("android.os.Environment");
-        return javaClass.CallStatic<bool>("isExternalStorageManager");
-	}
-
-    void RequestAndroidAllFilesAccess()
-    {
-		try
-        {
-            if (GetAndroidSDKVersion() < 30 || HasAndroidAllFilesAccess())
-                return;
-            AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject activity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-            AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
-            AndroidJavaObject uri = uriClass.CallStatic<AndroidJavaObject>("parse", "package:com.xerysherry.uEmuera");
-            AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.settings.MANAGE_APP_ALL_FILES_ACCESS_PERMISSION");
-            intent.Call<AndroidJavaObject>("setData", uri);
-            activity.Call("startActivity", intent);
-        }
-		catch { }
-	}
 
     public Text titlebar = null;
     ScrollRect scroll_rect_ = null;
