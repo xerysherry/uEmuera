@@ -125,11 +125,12 @@ public class FirstWindow : MonoBehaviour
         try
         {
             var paths = Directory.GetDirectories(workspace, "*", SearchOption.TopDirectoryOnly);
+            System.Array.Sort(paths);
             foreach(var p in paths)
             {
                 var path = uEmuera.Utils.NormalizePath(p);
                 if(File.Exists(path + "/emuera.config") || Directory.Exists(path + "/ERB"))
-                    AddItem(path.Substring(workspace.Length + 1), workspace);
+                    AddItem(Path.GetFileName(path), workspace);
             }
         }
         catch(DirectoryNotFoundException e)
