@@ -3,9 +3,6 @@ uEmuera
 
 <img src="Assets/splash/icon.png" width="256"/>
 
-**Android10 特别说明：**
-**如果放入sdcard/uEmuera下无法找到的话，可以放入sdcard/Android/data/xerysherry.uEmuera/files/下**
-
 Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台。
 
 该项目为Emuera的Unity3D移植版本。意在利用Unity3D多平台特性，方便移植到非Windows平台。
@@ -14,7 +11,7 @@ Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台�
 
 几乎可以执行所有era脚本游戏！
 
-下载
+源项目地址
 ----
 
 [https://github.com/xerysherry/uEmuera/releases](https://github.com/xerysherry/uEmuera/releases)
@@ -26,7 +23,7 @@ Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台�
 
 2. 请在初次运行app时，选择允许“文件访问”的权限。
 
-3. 请把处理完毕的era脚本文件夹放置在sdcard下的emuera文件夹内。完整路径为storage/emulated/0/emuera, storage/emulated/1/emuera, storage/emulated/2/emuera
+3. 游戏本体可放置在根目录的emuera下，或者Android/data/com.xerysherry.uEmuera/files/下
 
 已知问题/需要改进项：
 -------------------
@@ -40,17 +37,3 @@ Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台�
 4. 可能会比较耗电（Unity3D程序通病）
 
 5. ...
-
-截图
-----
-
-开始界面
-![Screenshot1](Screenshot/screenshot1.png)
-游戏运行界面
-![Screenshot2](Screenshot/screenshot2.png)
-快捷按钮
-![Screenshot3](Screenshot/screenshot3.png)
-指令输入
-![Screenshot4](Screenshot/screenshot4.png)
-缩放控制
-![Screenshot5](Screenshot/screenshot5.png)
