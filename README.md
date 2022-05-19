@@ -14,7 +14,7 @@ Emuera是Emulator of Eramaker的缩写，是Windows平台下文字游戏平台�
 源项目地址
 ----
 
-[https://github.com/xerysherry/uEmuera/releases](https://github.com/xerysherry/uEmuera/releases)
+[https://github.com/xerysherry/uEmuera](https://github.com/xerysherry/uEmuera)
 
 如何使用：
 --------
