@@ -84,15 +84,14 @@ namespace MinorShift.Emuera.GameView
 		public ConsoleDisplayLine ParentLine { get; set; }
 		public bool IsButton { get; private set; }
 		public bool IsInteger { get; private set; }
-        public Int64 Input { get; private set; }
-        public string Inputs { get; private set; }
+		public Int64 Input { get; private set; }
+		public string Inputs { get; private set; }
 		public int PointX { get; set; }
 		public bool PointXisLocked { get; set; }
 		public int Width { get; set; }
 		public float XsubPixel { get; set; }
-		//public Int64 Generation { get; private set; }
-        public int Generation { get; private set; }
-        public ScriptPosition ErrPos { get; set; }
+		public Int64 Generation { get; private set; }
+		public ScriptPosition ErrPos { get; set; }
 		public string Title { get; set; }
 
 
@@ -113,7 +112,7 @@ namespace MinorShift.Emuera.GameView
 			List<AConsoleDisplayPart> cssListA = new List<AConsoleDisplayPart>();
 			List<AConsoleDisplayPart> cssListB = new List<AConsoleDisplayPart>();
 			int index = 0;
-			int cssIndex = 0;
+			int cssIndex;
 			bool b = false;
 			for (cssIndex = 0; cssIndex < strArray.Length; cssIndex++)
 			{

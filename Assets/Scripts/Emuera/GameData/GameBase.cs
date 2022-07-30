@@ -105,7 +105,7 @@ namespace MinorShift.Emuera.GameData
 					if (tokens.Length < 2)
 						continue;
 					string param = tokens[1].Trim();
-					pos = new ScriptPosition(eReader.Filename, eReader.LineNo, st.RowString);
+					pos = new ScriptPosition(eReader.Filename, eReader.LineNo);
 					switch (tokens[0])
 					{
 						case "コード":

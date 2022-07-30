@@ -14,7 +14,7 @@ namespace MinorShift.Emuera.Sub
 
 		string filepath;
 		string filename;
-		bool useRename = false;
+        readonly bool useRename = false;
 		int curNo = 0;
 		int nextNo = 0;
 		StreamReader reader;
@@ -56,10 +56,10 @@ namespace MinorShift.Emuera.Sub
 			return reader.ReadLine();
 		}
 
-        /// <summary>
-        /// 次の有効な行を読む。LexicalAnalyzer経由でConfigを参照するのでConfig完成までつかわないこと。
-        /// </summary>
-        public StringStream ReadEnabledLine()
+		/// <summary>
+		/// 次の有効な行を読む。LexicalAnalyzer経由でConfigを参照するのでConfig完成までつかわないこと。
+		/// </summary>
+		public StringStream ReadEnabledLine(bool disabled = false)
 		{
 			string line = null;
 			StringStream st = new StringStream();
@@ -83,13 +83,17 @@ namespace MinorShift.Emuera.Sub
 				LexicalAnalyzer.SkipWhiteSpace(st);
 				if (st.EOS)
 					continue;
-				if (st.Current == '}')
-					throw new CodeEE("予期しない行連結終端記号'}'が見つかりました");
-				if (st.Current == '{')
+				//[SKIPSTART]～[SKIPEND]中にここが誤爆するので無効化
+				if (!disabled)
 				{
-					if (line.Trim() != "{")
-						throw new CodeEE("行連結始端記号'{'の行に'{'以外の文字を含めることはできません");
-					break;
+					if (st.Current == '}')
+						throw new CodeEE("予期しない行連結終端記号'}'が見つかりました", new ScriptPosition(filename, curNo));
+					if (st.Current == '{')
+					{
+						if (line.Trim() != "{")
+							throw new CodeEE("行連結始端記号'{'の行に'{'以外の文字を含めることはできません", new ScriptPosition(filename, curNo));
+						break;
+					}
 				}
 				return st;
 			}
@@ -101,7 +105,7 @@ namespace MinorShift.Emuera.Sub
 				nextNo++;
 				if (line == null)
 				{
-					throw new CodeEE("行連結始端記号'{'が使われましたが終端記号'}'が見つかりません");
+					throw new CodeEE("行連結始端記号'{'が使われましたが終端記号'}'が見つかりません", new ScriptPosition(filename, curNo));
 				}
 
 				if (useRename && (line.IndexOf("[[") >= 0) && (line.IndexOf("]]") >= 0))
@@ -115,11 +119,15 @@ namespace MinorShift.Emuera.Sub
 					if (test[0] == '}')
 					{
 						if (test.Trim() != "}")
-							throw new CodeEE("行連結終端記号'}'の行に'}'以外の文字を含めることはできません");
+							throw new CodeEE("行連結終端記号'}'の行に'}'以外の文字を含めることはできません", new ScriptPosition(filename, nextNo));
 						break;
 					}
-					if (test[0] == '{')
-						throw new CodeEE("予期しない行連結始端記号'{'が見つかりました");
+                    //行連結文字なら1字でないとおかしい、というか、こうしないとFORMの数値変数処理が誤爆する。
+                    //{
+                    //A}
+                    //みたいなどうしようもないコードは知ったこっちゃない
+					if (test[0] == '{' && test.Length == 1)
+						throw new CodeEE("予期しない行連結始端記号'{'が見つかりました", new ScriptPosition(filename, nextNo));
 				}
 				b.Append(line);
 				b.Append(" ");
@@ -165,7 +173,7 @@ namespace MinorShift.Emuera.Sub
 			filename = null;
 			reader = null;
 			stream = null;
-            disposed = true;
+			disposed = true;
 		}
 
 		#endregion

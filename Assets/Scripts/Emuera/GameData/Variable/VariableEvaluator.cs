@@ -1364,7 +1364,7 @@ namespace MinorShift.Emuera.GameData.Variable
 				fvp.Index2 = elem64 >> 32;
 				fvp.Index3 = elem64 & 0x7FFFFFFF;
 			}
-			int count = varData.CharacterList.Count;
+			//int count = varData.CharacterList.Count;
 			if (isLast)
 			{
 				for (Int64 i = lastIndex - 1; i >= startIndex; i--)
@@ -1398,7 +1398,7 @@ namespace MinorShift.Emuera.GameData.Variable
 				fvp.Index2 = elem64 >> 32;
 				fvp.Index3 = elem64 & 0x7FFFFFFF;
 			}
-			int count = varData.CharacterList.Count;
+			//int count = varData.CharacterList.Count;
 			if (isLast)
 			{
 				for (Int64 i = lastIndex - 1; i >= startIndex; i--)

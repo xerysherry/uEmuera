@@ -238,8 +238,7 @@ namespace MinorShift.Emuera.GameView
 				if (position.LineNo >= 0)
 				{
 					PrintErrorButton(string.Format("警告Lv{0}:{1}:{2}行目:{3}", level, position.Filename, position.LineNo, str), position);
-					if (position.RowLine != null)
-						PrintError(position.RowLine);
+					GlobalStatic.Process.printRawLine(position);
 				}
 				else
 					PrintErrorButton(string.Format("警告Lv{0}:{1}:{2}", level, position.Filename, str), position);
@@ -553,9 +552,6 @@ namespace MinorShift.Emuera.GameView
 
 		public string getStBar(string barStr)
 		{
-            if(barStr.Length == 1)
-                return uEmuera.Utils.GetStBar(barStr[0], Config.Font);
-
 			StringBuilder bar = new StringBuilder();
 			bar.Append(barStr);
 			int width = 0;

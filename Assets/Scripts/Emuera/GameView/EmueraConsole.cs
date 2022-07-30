@@ -620,7 +620,7 @@ namespace MinorShift.Emuera.GameView
 		/// <summary>
 		/// アニメーション用タイマーの設定。0以下の値を指定するとタイマー停止
 		/// </summary>
-		public void setRedrawTimer(uint tickcount)
+		public void setRedrawTimer(int tickcount)
 		{
 			if (tickcount <= 0)
 			{

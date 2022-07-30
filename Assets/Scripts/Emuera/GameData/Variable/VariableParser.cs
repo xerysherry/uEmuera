@@ -53,7 +53,7 @@ namespace MinorShift.Emuera.GameData.Variable
 		/// <returns></returns>
 		public static VariableTerm ReduceVariable(VariableToken id, WordCollection wc)
 		{
-			IOperandTerm operand = null;
+			IOperandTerm operand;
 			IOperandTerm op1 = null;
 			IOperandTerm op2 = null;
 			IOperandTerm op3 = null;
@@ -83,7 +83,7 @@ namespace MinorShift.Emuera.GameData.Variable
 
 		public static VariableTerm ReduceVariable(VariableToken id, IOperandTerm p1, IOperandTerm p2, IOperandTerm p3)
 		{
-			IOperandTerm[] terms = null;
+			IOperandTerm[] terms;
 			IOperandTerm op1 = p1;
 			IOperandTerm op2 = p2;
 			IOperandTerm op3 = p3;

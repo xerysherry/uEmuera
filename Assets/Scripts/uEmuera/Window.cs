@@ -14,17 +14,17 @@ namespace uEmuera.Window
 
         internal void SetParent(EmueraConsole emueraConsole, Process emuera)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         internal void Show()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         internal void Focus()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public bool Created { get { return true; } }

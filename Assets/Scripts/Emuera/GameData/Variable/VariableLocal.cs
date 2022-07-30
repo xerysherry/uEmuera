@@ -23,10 +23,9 @@ namespace MinorShift.Emuera.GameData.Variable
 		Dictionary<string, LocalVariableToken> localVarTokens = new Dictionary<string, LocalVariableToken>();
 		public LocalVariableToken GetExistLocalVariableToken(string subKey)
 		{
-			LocalVariableToken ret = null;
-			if (localVarTokens.TryGetValue(subKey, out ret))
-				return ret;
-			return ret;
+            if (localVarTokens.TryGetValue(subKey, out LocalVariableToken ret))
+                return ret;
+            return null;
 		}
 
         public int GetDefaultSize()
@@ -73,8 +72,7 @@ namespace MinorShift.Emuera.GameData.Variable
 
         public void ResizeLocalVariableToken(string subKey, int newSize)
         {
-            LocalVariableToken ret = null;
-            if (localVarTokens.TryGetValue(subKey, out ret))
+            if (localVarTokens.TryGetValue(subKey, out LocalVariableToken ret))
             {
                 if (size < newSize)
                     ret.resize(newSize);

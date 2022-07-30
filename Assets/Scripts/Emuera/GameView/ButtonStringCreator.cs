@@ -23,8 +23,8 @@ namespace MinorShift.Emuera.GameView
 		{
 			List<ButtonPrimitive> list = syn(printBuffer);
 			List<string> ret = new List<string>();
-            for(var i=0; i < list.Count; ++i)
-				ret.Add(list[i].Str);
+			foreach(ButtonPrimitive p in list)
+				ret.Add(p.Str);
 			return ret;
 		}
 		public static List<ButtonPrimitive> SplitButton(string printBuffer)
@@ -38,7 +38,7 @@ namespace MinorShift.Emuera.GameView
 			List<ButtonPrimitive> ret = new List<ButtonPrimitive>();
 			if (printString.Length == 0)
 				goto nonButton;
-			List<string> strs = null;
+			List<string> strs;
 			if ((!printString.Contains("[")) || (!printString.Contains("]")))
 				goto nonButton;
 			strs = lex(new StringStream(printString));
@@ -72,11 +72,13 @@ namespace MinorShift.Emuera.GameView
 			}
 			if (buttonCount <= 1)
 			{
-				ButtonPrimitive button = new ButtonPrimitive();
-				button.Str = printBuffer.ToString();
-				button.CanSelect = (buttonCount >= 1);
-				button.Input = inpL;
-				ret.Add(button);
+                ButtonPrimitive button = new ButtonPrimitive
+                {
+                    Str = printBuffer.ToString(),
+                    CanSelect = (buttonCount >= 1),
+                    Input = inpL
+                };
+                ret.Add(button);
 				return ret;
 			}
 			buttonCount = 0;
@@ -88,20 +90,22 @@ namespace MinorShift.Emuera.GameView
 
 			int state = 0;
 			StringBuilder buffer = new StringBuilder();
-			VoidMethod reduce = delegate
-			{
-				if (buffer.Length == 0)
-					return;
-				ButtonPrimitive button = new ButtonPrimitive();
-				button.Str = buffer.ToString();
-				button.CanSelect = canSelect;
-				button.Input = input;
-				ret.Add(button);
-				buffer.Remove(0, buffer.Length);
-				canSelect = false;
-				input = 0;
-			};
-			for (int i = 0; i < strs.Count; i++)
+            void reduce()
+            {
+                if (buffer.Length == 0)
+                    return;
+                ButtonPrimitive button = new ButtonPrimitive
+                {
+                    Str = buffer.ToString(),
+                    CanSelect = canSelect,
+                    Input = input
+                };
+                ret.Add(button);
+                buffer.Remove(0, buffer.Length);
+                canSelect = false;
+                input = 0;
+            }
+            for (int i = 0; i < strs.Count; i++)
 			{
 				if (strs[i].Length == 0)
 					continue;
@@ -161,9 +165,11 @@ namespace MinorShift.Emuera.GameView
 			return ret;
 		nonButton:
 			ret = new List<ButtonPrimitive>();
-			ButtonPrimitive singleButton = new ButtonPrimitive();
-			singleButton.Str = printString;
-			ret.Add(singleButton);
+            ButtonPrimitive singleButton = new ButtonPrimitive
+            {
+                Str = printString
+            };
+            ret.Add(singleButton);
 			return ret;
 		}
 		readonly static Regex numReg = new Regex(@"\[\s*([0][xXbB])?[+-]?[0-9]+([eEpP][0-9]+)?\s*\]");
@@ -205,9 +211,6 @@ namespace MinorShift.Emuera.GameView
 			return true;
 		}
 
-
-		delegate void VoidMethod();
-
 		/// <summary>
 		/// 字句分割
 		/// "[1] あ [2] いうえ "を"[1]"," ", "あ"," ","[2]"," ","いうえ"," "に分割
@@ -219,15 +222,15 @@ namespace MinorShift.Emuera.GameView
 			List<string> strs = new List<string>();
 			int state = 0;
 			int startIndex = 0;
-			VoidMethod reduce = delegate
-			{
-				if (st.CurrentPosition == startIndex)
-					return;
-				int length = st.CurrentPosition - startIndex;
-				strs.Add(st.Substring(startIndex, length));
-				startIndex = st.CurrentPosition;
-			};
-			while (!st.EOS)
+            void reduce()
+            {
+                if (st.CurrentPosition == startIndex)
+                    return;
+                int length = st.CurrentPosition - startIndex;
+                strs.Add(st.Substring(startIndex, length));
+                startIndex = st.CurrentPosition;
+            }
+            while (!st.EOS)
 			{
 				if (st.Current == '[')
 				{

@@ -216,7 +216,9 @@ public class QuickButtons : MonoBehaviour
         button.gameObject.SetActive(true);
         display_buttons_.Add(button);
 
+#if UNITY_EDITOR
         button.name = "Code:" + code;
+#endif
         button.content.text = text.Trim();
         button.content.color = color;
         button.code = code;
@@ -269,7 +271,9 @@ public class QuickButtons : MonoBehaviour
     }
     void PushButton(QuickButton button)
     {
+#if UNITY_EDITOR
         button.name = "unused";
+#endif
         button.gameObject.SetActive(false);
         var rt = button.transform as RectTransform;
         rt.anchoredPosition = new Vector2(0, 0);

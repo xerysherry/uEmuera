@@ -10,6 +10,7 @@ using MinorShift.Emuera.GameData.Expression;
 using MinorShift.Emuera.GameData.Variable;
 using MinorShift.Emuera.GameProc.Function;
 using MinorShift.Emuera.GameData.Function;
+using System.Linq;
 using uEmuera.Forms;
 
 namespace MinorShift.Emuera.GameProc
@@ -138,7 +139,7 @@ namespace MinorShift.Emuera.GameProc
 				GlobalStatic.GameBaseData = gamebase;
 
 				//前記以外のcsvを全て読み込み
-				ConstantData constant = new ConstantData(gamebase);
+				ConstantData constant = new ConstantData();
 				constant.LoadData(Program.CsvDir, console, Config.DisplayReport);
 				GlobalStatic.ConstantData = constant;
 				TrainName = constant.GetCsvNameList(VariableCode.TRAINNAME);
@@ -183,7 +184,7 @@ namespace MinorShift.Emuera.GameProc
             }
 			catch (Exception e)
 			{
-				handleException(e, null, true);
+                handleException(e, null, true);
 				console.PrintSystemLine("初期化中に致命的なエラーが発生したため処理を終了しました");
 				return false;
 			}
@@ -393,7 +394,7 @@ namespace MinorShift.Emuera.GameProc
 				return null;
 			return line.Position;
 		}
-
+/*
 		private readonly string scaningScope = null;
 		private string GetScaningScope()
 		{
@@ -401,7 +402,7 @@ namespace MinorShift.Emuera.GameProc
 				return scaningScope;
 			return state.Scope;
 		}
-
+*/
 		public LogicalLine scaningLine = null;
 		internal LogicalLine GetScaningLine()
 		{
@@ -445,9 +446,8 @@ namespace MinorShift.Emuera.GameProc
 
 			console.ThrowError(playSound);
 			ScriptPosition position = null;
-			EmueraException ee = exc as EmueraException;
-			if((ee != null) && (ee.Position != null))
-				position = ee.Position;
+            if ((exc is EmueraException ee) && (ee.Position != null))
+                position = ee.Position;
             else if ((current != null) && (current.Position != null))
 				position = current.Position;
 			string posString = "";
@@ -463,24 +463,21 @@ namespace MinorShift.Emuera.GameProc
 			{
                 if (position != null)
 				{
-                    InstructionLine procline = current as InstructionLine;
-                    if (procline != null && procline.FunctionCode == FunctionCode.THROW)
+                    if (current is InstructionLine procline && procline.FunctionCode == FunctionCode.THROW)
                     {
                         console.PrintErrorButton(posString + "THROWが発生しました", position);
-                        if (position.RowLine != null)
-                            console.PrintError(position.RowLine);
+                        printRawLine(position);
                         console.PrintError("THROW内容：" + exc.Message);
                     }
                     else
                     {
-						console.PrintErrorButton(posString + "エラーが発生しました:" + Program.ExeName, position);
-                        if (position.RowLine != null)
-                            console.PrintError(position.RowLine);
-                        console.PrintError("エラー内容：" + exc.Message);
+                        console.PrintErrorButton(posString + "エラーが発生しました:" + Program.ExeName, position);
+						printRawLine(position);
+						console.PrintError("エラー内容：" + exc.Message);
                     }
                     console.PrintError("現在の関数：@" + current.ParentLabelLine.LabelName + "（" + current.ParentLabelLine.Position.Filename + "の" + current.ParentLabelLine.Position.LineNo.ToString() + "行目）");
                     console.PrintError("関数呼び出しスタック：");
-                    LogicalLine parent = null;
+                    LogicalLine parent;
                     int depth = 0;
                     while ((parent = state.GetReturnAddressSequensial(depth++)) != null)
                     {
@@ -513,6 +510,31 @@ namespace MinorShift.Emuera.GameProc
 			}
 		}
 
+		public void printRawLine(ScriptPosition position)
+		{
+			string str = getRawTextFormFilewithLine(position);
+			if (str != "")
+				console.PrintError(str);
+		}
+
+		public string getRawTextFormFilewithLine(ScriptPosition position)
+        {
+			string extents = position.Filename.Substring(position.Filename.Length - 4).ToLower();
+			if (extents == ".erb")
+			{
+				return File.Exists(Program.ErbDir + position.Filename)
+					? position.LineNo > 0 ? File.ReadLines(Program.ErbDir + position.Filename, Config.Encode).Skip(position.LineNo - 1).First() : ""
+					: "";
+			}
+			else if (extents == ".csv")
+			{
+				return File.Exists(Program.CsvDir + position.Filename)
+					? position.LineNo > 0 ? File.ReadLines(Program.CsvDir + position.Filename, Config.Encode).Skip(position.LineNo - 1).First() : ""
+					: "";
+			}
+			else
+				return "";
+		}
 
 	}
 }

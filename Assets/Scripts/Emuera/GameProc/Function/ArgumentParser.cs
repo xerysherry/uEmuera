@@ -25,8 +25,8 @@ namespace MinorShift.Emuera.GameProc.Function
 				return true;
 			}
 
-			Argument arg = null;
-			string errmes = null;
+			Argument arg;
+			string errmes;
 			try
 			{
 				arg = line.Function.ArgBuilder.CreateArgument(line, GlobalStatic.EMediator);

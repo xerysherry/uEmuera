@@ -33,7 +33,7 @@ namespace MinorShift.Emuera.GameProc
 		{
 			if (position == null)
 				return base.ToString();
-			return string.Format("{0}:{1}:{2}", position.Filename, position.LineNo, position.RowLine);
+			return string.Format("{0}:{1}:{2}", position.Filename, position.LineNo, GlobalStatic.Process.getRawTextFormFilewithLine(position));
 		}
 
 		protected bool isError;
@@ -280,9 +280,9 @@ namespace MinorShift.Emuera.GameProc
 				return position.LineNo.CompareTo(other.position.LineNo);
 			return Index.CompareTo(other.Index);
 		}
-		#endregion
-		#region private変数
-		Dictionary<string, UserDefinedVariableToken> privateVar = new Dictionary<string, UserDefinedVariableToken>();
+        #endregion
+        #region private変数
+        readonly Dictionary<string, UserDefinedVariableToken> privateVar = new Dictionary<string, UserDefinedVariableToken>();
 		internal bool AddPrivateVariable(UserDefinedVariableData data)
 		{
 			if (privateVar.ContainsKey(data.Name))
@@ -296,9 +296,8 @@ namespace MinorShift.Emuera.GameProc
 		}
 		internal UserDefinedVariableToken GetPrivateVariable(string key)
 		{
-			UserDefinedVariableToken var = null;
-			privateVar.TryGetValue(key, out var);
-			return var;
+            privateVar.TryGetValue(key, out UserDefinedVariableToken var);
+            return var;
 		}
 
 		/// <summary>

@@ -285,7 +285,7 @@ namespace MinorShift.Emuera.GameData.Variable
 		public override void IsArrayRangeValid(Int64[] arguments, Int64 index1, Int64 index2, string funcName, Int64 i1, Int64 i2)
 		{
 			CheckElement(arguments);
-			CharacterData chara = varData.CharacterList[(int)arguments[0]];
+			//CharacterData chara = varData.CharacterList[(int)arguments[0]];
 			if ((index1 < 0) || (index1 > sizes[0]))
 				throw new CodeEE(funcName + "命令の第" + i1.ToString() + "引数(" + index1.ToString() + ")は配列" + varName + "の範囲外です");
 			if ((index2 < 0) || (index2 > sizes[0]))

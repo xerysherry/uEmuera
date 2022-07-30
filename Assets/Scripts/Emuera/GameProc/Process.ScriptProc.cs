@@ -740,11 +740,8 @@ namespace MinorShift.Emuera.GameProc
 						int choice = (int)exm.VEvaluator.GetNextRand(count);
 						List<InstructionLine> iList = func.dataList[choice];
 						int i = 0;
-                        int listcount = iList.Count;
-                        InstructionLine selectedLine = null;
-                        for(int n=0; n<listcount; ++n)
+						foreach (InstructionLine selectedLine in iList)
 						{
-                            selectedLine = iList[n];
 							state.CurrentLine = selectedLine;
 							if (selectedLine.Argument == null)
 								ArgumentParser.SetArgumentTo(selectedLine);
@@ -808,14 +805,10 @@ namespace MinorShift.Emuera.GameProc
 						string funcName = "";
 						CalledFunction callto = null;
 						SpCallArgment cfa = null;
-
-                        var calllist = func.callList;
-                        var listcount = calllist.Count;
-                        InstructionLine iLine = null;
-                        for(var i=0; i<listcount; ++i)
+						foreach (InstructionLine iLine in func.callList)
 						{
-                            iLine = calllist[i];
-                            cfa = (SpCallArgment)iLine.Argument;
+
+							cfa = (SpCallArgment)iLine.Argument;
 							funcName = cfa.FuncnameTerm.GetStrValue(exm);
 							if (Config.ICFunction)
 								funcName = funcName.ToUpper();
@@ -837,12 +830,8 @@ namespace MinorShift.Emuera.GameProc
 					{
 						string funcName = "";
 						LogicalLine jumpto = null;
-                        var calllist = func.callList;
-                        var listcount = calllist.Count;
-                        InstructionLine iLine = null;
-                        for(var i=0; i<listcount; ++i)
+						foreach (InstructionLine iLine in func.callList)
 						{
-                            iLine = calllist[i];
 							if (iLine.Argument == null)
 								ArgumentParser.SetArgumentTo(iLine);
 							funcName = ((SpCallArgment)iLine.Argument).FuncnameTerm.GetStrValue(exm);
@@ -952,9 +941,8 @@ namespace MinorShift.Emuera.GameProc
 
 		private void deleteAllPrevState()
 		{
-            int count = prevStateList.Count;
-            for(var i=0; i<count; ++i)
-				prevStateList[i].ClearFunctionList();
+			foreach (ProcessState state in prevStateList)
+				state.ClearFunctionList();
 			prevStateList.Clear();
 		}
 

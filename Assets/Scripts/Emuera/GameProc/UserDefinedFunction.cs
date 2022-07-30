@@ -42,7 +42,7 @@ namespace MinorShift.Emuera.GameProc
 			string dimtype = dims ? "#FUNCTION" : "#FUNCTIONS";
 			UserDefinedFunctionData ret = new UserDefinedFunctionData();
 			ret.TypeIsStr = dims;
-			IdentifierWord idw = null;
+			IdentifierWord idw;
 			string keyword = dimtype;
 			while (!wc.EOL && (idw = wc.Current as IdentifierWord) != null)
 			{
@@ -101,7 +101,7 @@ namespace MinorShift.Emuera.GameProc
 						{
 							if ((int)(argType & UserDifinedFunctionDataArgType.__Dimention) == 0)
 								throw new CodeEE("REF引数は配列変数でなければなりません", sc);
-							state = 2;
+							//state = 2;
 							argList.Add(argType);
 							goto argend;
 						}

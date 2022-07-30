@@ -181,7 +181,7 @@ namespace MinorShift.Emuera.GameData.Expression
                 throw new CodeEE(errMes);
 		}
 		
-		public static IOperandTerm ReduceTernaryTerm(OperatorCode op, IOperandTerm o1, IOperandTerm o2, IOperandTerm o3)
+		public static IOperandTerm ReduceTernaryTerm(IOperandTerm o1, IOperandTerm o2, IOperandTerm o3)
 		{
             OperatorMethod method = null;
 			if ((o1.GetOperandType() == typeof(Int64)) && (o2.GetOperandType() == typeof(Int64)) && (o3.GetOperandType() == typeof(Int64)))
@@ -289,9 +289,11 @@ namespace MinorShift.Emuera.GameData.Expression
 					throw new CodeEE("文字列に10000以上の値(" + value.ToString() + ")を乗算しようとしました");
 				if ((str == "") || (value == 0))
 					return "";
-				StringBuilder builder = new StringBuilder();
-				builder.Capacity = str.Length * (int)value;
-				for (int i = 0; i < value; i++)
+                StringBuilder builder = new StringBuilder
+                {
+                    Capacity = str.Length * (int)value
+                };
+                for (int i = 0; i < value; i++)
 				{
 					builder.Append(str);
 				}

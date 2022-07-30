@@ -254,8 +254,7 @@ namespace MinorShift.Emuera
 			if (arg == null)
 				return false;
 			string str = arg.Trim();
-			int i = 0;
-			if (Int32.TryParse(str, out i))
+			if (Int32.TryParse(str, out int i))
 			{
 				p = (i != 0);
 				return true;

@@ -93,6 +93,14 @@ namespace uEmuera
             return GetDisplayLength(s, font.Size);
         }
 
+        public static readonly HashSet<char> fullsize = new HashSet<char>
+        {
+            '´',
+        };
+        public static bool CheckFullSize(char c)
+        {
+            return fullsize.Contains(c);
+        }
         public static readonly HashSet<char> halfsize = new HashSet<char>
         {
             '▀','▁','▂','▃','▄','▅',
@@ -100,9 +108,9 @@ namespace uEmuera
             '▌','▍','▎','▏','▐','░',
             '▒','▓','▔','▕', '▮',
             '┮', '╮', '◮', '♮', '❮',
-            '⟮', '⠮','⡮','⢮', '⣮',
+            '⟮', '⠮','⡮','⢮', '⣮', '║',
             '▤','▥','▦', '▧', '▨', '▩',
-            '▪', '▫',
+            '▪', '▫','~', '´', 'ﾄ', '｡', '･',
         };
         public static bool CheckHalfSize(char c)
         {
@@ -300,6 +308,8 @@ namespace uEmuera
                         catch (Exception e)
                         {}
                     }
+                    if (tokens.Length <= 1)
+                        continue;
                     string name = tokens[1].ToUpper();
                     string imagepath = null;
                     content_files.TryGetValue(name, out imagepath);

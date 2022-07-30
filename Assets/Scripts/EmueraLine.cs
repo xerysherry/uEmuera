@@ -12,17 +12,20 @@ public class EmueraLine : EmueraBehaviour
         click_handler_ = GetComponent<GenericUtils.PointerClickListener>();
     }
 
-    UnityEngine.UI.Text text
+    public UnityEngine.UI.Text text
     {
         get
         {
-            if(text_ == null)
+            if (text_ == null)
+            {
                 text_ = GetComponent<UnityEngine.UI.Text>();
+                text_.maskable = false;
+            }
             return text_;
         }
     }
     UnityEngine.UI.Text text_ = null;
-    UnityEngine.UI.Monospaced monospaced
+    public UnityEngine.UI.Monospaced monospaced
     {
         get
         {
@@ -32,7 +35,7 @@ public class EmueraLine : EmueraBehaviour
         }
     }
     UnityEngine.UI.Monospaced monospaced_ = null;
-    UnityEngine.UI.ContentSizeFitter size_fitter
+    public UnityEngine.UI.ContentSizeFitter size_fitter
     {
         get
         {
@@ -109,7 +112,9 @@ public class EmueraLine : EmueraBehaviour
             if(underline_ == null)
             {
                 var obj = GameObject.Instantiate(EmueraContent.instance.template_block.gameObject);
+#if UNITY_EDITOR
                 obj.name = "underline";
+#endif
                 underline_ = obj.GetComponent<RectTransform>();
                 underline_.transform.SetParent(this.transform);
                 underline_.anchorMin = new Vector2(0, 1);
@@ -130,7 +135,9 @@ public class EmueraLine : EmueraBehaviour
             if(strickout_ == null)
             {
                 var obj = GameObject.Instantiate(EmueraContent.instance.template_block.gameObject);
+#if UNITY_EDITOR
                 obj.name = "strickout";
+#endif
                 strickout_ = obj.GetComponent<RectTransform>();
                 strickout_.transform.SetParent(this.transform);
                 strickout_.anchorMin = new Vector2(0, 1);
@@ -146,7 +153,9 @@ public class EmueraLine : EmueraBehaviour
         else if(strickout_ != null)
             strickout_.gameObject.SetActive(false);
 
+#if UNITY_EDITOR
         gameObject.name = string.Format("line:{0}:{1}", LineNo, UnitIdx);
+#endif
         gameObject.SetActive(true);
     }
     public void Clear()

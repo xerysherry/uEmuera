@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MinorShift.Emuera.Sub
 {
@@ -99,24 +100,22 @@ namespace MinorShift.Emuera.Sub
 	/// </summary>
 	internal sealed class ScriptPosition : IEquatable<ScriptPosition>, IEqualityComparer<ScriptPosition>
 	{
-		public ScriptPosition(string srcLine)
+		public ScriptPosition()
 		{
 			LineNo = -1;
-            RowLine = srcLine;
 			Filename = "";
 		}
-		public ScriptPosition(string srcFile, int srcLineNo, string srcLine)
+		public ScriptPosition(string srcFile, int srcLineNo)
 		{
 			LineNo = srcLineNo;
-            RowLine = srcLine;
             if (srcFile == null)
 				Filename = "";
             else
                 Filename = srcFile;
 		}
 		public readonly int LineNo;
-		public readonly string RowLine;
 		public readonly string Filename;
+
 		public override string ToString()
 		{
 			if(LineNo == -1)

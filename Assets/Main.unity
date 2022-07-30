@@ -562,6 +562,11 @@ PrefabInstance:
       propertyPath: option_window
       value: 
       objectReference: {fileID: 1136887345}
+    - target: {fileID: 114720696547579864, guid: 34d3918ada139ca48a8b646b362de11a,
+        type: 3}
+      propertyPath: m_Maskable
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 114850395648910250, guid: 34d3918ada139ca48a8b646b362de11a,
         type: 3}
       propertyPath: debug

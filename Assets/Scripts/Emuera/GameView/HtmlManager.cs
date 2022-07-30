@@ -231,7 +231,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			List<string> strList = new List<string>();
 			StringStream st = new StringStream(str);
-			int found = -1;
+			int found;
 			while (!st.EOS)
 			{
 				found = st.Find('<');
@@ -378,7 +378,7 @@ namespace MinorShift.Emuera.GameView
 			//return System.Web.HttpUtility.HtmlEncode(str);
 
 			int index = 0;
-			int found = 0;
+			int found;
 			StringBuilder b = new StringBuilder();
 			while (index < str.Length)
 			{
@@ -426,7 +426,7 @@ namespace MinorShift.Emuera.GameView
 				string escWordRow = str.Substring(index + 1, found - index - 1);
 				index = found + 1;
 				string escWord = escWordRow.ToLower();
-				int unicode = 0;
+				int unicode;
 				switch (escWord)
 				{
 					case "nbsp": b.Append(" "); break;
@@ -480,7 +480,7 @@ namespace MinorShift.Emuera.GameView
 			AConsoleDisplayPart[] css = new AConsoleDisplayPart[cssList.Count];
 			cssList.CopyTo(css);
 			cssList.Clear();
-			ConsoleButtonString ret = null;
+			ConsoleButtonString ret;
 			if (state.LastButtonTag != null && state.LastButtonTag.IsButton)
 			{
 				if (state.LastButtonTag.ButtonIsInteger)
@@ -724,7 +724,7 @@ namespace MinorShift.Emuera.GameView
 					{
 						if (wc == null)
 							throw new CodeEE("<" + tag + ">タグに属性が設定されていません");
-						string attrValue = null;
+						string attrValue;
 						string src = null;
 						string srcb = null;
 						int height = 0;
@@ -858,7 +858,7 @@ namespace MinorShift.Emuera.GameView
 							throw new CodeEE("<button>又は<nonbutton>が入れ子にされています");
 						HtmlAnalzeStateButtonTag buttonTag = new HtmlAnalzeStateButtonTag();
 						bool isButton = tag.ToLower() == "button";
-						string attrValue = null;
+						string attrValue;
 						string value = null;
 						//if (wc == null)
 						//	throw new CodeEE("<" + tag + ">タグに属性が設定されていません");
@@ -889,11 +889,10 @@ namespace MinorShift.Emuera.GameView
 							}
 							else if (word.Code.Equals("pos", StringComparison.OrdinalIgnoreCase))
 							{
-								//throw new NotImplCodeEE();
-								int pos = 0;
-								if (buttonTag.PointXisLocked)
-										throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
-								if (!int.TryParse(attrValue, out pos))
+                                //throw new NotImplCodeEE();
+                                if (buttonTag.PointXisLocked)
+                                    throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
+                                if (!int.TryParse(attrValue, out int pos))
 									throw new CodeEE("<" + tag + ">タグのpos属性の属性値が数値として解釈できません");
 								buttonTag.PointX = pos;
 								buttonTag.PointXisLocked = true;
@@ -903,11 +902,10 @@ namespace MinorShift.Emuera.GameView
 						}
 						if (isButton)
 						{
-							//if (value == null)
-							//	throw new CodeEE("<" + tag + ">タグにvalue属性が設定されていません");
-							Int64 intValue = 0;
-							buttonTag.ButtonIsInteger = (Int64.TryParse(value, out intValue));
-							buttonTag.ButtonValueInt = intValue;
+                            //if (value == null)
+                            //	throw new CodeEE("<" + tag + ">タグにvalue属性が設定されていません");
+                            buttonTag.ButtonIsInteger = (Int64.TryParse(value, out long intValue));
+                            buttonTag.ButtonValueInt = intValue;
 							buttonTag.ButtonValueStr = value;
 						}
 						buttonTag.IsButton = value != null;
@@ -992,7 +990,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			if(str.Length == 0)
 				throw new CodeEE("色を表す単語又は#RRGGBB値が必要です");
-			int i = 0;
+			int i;
 			if (str[0] == '#')
 			{
 				string colorvalue = str.Substring(1);

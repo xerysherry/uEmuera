@@ -202,7 +202,7 @@ namespace MinorShift.Emuera.GameProc
 
 		public void SetBegin(BeginType type)
 		{
-			string errmes = "";
+			string errmes;
 			switch (type)
 			{
 				case BeginType.SHOP:
@@ -247,15 +247,9 @@ namespace MinorShift.Emuera.GameProc
 		{
 			if (Program.DebugMode && !isClone && GlobalStatic.Process.MethodStack() == 0)
 				console.DebugClearTraceLog();
-
-            CalledFunction called = null;
-            var count = functionList.Count;
-			for(var i=0; i<count; ++i)
-            {
-                called = functionList[i];
-                if(called.CurrentLabel.hasPrivDynamicVar)
+			foreach (CalledFunction called in functionList)
+                if (called.CurrentLabel.hasPrivDynamicVar)
                     called.CurrentLabel.Out();
-            }
 			functionList.Clear();
 			begintype = BeginType.NULL;
 		}
@@ -308,14 +302,9 @@ namespace MinorShift.Emuera.GameProc
 				console.DebugClearTraceLog();
 				console.DebugAddTraceLog("BEGIN:" + begintype.ToString());
 			}
-            CalledFunction called = null;
-            var count = functionList.Count;
-            for(var i = 0; i < count; ++i)
-            {
-                called = functionList[i];
-                if(called.CurrentLabel.hasPrivDynamicVar)
+			foreach (CalledFunction called in functionList)
+                if (called.CurrentLabel.hasPrivDynamicVar)
                     called.CurrentLabel.Out();
-            }
 			functionList.Clear();
 			begintype = BeginType.NULL;
 			return;
@@ -451,11 +440,8 @@ namespace MinorShift.Emuera.GameProc
 
 			if (call.IsEvent)
 			{
-                CalledFunction called = null;
-                var count = functionList.Count;
-                for(var i = 0; i < count; ++i)
-                {
-                    called = functionList[i];
+				foreach (CalledFunction called in functionList)
+				{
 					if (called.IsEvent)
 						throw new CodeEE("EVENT関数の解決前にCALLEVENT命令が行われました");
 				}

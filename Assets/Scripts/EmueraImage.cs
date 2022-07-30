@@ -117,7 +117,9 @@ public class EmueraImage : EmueraBehaviour
 
             var str_index = image_indices[i];
             var image_part = cb.StrArray[str_index] as ConsoleImagePart;
+#if UNITY_EDITOR
             image.name = image_part.Image.Name;
+#endif
             imageinfo.Load(image_part.Image);
             image_infos_.Add(imageinfo);
 
@@ -131,7 +133,9 @@ public class EmueraImage : EmueraBehaviour
         }
 
         prt.sizeDelta = new Vector2(width, logic_height);
+#if UNITY_EDITOR
         name = string.Format("image:{0}:{1}", LineNo, UnitIdx);
+#endif
     }
     public void Clear()
     {

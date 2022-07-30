@@ -692,18 +692,21 @@ public class EmueraContent : MonoBehaviour
     /// <returns></returns>
     EmueraLine PullLine()
     {
-        EmueraLine config = null;
+        EmueraLine line = null;
         if(cache_lines_.Count > 0)
-            config = cache_lines_.Dequeue();
+            line = cache_lines_.Dequeue();
         else
         {
             var obj = GameObject.Instantiate(template_text.gameObject);
-            config = obj.GetComponent<EmueraLine>();
-            config.transform.SetParent(text_content);
-            config.transform.localScale = Vector3.one;
+            line = obj.GetComponent<EmueraLine>();
+            line.transform.SetParent(text_content);
+            line.transform.localScale = Vector3.one;
+            line.gameObject.SetActive(true);
         }
-        config.gameObject.SetActive(true);  
-        return config;
+        //line.size_fitter.enabled = true;
+        //line.monospaced.enabled = true;
+        //line.gameObject.SetActive(true);  
+        return line;
     }
     /// <summary>
     /// 交还文本显示控件
@@ -712,8 +715,17 @@ public class EmueraContent : MonoBehaviour
     void PushLine(EmueraLine line)
     {
         line.Clear();
-        line.gameObject.SetActive(false);
+        //line.gameObject.SetActive(false);
+
+        //line.size_fitter.enabled = false;
+        //line.monospaced.enabled = false;
+        //line.text.text = string.Empty;
+        //line.rect_transform.sizeDelta = Vector2.zero;
+        line.rect_transform.position = new Vector3(-10000, 0, 0);
+
+#if UNITY_EDITOR
         line.gameObject.name = "unused";
+#endif
         cache_lines_.Enqueue(line);
     }
     Queue<EmueraLine> cache_lines_ = new Queue<EmueraLine>();
@@ -745,7 +757,9 @@ public class EmueraContent : MonoBehaviour
     {
         image.Clear();
         image.gameObject.SetActive(false);
+#if UNITY_EDITOR
         image.gameObject.name = "unused";
+#endif
         image.transform.SetParent(cache_images);
         cache_image_containers_.Push(image);
     }
@@ -773,7 +787,9 @@ public class EmueraContent : MonoBehaviour
     public void PushImage(Image image)
     {
         image.gameObject.SetActive(false);
+#if UNITY_EDITOR
         image.gameObject.name = "unused";
+#endif
         image.sprite = null;
         image.transform.SetParent(cache_images);
         cache_images_.Push(image);

@@ -531,13 +531,14 @@ namespace MinorShift.Emuera
 		public FunctionIdentifier GetFunctionIdentifier(string str)
 		{
 			string key = str;
-			FunctionIdentifier ret = null;
-			if (string.IsNullOrEmpty(key))
-				return null;
-			if (Config.ICFunction)
+            if (string.IsNullOrEmpty(key))
+                return null;
+            if (Config.ICFunction)
 				key = key.ToUpper();
-			instructionDic.TryGetValue(key, out ret);
-			return ret;
+			if (instructionDic.TryGetValue(key, out FunctionIdentifier ret))
+				return ret;
+			else
+				return null;
 		}
 
 		public List<string> GetOverloadedList(LabelDictionary labelDic)

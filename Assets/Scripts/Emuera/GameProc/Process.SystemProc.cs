@@ -111,7 +111,7 @@ namespace MinorShift.Emuera.GameProc
 
 		private bool callFunction(string functionName, bool force, bool isEvent)
 		{
-			CalledFunction call = null;
+			CalledFunction call;
 			if (isEvent)
 				call = CalledFunction.CallEventFunction(this, functionName, null);
 			else

@@ -46,7 +46,7 @@ namespace UnityEngine.UI
 
         public override void ModifyMesh(VertexHelper vh)
         {
-            if (!enabled)
+            if (!enabled || string.IsNullOrEmpty(text.text))
                 return;
 
             var size = widthsize;
@@ -63,7 +63,7 @@ namespace UnityEngine.UI
             if (richtext)
                 i = GetNextValidIndex(content, i);
             float a = size / 2.0f * 1.30f;
-            float b = size * 1.30f;
+            float b = size * 1.50f;
             float d = 0;
             float s = 0;
             float si = 0;
@@ -97,7 +97,7 @@ namespace UnityEngine.UI
                 {
                     s += size / 2.0f;
                     continue;
-                }
+                } 
                 else if (richtext && c == '<')
                 {
                     var nexti = GetNextValidIndex(content, i);
@@ -119,10 +119,14 @@ namespace UnityEngine.UI
                     //字形大小超过文本尺寸时
                     //可能使用<size>富文本标记
                     si = d;
+                else if (uEmuera.Utils.CheckFullSize(c))
+                    si = size;
                 else if (uEmuera.Utils.CheckHalfSize(c))
                     si = size / 2.0f;
                 else if (c == ' ')
                     si = size / 2.0f;
+                else if (c == 8203)
+                    si = 0;
                 //else if(c == '　')
                 //    si = size;
                 //else if(d < a)

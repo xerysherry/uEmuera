@@ -194,7 +194,7 @@ namespace MinorShift.Emuera
 		}
 
 
-		static Dictionary<string, Dictionary<FontStyle, Font>> fontDic = new Dictionary<string, Dictionary<FontStyle, Font>>();
+		static readonly Dictionary<string, Dictionary<FontStyle, Font>> fontDic = new Dictionary<string, Dictionary<FontStyle, Font>>();
 		public static Font Font { get { return GetFont(null, FontStyle.Regular); } }
 
 		public static Font GetFont(string theFontname, FontStyle style)
@@ -311,10 +311,9 @@ namespace MinorShift.Emuera
 				return false;
 			}
 
-			bool updated = true;
-			long key = getUpdateKey();
-			updated = LastKey != key;
-			LastKey = key;
+            long key = getUpdateKey();
+            bool updated = LastKey != key;
+            LastKey = key;
 			return updated;
 		}
 
@@ -356,12 +355,12 @@ namespace MinorShift.Emuera
 				return string.Compare(x, y, StringComparison.OrdinalIgnoreCase);
 			}
 		}
-		static StrIgnoreCaseComparer ignoreCaseComparer = new StrIgnoreCaseComparer();
+		static readonly StrIgnoreCaseComparer ignoreCaseComparer = new StrIgnoreCaseComparer();
 
 		//KeyValuePair<相対パス, 完全パス>のリストを返す。
 		private static List<KeyValuePair<string, string>> getFiles(string dir, string rootdir, string pattern, bool toponly, bool sort)
 		{
-            StringComparison strComp = StringComparison.OrdinalIgnoreCase;
+			StringComparison strComp = StringComparison.OrdinalIgnoreCase;
 			List<KeyValuePair<string, string>> retList = new List<KeyValuePair<string, string>>();
 			if (!toponly)
 			{//サブフォルダ内の検索
@@ -374,7 +373,7 @@ namespace MinorShift.Emuera
 						retList.AddRange(getFiles(dirList[i], rootdir, pattern, toponly, sort));
 				}
 			}
-			string RelativePath = "";//相対ディレクトリ名
+			string RelativePath;//相対ディレクトリ名
 			if (string.Equals(dir, rootdir, strComp))//現在のパスが検索ルートパスに等しい
 				RelativePath = "";
 			else
@@ -515,9 +514,9 @@ namespace MinorShift.Emuera
 		public static bool SystemIgnoreTripleSymbol { get; private set; }
 		public static bool SystemNoTarget { get; private set; }
 		public static bool SystemIgnoreStringSet { get; private set; }
-		
-        public static int Language { get; private set; }
-		
+
+		public static int Language { get; private set; }
+
 		public static string SavDir { get; private set; }
 		public static string ForceSavDir { get; private set; }
 

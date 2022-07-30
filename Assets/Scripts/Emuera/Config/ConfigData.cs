@@ -47,7 +47,7 @@ static ConfigData() { }
 			configArray[i++] = new ConfigItem<bool>(ConfigCode.AutoSave, "オートセーブを行なう", true);
 			configArray[i++] = new ConfigItem<bool>(ConfigCode.UseKeyMacro, "キーボードマクロを使用する", true);
 			configArray[i++] = new ConfigItem<bool>(ConfigCode.SizableWindow, "ウィンドウの高さを可変にする", true);
-			configArray[i++] = new ConfigItem<TextDrawingMode>(ConfigCode.TextDrawingMode, "描画インターフェース", TextDrawingMode.GRAPHICS);
+			configArray[i++] = new ConfigItem<TextDrawingMode>(ConfigCode.TextDrawingMode, "描画インターフェース", TextDrawingMode.TEXTRENDERER);
 			//configArray[i++] = new ConfigItem<bool>(ConfigCode.UseImageBuffer, "イメージバッファを使用する", true);
 			configArray[i++] = new ConfigItem<int>(ConfigCode.WindowX, "ウィンドウ幅", 760);
 			configArray[i++] = new ConfigItem<int>(ConfigCode.WindowY, "ウィンドウ高さ", 480);
@@ -472,7 +472,7 @@ static ConfigData() { }
 					var md5 = md5s[md5i++];
 					if ((line.Length == 0) || (line[0] == ';'))
 						continue;
-					pos = new ScriptPosition(eReader.Filename, eReader.LineNo, line);
+					pos = new ScriptPosition(eReader.Filename, eReader.LineNo);
 					string[] tokens = line.Split(new char[] { ':' });
 					if (tokens.Length < 2)
 						continue;
@@ -563,7 +563,7 @@ static ConfigData() { }
 				{
 					if ((line.Length == 0) || (line[0] == ';'))
 						continue;
-					pos = new ScriptPosition(eReader.Filename, eReader.LineNo, line);
+					pos = new ScriptPosition(eReader.Filename, eReader.LineNo);
                     string[] tokens = line.Split(new char[] { ',', ':' });
 					if (tokens.Length < 2)
 						continue;
@@ -633,7 +633,7 @@ static ConfigData() { }
 				{
 					if ((line.Length == 0) || (line[0] == ';'))
 						continue;
-					pos = new ScriptPosition(eReader.Filename, eReader.LineNo, line);
+					pos = new ScriptPosition(eReader.Filename, eReader.LineNo);
 					string[] tokens = line.Split(new char[] { ':' });
 					if (tokens.Length < 2)
 						continue;

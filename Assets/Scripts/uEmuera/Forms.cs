@@ -38,7 +38,7 @@ namespace uEmuera.Forms
         }
 
         public bool Enabled { get; set; }
-        public uint Interval { get; set; }
+        public int Interval { get; set; }
         public object Tag { get; set; }
 
         public event EventHandler Tick;

@@ -157,14 +157,14 @@ namespace MinorShift.Emuera.GameProc
 				errMes = "引数の数が関数\"@" + func.LabelName + "\"に設定された数を超えています";
 				return null;
 			}
-			IOperandTerm term = null;
-			VariableTerm destArg = null;
-			bool isString = false;
+			IOperandTerm term;
+			VariableTerm destArg;
+			//bool isString = false;
 			for (int i = 0; i < func.Arg.Length; i++)
 			{
 				term = (i < srcArgs.Length) ? srcArgs[i] : null;
 				destArg = func.Arg[i];
-				isString = destArg.IsString;
+				//isString = destArg.IsString;
 				if (destArg.Identifier.IsReference)//参照渡しの場合
 				{
 					if (term == null)

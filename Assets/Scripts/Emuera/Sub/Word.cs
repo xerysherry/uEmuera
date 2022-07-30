@@ -96,10 +96,9 @@ namespace MinorShift.Emuera.Sub
 		public override void SetIsMacro()
 		{
 			IsMacro = true;
-            var count = SubWords.Length;
-            for(var i=0; i<count; ++i)
+			foreach(SubWord subword in SubWords)
 			{
-                SubWords[i].SetIsMacro();
+				subword.SetIsMacro();
 			}
 		}
 	}

@@ -130,11 +130,11 @@ namespace MinorShift.Emuera.Sub
 		#region read
 		public static Int64 ReadInt64(StringStream st, bool retZero)
 		{
-			Int64 significand = 0;
+			Int64 significand;
 			int expBase = 0;
 			int exponent = 0;
 			int stStartPos = st.CurrentPosition;
-			int stEndPos = st.CurrentPosition;
+			int stEndPos;
 			int fromBase = 10;
 			if (st.Current == '0')
 			{
@@ -314,7 +314,7 @@ namespace MinorShift.Emuera.Sub
 		/// <returns></returns>
 		public static IdentifierWord ReadFirstIdentifierWord(StringStream st)
 		{
-			int startpos = st.CurrentPosition;
+			//int startpos = st.CurrentPosition;
 			string str = ReadSingleIdentifier(st);
 			if (string.IsNullOrEmpty(str))
 				throw new CodeEE("不正な文字で行が始まっています");

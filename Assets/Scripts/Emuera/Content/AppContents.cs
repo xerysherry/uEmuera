@@ -14,9 +14,9 @@ namespace MinorShift.Emuera.Content
 		{
 			gList = new Dictionary<int, GraphicsImage>();
 		}
-		static Dictionary<string, AContentFile> resourceDic = new Dictionary<string, AContentFile>();
-		static Dictionary<string, ASprite> imageDictionary = new Dictionary<string, ASprite>();
-		static Dictionary<int, GraphicsImage> gList;
+		static readonly Dictionary<string, AContentFile> resourceDic = new Dictionary<string, AContentFile>();
+		static readonly Dictionary<string, ASprite> imageDictionary = new Dictionary<string, ASprite>();
+		static readonly Dictionary<int, GraphicsImage> gList;
 
 		//static public T GetContent<T>(string name)where T :AContentItem
 		//{
@@ -86,28 +86,7 @@ namespace MinorShift.Emuera.Content
 				return true;
 			try
 			{
-                //				List<string> bmpfilelist = new List<string>();
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.png", SearchOption.TopDirectoryOnly));
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.bmp", SearchOption.TopDirectoryOnly));
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.jpg", SearchOption.TopDirectoryOnly));
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.gif", SearchOption.TopDirectoryOnly));
-                //#if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-                //                bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.PNG", SearchOption.TopDirectoryOnly));
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.BMP", SearchOption.TopDirectoryOnly));
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.JPG", SearchOption.TopDirectoryOnly));
-                //				bmpfilelist.AddRange(Directory.GetFiles(Program.ContentDir, "*.GIF", SearchOption.TopDirectoryOnly));
-                //#endif
-                //            foreach(var filename in bmpfilelist)
-                //{//リスト化のみ。Loadはまだ
-                //	string name = Path.GetFileName(filename).ToUpper();
-                //	resourceDic.Add(name, new BaseImage(name, filename));
-                //}
-                //var bmpfilelist = uEmuera.Utils.GetContentFiles();
-                //foreach(var kv in bmpfilelist)
-                //{
-                //    resourceDic.Add(kv.Key, new BaseImage(kv.Key, kv.Value));
-                //}
-
+				//resourcesフォルダ内の全てのcsvファイルを探索する
 				List<string> csvFiles = new List<string>(Directory.GetFiles(Program.ContentDir, "*.csv", SearchOption.TopDirectoryOnly));
 #if(UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
                 csvFiles.AddRange(Directory.GetFiles(Program.ContentDir, "*.CSV", SearchOption.TopDirectoryOnly));
@@ -134,7 +113,7 @@ namespace MinorShift.Emuera.Content
 							continue;
 						string[] tokens = str.Split(',');
 						//AContentItem item = CreateFromCsv(tokens);
-						ScriptPosition sp = new ScriptPosition(filename, lineNo, line);
+						ScriptPosition sp = new ScriptPosition(filename, lineNo);
 						ASprite item = CreateFromCsv(tokens, directory, currentAnime, sp) as ASprite;
 						if (item != null)
 						{

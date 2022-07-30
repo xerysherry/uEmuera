@@ -41,11 +41,11 @@ namespace MinorShift.Emuera.GameProc
 			UserDefinedVariableData ret = new UserDefinedVariableData();
 			ret.TypeIsStr = dims;
 
-			IdentifierWord idw = null;
+			IdentifierWord idw;
 			bool staticDefined = false;
 			ret.Const = false;
 			string keyword = dimtype;
-			List<string> keywords = new List<string>();
+			//List<string> keywords;
 			while (!wc.EOL && (idw = wc.Current as IdentifierWord) != null)
 			{
 				wc.ShiftNext();

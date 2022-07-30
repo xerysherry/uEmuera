@@ -31,15 +31,14 @@ namespace MinorShift.Emuera.GameData.Variable
 			string key = strTerm.GetStrValue(exm);
 			if (key == "")
 				throw new CodeEE("キーワードを空には出来ません");
-			int i;
-			if (!dic.TryGetValue(key, out i))
-			{
-				if (errPos == null)
-					throw new CodeEE("配列変数" + parentCode.ToString() + "の要素を文字列で指定することはできません");
-				else
-					throw new CodeEE(errPos + "の中に\"" + key + "\"の定義がありません");
-			}
-			return i;
+            if (!dic.TryGetValue(key, out int i))
+            {
+                if (errPos == null)
+                    throw new CodeEE("配列変数" + parentCode.ToString() + "の要素を文字列で指定することはできません");
+                else
+                    throw new CodeEE(errPos + "の中に\"" + key + "\"の定義がありません");
+            }
+            return i;
         }
 		
         public override IOperandTerm Restructure(ExpressionMediator exm)

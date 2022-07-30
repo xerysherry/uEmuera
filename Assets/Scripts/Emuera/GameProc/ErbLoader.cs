@@ -23,7 +23,7 @@ namespace MinorShift.Emuera.GameProc
 		readonly Process parentProcess;
 		readonly ExpressionMediator exm;
 		readonly EmueraConsole output;
-		List<string> ignoredFNFWarningFileList = new List<string>();
+        readonly List<string> ignoredFNFWarningFileList = new List<string>();
 		int ignoredFNFWarningCount = 0;
 
 		int enabledLineCount = 0;
@@ -144,13 +144,13 @@ namespace MinorShift.Emuera.GameProc
 			bool skip = false;
 			bool done = false;
 			public bool Disabled = false;
-			Stack<bool> disabledStack = new Stack<bool>();
-			Stack<bool> doneStack = new Stack<bool>();
-			Stack<string> ppMatch = new Stack<string>();
+            readonly Stack<bool> disabledStack = new Stack<bool>();
+            readonly Stack<bool> doneStack = new Stack<bool>();
+            readonly Stack<string> ppMatch = new Stack<string>();
 
 			internal void AddKeyWord(string token, string token2, ScriptPosition position)
 			{
-				bool token2enabled = string.IsNullOrEmpty(token2);
+				//bool token2enabled = string.IsNullOrEmpty(token2);
 				switch (token)
 				{
 					case "SKIPSTART":
@@ -315,15 +315,13 @@ namespace MinorShift.Emuera.GameProc
 				LogicalLine lastLine = new NullLine();
 				FunctionLabelLine lastLabelLine = null;
 				StringStream st = null;
-				string rowLine = null;
 				ScriptPosition position = null;
 				int funcCount = 0;
 				if (Program.AnalysisMode)
 					output.PrintSystemLine("　");
-				while ((st = eReader.ReadEnabledLine()) != null)
+				while ((st = eReader.ReadEnabledLine(ppstate.Disabled)) != null)
 				{
-					rowLine = st.RowString;
-					position = new ScriptPosition(eReader.Filename, eReader.LineNo, rowLine);
+					position = new ScriptPosition(eReader.Filename, eReader.LineNo);
 					//rename処理をEraStreamReaderに移管
 					//変換できなかった[[～～]]についてはLexAnalyzerがエラーを投げる
 					if (st.Current == '[' && st.Next != '[')
@@ -394,17 +392,16 @@ namespace MinorShift.Emuera.GameProc
 						}
 						else
 						{
-							if (nextLine is GotoLabelLine)
-							{
-								GotoLabelLine gotoLabel = (GotoLabelLine)nextLine;
-								gotoLabel.ParentLabelLine = lastLabelLine;
-								if (lastLabelLine != null && !labelDic.AddLabelDollar(gotoLabel))
-								{
-									ScriptPosition pos = labelDic.GetLabelDollar(gotoLabel.LabelName, lastLabelLine).Position;
-									ParserMediator.Warn("ラベル名$" + gotoLabel.LabelName + "は既に同じ関数内(" + pos.Filename + "の" + pos.LineNo.ToString() + "行目)で使用されています", position, 2);
-								}
-							}
-						}
+                            if (nextLine is GotoLabelLine gotoLabel)
+                            {
+                                gotoLabel.ParentLabelLine = lastLabelLine;
+                                if (lastLabelLine != null && !labelDic.AddLabelDollar(gotoLabel))
+                                {
+                                    ScriptPosition pos = labelDic.GetLabelDollar(gotoLabel.LabelName, lastLabelLine).Position;
+                                    ParserMediator.Warn("ラベル名$" + gotoLabel.LabelName + "は既に同じ関数内(" + pos.Filename + "の" + pos.LineNo.ToString() + "行目)で使用されています", position, 2);
+                                }
+                            }
+                        }
 						if (nextLine is InvalidLine)
 						{
 							noError = false;
@@ -438,7 +435,7 @@ namespace MinorShift.Emuera.GameProc
 					lastLine = addLine(nextLine, lastLine);
 				}
 				addLine(new NullLine(), lastLine);
-				position = new ScriptPosition(eReader.Filename, -1, null);
+				position = new ScriptPosition(eReader.Filename, -1);
 				ppstate.FileEnd(position);
 			}
 			finally
@@ -490,8 +487,8 @@ namespace MinorShift.Emuera.GameProc
 		private void parseLabel(FunctionLabelLine label)
 		{
 			WordCollection wc = label.PopRowArgs();
-			string errMes = null;
-			SingleTerm[] subNames = new SingleTerm[0];
+			string errMes;
+			SingleTerm[] subNames;
 			VariableTerm[] args = new VariableTerm[0];
 			SingleTerm[] defs = new SingleTerm[0];
 			int maxArg = -1;
@@ -515,7 +512,7 @@ namespace MinorShift.Emuera.GameProc
 					ParserMediator.Warn("システム関数@" + label.LabelName + " に引数が設定されています", label, 1, false, false);
 				SymbolWord symbol = wc.Current as SymbolWord;
 				wc.ShiftNext();
-				if (symbol == null)
+                if (symbol == null)
 				{ errMes = "引数の書式が間違っています"; goto err; }
 				if (symbol.Type == '[')//TODO:subNames 結局実装しないかも
 				{
@@ -539,7 +536,7 @@ namespace MinorShift.Emuera.GameProc
 				}
 				if (!wc.EOL)
 				{
-					IOperandTerm[] argsRow = null;
+					IOperandTerm[] argsRow;
                     if (symbol.Type == ',')
 						argsRow = ExpressionParser.ReduceArguments(wc, ArgsEndWith.EoL, true);
 					else if (symbol.Type == '(')
@@ -551,22 +548,20 @@ namespace MinorShift.Emuera.GameProc
                     defs = new SingleTerm[length];
 					for (int i = 0; i < length; i++)
 					{
-						VariableTerm vTerm = null;
 						SingleTerm def = null;
 						IOperandTerm term = argsRow[i * 2];
                         //引数読み取り時点で判別されないといけない
                         //if (term == null)
                         //{ errMes = "関数定義の引数は省略できません"; goto err; }
-						vTerm = term.Restructure(exm) as VariableTerm;
-						if ((vTerm == null) || (vTerm.Identifier.IsConst))
-						{ errMes = "関数定義の引数には代入可能な変数を指定してください"; goto err; }
-						else if (!vTerm.Identifier.IsReference)//参照型なら添え字不要
-						{
-							if (vTerm is VariableNoArgTerm)
-							{ errMes = "関数定義の参照型でない引数\"" + vTerm.Identifier.Name + "\"に添え字が指定されていません"; goto err; }
-							if (!vTerm.isAllConst)
-							{ errMes = "関数定義の引数の添え字には定数を指定してください"; goto err; }
-						}
+                        if ((!(term.Restructure(exm) is VariableTerm vTerm)) || (vTerm.Identifier.IsConst))
+                        { errMes = "関数定義の引数には代入可能な変数を指定してください"; goto err; }
+                        else if (!vTerm.Identifier.IsReference)//参照型なら添え字不要
+                        {
+                            if (vTerm is VariableNoArgTerm)
+                            { errMes = "関数定義の参照型でない引数\"" + vTerm.Identifier.Name + "\"に添え字が指定されていません"; goto err; }
+                            if (!vTerm.isAllConst)
+                            { errMes = "関数定義の引数の添え字には定数を指定してください"; goto err; }
+                        }
                         for (int j = 0; j < i; j++)
                         {
                             if (vTerm.checkSameTerm(args[j]))
@@ -864,14 +859,13 @@ namespace MinorShift.Emuera.GameProc
 			{
 				nextLine = nextLine.NextLine;
 				parentProcess.scaningLine = nextLine;
-				InstructionLine func = nextLine as InstructionLine;
-				if (func == null)
-				{
-					if ((nextLine is NullLine) || (nextLine is FunctionLabelLine))
-						break;
-					continue;
-				}
-				if (inMethod)
+                if (!(nextLine is InstructionLine func))
+                {
+                    if ((nextLine is NullLine) || (nextLine is FunctionLabelLine))
+                        break;
+                    continue;
+                }
+                if (inMethod)
 				{
 					if (!func.Function.IsMethodSafe())
 					{
@@ -930,7 +924,6 @@ namespace MinorShift.Emuera.GameProc
                     continue;
                 }
 				InstructionLine func = (InstructionLine)nextLine;
-				pairLine = null;
 				InstructionLine baseFunc = nestStack.Count == 0 ? null : nestStack.Peek();
 				if (baseFunc != null)
 				{
@@ -992,9 +985,11 @@ namespace MinorShift.Emuera.GameProc
 						break;
 					case FunctionCode.IF:
 						nestStack.Push(func);
-						func.IfCaseList = new List<InstructionLine>();
-						func.IfCaseList.Add(func);
-						break;
+                        func.IfCaseList = new List<InstructionLine>
+                        {
+                            func
+                        };
+                        break;
 					case FunctionCode.SELECTCASE:
 						nestStack.Push(func);
 						func.IfCaseList = new List<InstructionLine>();
@@ -1443,14 +1438,13 @@ namespace MinorShift.Emuera.GameProc
 			while (true)
 			{
 				nextLine = nextLine.NextLine;
-				InstructionLine func = nextLine as InstructionLine;
-				if (func == null)
-				{
-					if ((nextLine is NullLine) || (nextLine is FunctionLabelLine))
-						break;
-					continue;
-				}
-				if (func.IsError)
+                if (!(nextLine is InstructionLine func))
+                {
+                    if ((nextLine is NullLine) || (nextLine is FunctionLabelLine))
+                        break;
+                    continue;
+                }
+                if (func.IsError)
 					continue;
 				parentProcess.scaningLine = func;
 

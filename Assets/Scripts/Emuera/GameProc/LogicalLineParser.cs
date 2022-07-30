@@ -210,13 +210,12 @@ namespace MinorShift.Emuera.GameProc
                                 break;
                             }
 							IOperandTerm arg = ExpressionParser.ReduceIntegerTerm(wc, TermEndWith.EoL);
-							SingleTerm sizeTerm = arg.Restructure(null) as SingleTerm;
-							if ((sizeTerm == null) || (sizeTerm.GetOperandType() != typeof(Int64)))
-							{
-								ParserMediator.Warn("#" + token + "の後に有効な定数式が指定されていません", position, 2);
-								break;
-							}
-							if (sizeTerm.Int <= 0)
+                            if ((!(arg.Restructure(null) is SingleTerm sizeTerm)) || (sizeTerm.GetOperandType() != typeof(Int64)))
+                            {
+                                ParserMediator.Warn("#" + token + "の後に有効な定数式が指定されていません", position, 2);
+                                break;
+                            }
+                            if (sizeTerm.Int <= 0)
 							{
 								ParserMediator.Warn("#" + token + "に0以下の値(" + sizeTerm.Int.ToString() + ")が与えられました。設定は無視されます", position, 1);
 								break;
@@ -281,7 +280,7 @@ namespace MinorShift.Emuera.GameProc
 		
 		public static LogicalLine ParseLine(string str, EmueraConsole console)
 		{
-			ScriptPosition position = new ScriptPosition(str);
+			ScriptPosition position = new ScriptPosition();
 			StringStream stream = new StringStream(str);
 			return ParseLine(stream, position, console);
 		}
@@ -289,7 +288,7 @@ namespace MinorShift.Emuera.GameProc
 		public static LogicalLine ParseLabelLine(StringStream stream, ScriptPosition position, EmueraConsole console)
 		{
 			bool isFunction = (stream.Current == '@');
-			int lineNo = position.LineNo;
+			//int lineNo = position.LineNo;
 			string labelName = "";
 			string errMes = "";
 			try
@@ -385,8 +384,8 @@ namespace MinorShift.Emuera.GameProc
 		
 		public static LogicalLine ParseLine(StringStream stream, ScriptPosition position, EmueraConsole console)
 		{
-			int lineNo = position.LineNo;
-			string errMes = "";
+			//int lineNo = position.LineNo;
+			string errMes;
 			LexicalAnalyzer.SkipWhiteSpace(stream);//先頭のホワイトスペースを読み飛ばす
 			if (stream.EOS)
 				return null;
@@ -398,16 +397,15 @@ namespace MinorShift.Emuera.GameProc
 				{
 					char op = stream.Current;
 					WordCollection wc = LexicalAnalyzer.Analyse(stream, LexEndWith.EoL, LexAnalyzeFlag.None);
-					OperatorWord opWT = wc.Current as OperatorWord;
-					if ((opWT == null)|| ((opWT.Code != OperatorCode.Increment) &&(opWT.Code != OperatorCode.Decrement)) )
-					{
-						if (op == '+')
-							errMes = "行が\'+\'から始まっていますが、インクリメントではありません"; 
-						else
-							errMes = "行が\'-\'から始まっていますが、デクリメントではありません";
-						goto err;
-					}
-					wc.ShiftNext();
+                    if ((!(wc.Current is OperatorWord opWT)) || ((opWT.Code != OperatorCode.Increment) && (opWT.Code != OperatorCode.Decrement)))
+                    {
+                        if (op == '+')
+                            errMes = "行が\'+\'から始まっていますが、インクリメントではありません";
+                        else
+                            errMes = "行が\'-\'から始まっていますが、デクリメントではありません";
+                        goto err;
+                    }
+                    wc.ShiftNext();
 					//token = EpressionParser.単語一個分取得(wc)
 					//token非変数
 					//token文字列形

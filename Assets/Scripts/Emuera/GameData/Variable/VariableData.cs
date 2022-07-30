@@ -936,18 +936,13 @@ namespace MinorShift.Emuera.GameData.Variable
 
 		public void LoadGlobalFromStream1808(EraDataReader reader)
 		{
-			Dictionary<string, List<string>> strListDic = null;
-			Dictionary<string, List<Int64>> intListDic = null;
-			Dictionary<string, List<string[]>> str2DListDic = null;
-			Dictionary<string, List<Int64[]>> int2DListDic = null;
-			Dictionary<string, List<List<string[]>>> str3DListDic = null;
-			Dictionary<string, List<List<Int64[]>>> int3DListDic = null;
-			strListDic = reader.ReadStringArrayExtended();
-			intListDic = reader.ReadInt64ArrayExtended();
-			str2DListDic = reader.ReadStringArray2DExtended();
-			int2DListDic = reader.ReadInt64Array2DExtended();
-			str3DListDic = reader.ReadStringArray3DExtended();
-			int3DListDic = reader.ReadInt64Array3DExtended();
+			Dictionary<string, List<string>> strListDic = reader.ReadStringArrayExtended();
+			Dictionary<string, List<Int64>> intListDic = reader.ReadInt64ArrayExtended();
+			Dictionary<string, List<string[]>> str2DListDic = reader.ReadStringArray2DExtended();
+			Dictionary<string, List<Int64[]>> int2DListDic = reader.ReadInt64Array2DExtended();
+			Dictionary<string, List<List<string[]>>> str3DListDic = reader.ReadStringArray3DExtended();
+			Dictionary<string, List<List<Int64[]>>> int3DListDic = reader.ReadInt64Array3DExtended();
+
 			List<UserDefinedVariableToken> varList = null;
 			
             int i = 0;

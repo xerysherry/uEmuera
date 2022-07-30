@@ -80,8 +80,8 @@ namespace MinorShift.Emuera.GameData
 					}
 					throw new ExeEE("何かおかしい");
 				}
-                WordCollection wc = null;
-				IOperandTerm operand = null;
+                WordCollection wc;
+				IOperandTerm operand;
 				YenAtSubWord yenat = SWT as YenAtSubWord;
 				if (yenat != null)
 				{
@@ -95,7 +95,7 @@ namespace MinorShift.Emuera.GameData
                     else
                         operand = new SingleTerm(0);
 					IOperandTerm left = new StrFormTerm(StrForm.FromWordToken(yenat.Left));
-					IOperandTerm right = null;
+					IOperandTerm right;
 					if (yenat.Right == null)
 						right = new SingleTerm("");
 					else

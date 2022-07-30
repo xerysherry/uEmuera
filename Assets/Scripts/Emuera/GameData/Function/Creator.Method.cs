@@ -4112,7 +4112,7 @@ namespace MinorShift.Emuera.GameData.Function
 				Int64 i64 = arguments[0].GetIntValue(exm);
 				if (i64 < int.MinValue || i64 > short.MaxValue)
 					throw new CodeEE(string.Format(Properties.Resources.RuntimeErrMesMethodDefaultArgumentOutOfRange0, Name, i64, 1));
-				exm.Console.setRedrawTimer((uint)i64);
+				exm.Console.setRedrawTimer((int)i64);
 				return 1;
 			}
 		}
@@ -4221,7 +4221,8 @@ namespace MinorShift.Emuera.GameData.Function
                     ret = System.IO.File.ReadAllText(filepath, encoding);
                 }
                 catch { return ""; }
-                return ret;
+                //一貫性の観点で\rには死んでもらう
+                return ret.Replace("\r","");
 			}
 		}
 

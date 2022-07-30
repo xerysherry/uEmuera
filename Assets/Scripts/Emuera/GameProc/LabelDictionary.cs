@@ -180,14 +180,13 @@ namespace MinorShift.Emuera.GameProc
 
 		public void AddFilename(string filename)
 		{
-			int curCount = 0;
-			if (loadedFileDic.TryGetValue(filename, out curCount))
-			{
-				currentFileCount = curCount;
-				RemoveLabelWithPath(filename);
-				return;
-			}
-			totalFileCount++;
+            if (loadedFileDic.TryGetValue(filename, out int curCount))
+            {
+                currentFileCount = curCount;
+                RemoveLabelWithPath(filename);
+                return;
+            }
+            totalFileCount++;
 			currentFileCount = totalFileCount;
 			loadedFileDic.Add(filename, totalFileCount);
 		}
@@ -223,17 +222,19 @@ namespace MinorShift.Emuera.GameProc
 		
 		public List<FunctionLabelLine>[] GetEventLabels(string key)
 		{
-			List<FunctionLabelLine>[] ret = null;
-			eventLabelDic.TryGetValue(key, out ret);
-			return ret;
-		}
+            if (eventLabelDic.TryGetValue(key, out List<FunctionLabelLine>[] ret))
+                return ret;
+            else
+                return null;
+        }
 
 		public FunctionLabelLine GetNonEventLabel(string key)
 		{
-			FunctionLabelLine ret = null;
-			noneventLabelDic.TryGetValue(key, out ret);
-			return ret;
-		}
+            if (noneventLabelDic.TryGetValue(key, out FunctionLabelLine ret))
+                return ret;
+            else
+                return null;
+        }
 
 		public List<FunctionLabelLine> GetAllLabels(bool getInvalidList)
 		{

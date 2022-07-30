@@ -71,7 +71,7 @@ namespace MinorShift.Emuera.GameProc
 
 		private bool loadHeaderFile(string filepath, string filename)
 		{
-			StringStream st = null;
+			StringStream st;
 			ScriptPosition position = null;
 			//EraStreamReader eReader = new EraStreamReader(false);
 			//1815修正 _rename.csvの適用
@@ -89,7 +89,7 @@ namespace MinorShift.Emuera.GameProc
 				{
 					if (!noError)
 						return false;
-					position = new ScriptPosition(filename, eReader.LineNo, st.RowString);
+					position = new ScriptPosition(filename, eReader.LineNo);
 					LexicalAnalyzer.SkipWhiteSpace(st);
 					if (st.Current != '#')
 						throw new CodeEE("ヘッダーの中に#で始まらない行があります", position);
