@@ -50,6 +50,26 @@ public class EmueraLine : EmueraBehaviour
     UnityEngine.UI.ContentSizeFitter size_fitter_ = null;
     GenericUtils.PointerClickListener click_handler_ = null;
 
+#if UNITY_STANDALONE
+    public UnityEngine.UI.Button button
+    {
+        get
+        {
+            if (button_ == null)
+            {
+                button_ = GetComponent<UnityEngine.UI.Button>();
+                if (button_ == null)
+                    button_ = gameObject.AddComponent<UnityEngine.UI.Button>();
+                var colors = button_.colors;
+                colors.highlightedColor = Config.FocusColor.ToUnityColor();
+                button_.colors = colors;
+            }
+            return button_;
+        }
+    }
+    UnityEngine.UI.Button button_ = null;
+#endif
+
     /// <summary>
     /// 更新内容
     /// </summary>
@@ -68,6 +88,9 @@ public class EmueraLine : EmueraBehaviour
         {
             click_handler_.enabled = true;
             text.raycastTarget = true;
+#if UNITY_STANDALONE
+            button.enabled = true;
+#endif
 #if UNITY_EDITOR
             code = ud.code;
             generation = ud.generation;
@@ -77,6 +100,9 @@ public class EmueraLine : EmueraBehaviour
         {
             click_handler_.enabled = false;
             text.raycastTarget = false;
+#if UNITY_STANDALONE
+            button.enabled = false;
+#endif
         }
 
         var font = FontUtils.default_font;

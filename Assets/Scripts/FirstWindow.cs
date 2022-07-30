@@ -71,6 +71,9 @@ public class FirstWindow : MonoBehaviour
         GetList("storage/sdcard1/emuera");
         GetList("storage/sdcard2/emuera");
 #endif
+#if UNITY_STANDALONE && !UNITY_EDITOR
+        GetList(Path.GetFullPath(Application.dataPath + "/.."));
+#endif
     }
 
     void OnOptionClick()

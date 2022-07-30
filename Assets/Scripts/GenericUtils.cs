@@ -149,7 +149,7 @@ public static class GenericUtils
         return fullname;
     }
 
-    public static UnityEngine.Color ToUnityColor(uEmuera.Drawing.Color color)
+    public static UnityEngine.Color ToUnityColor(this uEmuera.Drawing.Color color)
     {
         return new UnityEngine.Color(color.r, color.g, color.b, color.a);
     }
