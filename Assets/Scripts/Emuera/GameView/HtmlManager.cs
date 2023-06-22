@@ -231,7 +231,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			List<string> strList = new List<string>();
 			StringStream st = new StringStream(str);
-			int found;
+			int found = -1;
 			while (!st.EOS)
 			{
 				found = st.Find('<');
@@ -378,7 +378,7 @@ namespace MinorShift.Emuera.GameView
 			//return System.Web.HttpUtility.HtmlEncode(str);
 
 			int index = 0;
-			int found;
+			int found = 0;
 			StringBuilder b = new StringBuilder();
 			while (index < str.Length)
 			{
@@ -426,7 +426,7 @@ namespace MinorShift.Emuera.GameView
 				string escWordRow = str.Substring(index + 1, found - index - 1);
 				index = found + 1;
 				string escWord = escWordRow.ToLower();
-				int unicode;
+				int unicode = 0;
 				switch (escWord)
 				{
 					case "nbsp": b.Append(" "); break;
@@ -480,7 +480,7 @@ namespace MinorShift.Emuera.GameView
 			AConsoleDisplayPart[] css = new AConsoleDisplayPart[cssList.Count];
 			cssList.CopyTo(css);
 			cssList.Clear();
-			ConsoleButtonString ret;
+			ConsoleButtonString ret = null;
 			if (state.LastButtonTag != null && state.LastButtonTag.IsButton)
 			{
 				if (state.LastButtonTag.ButtonIsInteger)
@@ -724,12 +724,12 @@ namespace MinorShift.Emuera.GameView
 					{
 						if (wc == null)
 							throw new CodeEE("<" + tag + ">タグに属性が設定されていません");
-						string attrValue;
+						string attrValue = null;
 						string src = null;
 						string srcb = null;
-						int height = 0;
-						int width = 0;
-						int ypos = 0;
+						MixedNum height = new MixedNum(); ;
+						MixedNum width = new MixedNum(); ;
+						MixedNum ypos = new MixedNum(); ;
 						while (wc != null && !wc.EOL)
 						{
 							word = wc.Current as IdentifierWord;
@@ -755,23 +755,38 @@ namespace MinorShift.Emuera.GameView
 							}
 							else if (word.Code.Equals("height", StringComparison.OrdinalIgnoreCase))
 							{
-								if (height != 0)
+								if (height.num != 0)
 									throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
-								if (!int.TryParse(attrValue, out height))
+								if (attrValue.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+								{
+									height.isPx = true;
+									attrValue = attrValue.Substring(0, attrValue.Length - 2);
+								}
+								if (!int.TryParse(attrValue, out height.num))
 									throw new CodeEE("<" + tag + ">タグのheight属性の属性値が数値として解釈できません");
 							}
 							else if (word.Code.Equals("width", StringComparison.OrdinalIgnoreCase))
 							{
-								if (width != 0)
+								if (width.num != 0)
 									throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
-								if (!int.TryParse(attrValue, out width))
+								if (attrValue.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+								{
+									width.isPx = true;
+									attrValue = attrValue.Substring(0, attrValue.Length - 2);
+								}
+								if (!int.TryParse(attrValue, out width.num))
 									throw new CodeEE("<" + tag + ">タグのwidth属性の属性値が数値として解釈できません");
 							}
 							else if (word.Code.Equals("ypos", StringComparison.OrdinalIgnoreCase))
 							{
-								if (ypos != 0)
+								if (ypos.num != 0)
 									throw new CodeEE("<" + tag + ">タグに" + word.Code + "属性が2度以上指定されています");
-								if (!int.TryParse(attrValue, out ypos))
+								if (attrValue.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+								{
+									ypos.isPx = true;
+									attrValue = attrValue.Substring(0, attrValue.Length - 2);
+								}
+								if (!int.TryParse(attrValue, out ypos.num))
 									throw new CodeEE("<" + tag + ">タグのypos属性の属性値が数値として解釈できません");
 							}
 							else
@@ -858,7 +873,7 @@ namespace MinorShift.Emuera.GameView
 							throw new CodeEE("<button>又は<nonbutton>が入れ子にされています");
 						HtmlAnalzeStateButtonTag buttonTag = new HtmlAnalzeStateButtonTag();
 						bool isButton = tag.ToLower() == "button";
-						string attrValue;
+						string attrValue = null;
 						string value = null;
 						//if (wc == null)
 						//	throw new CodeEE("<" + tag + ">タグに属性が設定されていません");
@@ -990,7 +1005,7 @@ namespace MinorShift.Emuera.GameView
 		{
 			if(str.Length == 0)
 				throw new CodeEE("色を表す単語又は#RRGGBB値が必要です");
-			int i;
+			int i = 0;
 			if (str[0] == '#')
 			{
 				string colorvalue = str.Substring(1);

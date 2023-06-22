@@ -37,7 +37,7 @@ SpriteAtlas:
       m_BuildTarget: Android
       m_MaxTextureSize: 256
       m_ResizeAlgorithm: 0
-      m_TextureFormat: 47
+      m_TextureFormat: 48
       m_TextureCompression: 1
       m_CompressionQuality: 50
       m_CrunchedCompression: 0
